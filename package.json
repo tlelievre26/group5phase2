@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Retrieve metrics on npm modules hosted on GitHub",
   "main": "dist/index.js",
+  "bin": {
+    "./run": "./dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
