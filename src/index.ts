@@ -1,5 +1,3 @@
-#! /usr/bin/env node
-
 import {Command} from "commander";
 import {execSync} from "child_process";
 import * as fs from 'fs';
