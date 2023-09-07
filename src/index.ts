@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import dotenv from 'dotenv';
 
 import { Command } from "commander";
 import { execSync } from "child_process";
@@ -7,6 +8,8 @@ import * as fs from 'fs';
 
 import { MetricsController } from "./controllers/metrics-controller";
 import { container } from "./container"
+
+dotenv.config();
 
 const controller = container.resolve(MetricsController);
 
