@@ -1,6 +1,14 @@
-import {Command} from "commander";
-import {execSync} from "child_process";
+import 'reflect-metadata';
+
+import { Command } from "commander";
+import { execSync } from "child_process";
+
 import * as fs from 'fs';
+
+import { MetricsController } from "./controllers/metrics-controller";
+import { container } from "./container"
+
+const controller = container.resolve(MetricsController);
 
 const figlet = require("figlet");
 console.log(figlet.textSync("Module Metrics"));
@@ -32,17 +40,12 @@ program
 program
     // URL_FILE is the absolute location of a file consisting of an ASCII-encoded newline-delimited set of URLs
     .arguments("<URL_FILE>")
-    .action((URL_FILE) => {
-        if (!fs.existsSync(URL_FILE)) {
-            console.error(`File not found: ${URL_FILE}`);
+    .action((urlFilePath) => {
+        if (!fs.existsSync(urlFilePath)) {
+            console.error(`File not found: ${urlFilePath}`);
         } else {
             try {
-                const urls = fs.readFileSync(URL_FILE, 'utf-8').split('\n');
-                urls.forEach((url) => {
-                    if (url) {
-                        // Produce NDJSON output of scores for each URL
-                    }
-                });
+                controller.generateMetrics(urlFilePath);
             } catch (error) {
                 console.error((error as Error).message);
             }

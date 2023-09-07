@@ -1,0 +1,18 @@
+import { MetricsController } from "./controllers/metrics-controller";
+import { UrlFileProcessor } from "./services/url-file-processor";
+import { NpmUrlResolver } from "./services/npm-url-resolver";
+import { MetricsDataRetriever } from "./services/metrics-data-retriever";
+import { MetricsCalculator } from "./services/metrics-calculator";
+import { LicenseVerifier } from "./services/license-verifier";
+
+import { container } from 'tsyringe';
+
+
+container.register("MetricsController", {useClass: MetricsController});
+container.register("UrlFileProcessor", {useClass: UrlFileProcessor});
+container.register("NpmUrlResolver", {useClass: NpmUrlResolver});
+container.register("MetricsDataRetriever", {useClass: MetricsDataRetriever});
+container.register("MetricsCalculator", {useClass: MetricsCalculator});
+container.register("LicenseVerifier", {useClass: LicenseVerifier});
+
+export { container };
