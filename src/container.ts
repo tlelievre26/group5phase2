@@ -6,12 +6,17 @@ import { MetricsCalculator } from "./services/metrics-calculator";
 import { LicenseVerifier } from "./services/license-verifier";
 
 import { container } from 'tsyringe';
+import { GITHUB_TOKEN } from "./config";
 
 
 container.register("MetricsController", {useClass: MetricsController});
 container.register("UrlFileProcessor", {useClass: UrlFileProcessor});
 container.register("NpmUrlResolver", {useClass: NpmUrlResolver});
-container.register("MetricsDataRetriever", {useClass: MetricsDataRetriever});
+container.register("MetricsDataRetrieverToken", {
+    useFactory: () => {
+        return new MetricsDataRetriever(GITHUB_TOKEN);
+    }
+});
 container.register("MetricsCalculator", {useClass: MetricsCalculator});
 container.register("LicenseVerifier", {useClass: LicenseVerifier});
 
