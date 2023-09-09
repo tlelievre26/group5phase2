@@ -25,6 +25,7 @@ describe("MetricsController", () => {
     const mockToken = "GITHUB_TOKEN";
     const mockUrlFile = "URL_FILE";
     const mockMetrics: Metrics = {
+        Url: "url",
         BusFactor: 5,
         Correctness: 95,
         RampUp: 3,
@@ -43,7 +44,7 @@ describe("MetricsController", () => {
 
         (UrlFileProcessor.prototype.processUrlFile as jest.Mock).mockReturnValue(mockUrls);
         (MetricsDataRetriever.prototype.retrieveMetricsData as jest.Mock).mockReturnValue(mockData);
-        (MetricsCalculator.prototype.calculateMetrics as jest.Mock).mockReturnValue(mockMetrics);
+        (MetricsCalculator.prototype.calculateMetrics as jest.Mock).mockReturnValue([mockMetrics, mockMetrics]);
 
         metricsController = new MetricsController(
             mockUrlFileProcessor,
@@ -55,15 +56,16 @@ describe("MetricsController", () => {
 
     // TODO: Add tests for error cases
     describe("generateMetrics", () => {
-        it("should process, retrieve and calculate metrics, then output them in NDJSON format", () => {
+        it("should process, retrieve and calculate metrics, then output them in NDJSON format", async () => {
             const consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
 
-            metricsController.generateMetrics(mockUrlFile);
+            await metricsController.generateMetrics(mockUrlFile);
 
             expect(UrlFileProcessor.prototype.processUrlFile).toHaveBeenCalledWith(mockUrlFile);
             expect(MetricsDataRetriever.prototype.retrieveMetricsData).toHaveBeenCalledWith(mockUrls);
-            expect(MetricsCalculator.prototype.calculateMetrics).toHaveBeenCalledWith(mockData);
-            expect(consoleLogSpy).toHaveBeenCalledWith(JSON.stringify(mockMetrics));
+            expect(MetricsCalculator.prototype.calculateMetrics).toHaveBeenCalledWith(mockUrls, mockData);
+            expect(consoleLogSpy).toHaveBeenCalledWith([JSON.stringify(mockMetrics), JSON.stringify(mockMetrics)].join("\n"));
+
 
             consoleLogSpy.mockRestore();
         });

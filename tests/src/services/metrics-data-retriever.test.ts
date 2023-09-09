@@ -66,7 +66,7 @@ describe("MetricsDataRetriever", () => {
 
             const expectedOutput = {
                 repo: "mockRepo",
-                contributorCommitFrequency: new Map([
+                contributorCommits: new Map([
                     ["user1", 2], // user1 made 2 commits
                     ["user2", 1]  // user2 made 1 commit
                 ])
@@ -75,8 +75,8 @@ describe("MetricsDataRetriever", () => {
             const result = await dataRetriever.fetchBusFactorData("mockOwner", "mockRepo");
 
             expect(result.repo).toEqual(expectedOutput.repo);
-            expect([...result.contributorCommitFrequency.entries()])
-                .toEqual([...expectedOutput.contributorCommitFrequency.entries()]);
+            expect([...result.contributorCommits.entries()])
+                .toEqual([...expectedOutput.contributorCommits.entries()]);
         });
     });
 

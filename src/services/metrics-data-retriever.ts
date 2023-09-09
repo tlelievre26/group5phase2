@@ -35,7 +35,7 @@ export class MetricsDataRetriever {
         return Promise.all((await urls).map(async (url) => {
 
             // Extract owner and repo from GitHub URL
-            const { owner, repo } = await this.extractGitHubInfo(url);
+            const {owner, repo} = await this.extractGitHubInfo(url);
 
             // Fetch data for metrics sequentially
             // TODO: Implement throttling and change to parallel fetching
@@ -100,19 +100,19 @@ export class MetricsDataRetriever {
         const {repository} = await this.graphqlWithAuth(query);
 
         // Count the number of commits for each unique contributor using a map
-        const contributorCommitFrequency = new Map();
+        const contributorCommits = new Map();
         repository.defaultBranchRef.target.history.edges.forEach((edge: { node: { author: { user: { login: string; }; }; }; }) => {
             // Check author is not null before adding contributor to map
             if (edge.node.author?.user) {
                 const contributor = edge.node.author.user.login;
                 // Increment commit count for contributor
-                contributorCommitFrequency.set(contributor, (contributorCommitFrequency.get(contributor) || 0) + 1);
+                contributorCommits.set(contributor, (contributorCommits.get(contributor) || 0) + 1);
             }
         });
 
         return {
             repo: repo,
-            contributorCommitFrequency: contributorCommitFrequency
+            contributorCommits: contributorCommits
         };
     }
 
@@ -134,12 +134,18 @@ export class MetricsDataRetriever {
 
     }
 
+
+    /**
+     * Extracts owner and repo from a GitHub URL.
+     * @param url
+     * @private
+     */
     private async extractGitHubInfo(url: string): Promise<RepoIdentifier> {
         const urlMatch = url.match(this.GITHUB_URL_REGEX);
         if (!urlMatch) {
             throw new Error(`Invalid GitHub URL: ${url}`);
         }
-        const { 1: owner, 2: repo } = urlMatch;
-        return { owner, repo };
+        const {1: owner, 2: repo} = urlMatch;
+        return {owner, repo};
     }
 }
