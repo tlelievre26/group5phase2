@@ -1,10 +1,13 @@
 import { injectable } from "tsyringe";
 import { graphql } from "@octokit/graphql";
 
+import { RepoIdentifier } from "../types/repo-identifier";
+
 
 @injectable()
 export class MetricsDataRetriever {
 
+    private GITHUB_URL_REGEX = /github\.com\/([a-zA-Z0-9\-_]+)\/([a-zA-Z0-9\-_]+)/;
     private graphqlWithAuth: any;
 
 
@@ -26,21 +29,16 @@ export class MetricsDataRetriever {
      *
      * @param urls List of GitHub repository URLs.
      */
-    async retrieveMetricsData(urls: string[]): Promise<any[]> {
-
-        // Helper function to extract owner and repo name from URL
-        const extractOwnerAndRepo = (url: string): { owner: string; repo: string } => {
-            const path = new URL(url).pathname.split('/');
-            return {
-                owner: path[1],
-                repo: path[2]
-            };
-        };
+    async retrieveMetricsData(urls: Promise<string[]>): Promise<any[]> {
 
         // Fetch data for each URL in parallel and return the results
-        return await Promise.all(urls.map(async (url) => {
-            const {owner, repo} = extractOwnerAndRepo(url);
+        return Promise.all((await urls).map(async (url) => {
 
+            // Extract owner and repo from GitHub URL
+            const { owner, repo } = await this.extractGitHubInfo(url);
+
+            // Fetch data for metrics sequentially
+            // TODO: Implement throttling and change to parallel fetching
             const busFactorData = await this.fetchBusFactorData(owner, repo);
             const rampUpData = await this.fetchRampUpData(owner, repo);
             const correctnessData = await this.fetchCorrectnessData(owner, repo);
@@ -134,5 +132,14 @@ export class MetricsDataRetriever {
     async fetchResponsiveMaintainerData(owner: string, repo: string): Promise<any> {
 
 
+    }
+
+    private async extractGitHubInfo(url: string): Promise<RepoIdentifier> {
+        const urlMatch = url.match(this.GITHUB_URL_REGEX);
+        if (!urlMatch) {
+            throw new Error(`Invalid GitHub URL: ${url}`);
+        }
+        const { 1: owner, 2: repo } = urlMatch;
+        return { owner, repo };
     }
 }

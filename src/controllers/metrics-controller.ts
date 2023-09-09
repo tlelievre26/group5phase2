@@ -14,7 +14,7 @@ export class MetricsController {
     ) {
     }
 
-    public generateMetrics(urlFilePath: string): void {
+    async generateMetrics(urlFilePath: string): Promise<void> {
         // Process URL file to get list of GitHub URLs
         const urls = this.urlFileProcessor.processUrlFile(urlFilePath);
 

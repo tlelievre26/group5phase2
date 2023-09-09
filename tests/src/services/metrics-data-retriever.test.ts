@@ -27,7 +27,7 @@ describe("MetricsDataRetriever", () => {
             dataRetriever.fetchCorrectnessData = jest.fn().mockResolvedValue("correctnessDataMock");
             dataRetriever.fetchResponsiveMaintainerData = jest.fn().mockResolvedValue("responsiveMaintainerDataMock");
 
-            const result = await dataRetriever.retrieveMetricsData(["https://github.com/mockOwner/mockRepo"]);
+            const result = await dataRetriever.retrieveMetricsData(Promise.resolve(["https://github.com/mockOwner/mockRepo"]));
 
             expect(result).toEqual([
                 {
