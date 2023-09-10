@@ -10,7 +10,8 @@
 <!-- tocstop -->
 
 ## 🎯 Purpose
-...
+he purpose of this CLI is to determine the quality of NPM packages by using publically available data from GitHub. These metrics include BusFactor, Correctness, Ramp Up Time, Responsiveness Maintainer, and License all scored from [0,1], which are used to calculate a normalized total NetScore.
+
 ## 🛠 Setup Instructions
 Follow the steps below to get the `./run <URL_FILE>` command to work:
 
