@@ -4,7 +4,6 @@ dotenv.config();
 import 'reflect-metadata';
 
 import { Command } from "commander";
-import { execSync } from "child_process";
 
 import * as fs from 'fs';
 
@@ -23,15 +22,6 @@ program
     .version("1.0.0")
     .name("./run")
     .description("A CLI tool for analyzing npm modules");
-
-// ./run install -> npm install
-program
-    .command("install")
-    .description("Install dependencies")
-    .action(() => {
-        execSync("npm install", {stdio: "inherit"});
-        console.log("Dependencies successfully installed");
-    });
 
 // ./run test
 program

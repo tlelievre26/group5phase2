@@ -1,2 +1,31 @@
 #!/usr/bin/env node
-require("./dist/index.js");
+
+const { execSync } = require('child_process');
+const fs = require('fs');
+
+// Check the first argument passed to the script
+const command = process.argv[2];
+
+if (command === 'install') {
+    console.log('Installing dependencies...');
+
+    // First, install npm dependencies
+    execSync('npm install', { stdio: 'inherit' });
+
+    // Install TypeScript globally for compilation
+    execSync('npm install -g typescript', { stdio: 'inherit' });
+
+    // Compile the TypeScript files
+    execSync('tsc', { stdio: 'inherit' });
+
+    // Indicate that installation is done
+    fs.writeFileSync('.installed', 'Installation complete');
+
+    console.log('Installation completed.');
+
+} else if (fs.existsSync('./dist/index.js')) {
+    require('./dist/index.js');  // Load CLI
+} else {
+    console.error("The project hasn't been built yet. Please run './run install' first.");
+    process.exit(1);
+}
