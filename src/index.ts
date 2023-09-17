@@ -1,11 +1,13 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
+
+
 dotenv.config();
 
-import 'reflect-metadata';
+import "reflect-metadata";
 
 import { Command } from "commander";
 
-import * as fs from 'fs';
+import * as fs from "fs";
 
 import { MetricsController } from "./controllers/metrics-controller";
 import { container } from "./container"
@@ -28,6 +30,8 @@ program
     .command("test")
     .description("Run test suite")
     .action(() => {
+        console.log("Running tests...");
+        require("child_process").execSync("npm run test", {stdio: "inherit"});
     });
 
 // ./run <URL_FILE>
