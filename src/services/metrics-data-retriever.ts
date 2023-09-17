@@ -119,10 +119,15 @@ export class MetricsDataRetriever {
 
     async fetchCorrectnessData(owner: string, repo: string): Promise<any> {
 
-
     }
 
 
+    /**
+     * Fetches ramp up data for a GitHub repository.
+     *
+     * @param owner The owner of the repository.
+     * @param repo The name of the repository.
+     */
     async fetchRampUpData(owner: string, repo: string): Promise<any> {
 
 
@@ -131,7 +136,56 @@ export class MetricsDataRetriever {
 
     async fetchResponsiveMaintainerData(owner: string, repo: string): Promise<any> {
 
+        // Query for the last 100 issues of the repository and their creation and closure dates
+        const query = `
+      {
+          repository(owner: "${owner}", name: "${repo}") {
+            issues(last: 100, orderBy: {field: CREATED_AT, direction: DESC}) {
+              edges {
+                node {
+                  id
+                  title
+                  createdAt
+                  closedAt
+                }
+              }
+            }
+          }
+        }
+      `;
 
+        const response = await this.graphqlWithAuth(query);
+
+        const issues = response.repository.issues.edges;
+
+        // Initialize an array to store the time taken for each closed issue
+        const timeTakenForIssues: number[] = [];
+
+        issues.forEach((issue: any) => {
+            if (issue.node.closedAt) {
+                const createdAt = new Date(issue.node.createdAt).getTime();
+                const closedAt = new Date(issue.node.closedAt).getTime();
+                const timeTaken = closedAt - createdAt;
+                timeTakenForIssues.push(timeTaken);
+            }
+        });
+
+        // If no issues have been closed in the repository, return null and set flag to false
+        if (timeTakenForIssues.length === 0) {
+            return {
+                averageTimeInMillis: null,
+                closedIssuesExist: false
+            };
+        }
+
+        // Calculate total time for issues to be closed in milliseconds
+        const totalMillis = timeTakenForIssues.reduce((acc, time) => acc + time, 0);
+
+        // Return average time in milliseconds
+        return {
+            averageTimeInMillis: totalMillis / timeTakenForIssues.length,
+            closedIssuesExist: true
+        };
     }
 
 

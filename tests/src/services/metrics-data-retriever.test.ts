@@ -82,4 +82,34 @@ describe("MetricsDataRetriever", () => {
 
 
     // TODO: Add unit tests for fetchRampUpData, fetchCorrectnessData, fetchResponsiveMaintainerData
+
+
+    describe("fetchResponsiveMaintainerData", () => {
+        it("should fetch responsive maintainer data correctly", async () => {
+            // Sample mock data for the GraphQL query
+            const mockGraphqlResponse = {
+                repository: {
+                    issues: {
+                        edges: [
+                            { node: { createdAt: "2022-01-01T00:00:00Z", closedAt: "2022-01-02T00:00:00Z" } },
+                            { node: { createdAt: "2022-01-02T00:00:00Z", closedAt: "2022-01-03T00:00:00Z" } },
+                            { node: { createdAt: "2022-01-03T00:00:00Z", closedAt: null } } // Open issue
+                        ]
+                    }
+                }
+            };
+
+            (dataRetriever as any).graphqlWithAuth.mockResolvedValueOnce(mockGraphqlResponse);
+
+            // Expected output: average time to close an issue should be 24 hours (in milliseconds)
+            const expectedOutput = {
+                averageTimeInMillis: 24 * 60 * 60 * 1000,  // 24 hours in milliseconds
+                closedIssuesExist: true
+            };
+
+            const result = await dataRetriever.fetchResponsiveMaintainerData("mockOwner", "mockRepo");
+
+            expect(result).toEqual(expectedOutput);
+        });
+    });
 });
