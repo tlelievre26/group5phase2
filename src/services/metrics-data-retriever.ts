@@ -119,6 +119,7 @@ export class MetricsDataRetriever {
 
     async fetchCorrectnessData(owner: string, repo: string): Promise<any> {
 
+
     }
 
 
@@ -130,7 +131,55 @@ export class MetricsDataRetriever {
      */
     async fetchRampUpData(owner: string, repo: string): Promise<any> {
 
+        //Queries Github for Readme and Last Version Date
+        const query = `
+        {
+        repository(owner: "${owner}", name: "${repo}") {
+            updatedAt
+            object(expression: "master:README.md") {
+              ... on Blob {
+                text
+              }
+            }
+            defaultBranchRef {
+              target {
+                ... on Commit {
+                  history(first: 1) {
+                    edges {
+                      node {
+                        committedDate
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        `;
 
+        const {repository} = await this.graphqlWithAuth(query);
+
+        //Checks if Readme Exists and when it was Last Updated
+        let readmeContent = "";
+        let readmeLength = 0;
+        let lastUpdated = "";
+
+        if (repository?.object?.text) {
+            readmeContent = repository.object.text;
+            readmeLength = readmeContent.length;
+            lastUpdated = repository.updatedAt;
+        }
+        //The Last Version Commit of the Project or NULL
+        const lastCommit = repository.defaultBranchRef?.target?.history.edges[0]?.node.committedDate || null;
+
+        return {
+            repo: repo,
+            readmeContent: readmeContent,
+            readmeLength: readmeLength,
+            lastUpdated: lastUpdated,
+            lastCommit: lastCommit
+        };
     }
 
 

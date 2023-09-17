@@ -80,9 +80,52 @@ describe("MetricsDataRetriever", () => {
         });
     });
 
+    //Unit Test for fetchRampUpData
+    describe("fetchRampUpData", () => {
+        it("should fetch ramp-up data correctly", async () => {
+            // Sample mock data for the graphql query
+            const mockGraphqlResponse = {
+                repository: {
+                    updatedAt: "2023-09-15T12:00:00Z", // Sample updatedAt Date
+                    object: {
+                        text: "Sample README content" // Sample README Content
+                    },
+                    defaultBranchRef: {
+                        target: {
+                            history: {
+                                edges: [
+                                    { node: { committedDate: "2023-09-16T12:00:00Z" } }, // Mock Commit History
+                                    { node: { committedDate: "2023-09-15T12:00:00Z" } },
+                                ]
+                            }
+                        }
+                    }
+                }
+            };
 
-    // TODO: Add unit tests for fetchRampUpData, fetchCorrectnessData, fetchResponsiveMaintainerData
+            // Mock the graphqlWithAuth function to return the mock response
+            (dataRetriever as any).graphqlWithAuth.mockResolvedValueOnce(mockGraphqlResponse);
 
+            // Define the expected output based on the mock data
+            const expectedOutput = {
+                repo: "mockRepo",
+                readmeContent: "Sample README content", //Sample Expected Readme Content
+                readmeLength: 21, // Sample Expected Length
+                lastUpdated: "2023-09-15T12:00:00Z", // Sample Expected Last UpdatedAt
+                lastCommit: "2023-09-16T12:00:00Z" // Sample Expected Last Commit
+            };
+
+            // Call the fetchRampUpData method with sample arguments
+            const result = await dataRetriever.fetchRampUpData("mockOwner", "mockRepo");
+
+            // Assert that the result matches the expected output
+            expect(result.repo).toEqual(expectedOutput.repo);
+            expect(result.readmeContent).toEqual(expectedOutput.readmeContent);
+            expect(result.readmeLength).toEqual(expectedOutput.readmeLength);
+            expect(result.lastUpdated).toEqual(expectedOutput.lastUpdated);
+            expect(result.lastCommit).toEqual(expectedOutput.lastCommit);
+        });
+    });
 
     describe("fetchResponsiveMaintainerData", () => {
         it("should fetch responsive maintainer data correctly", async () => {
