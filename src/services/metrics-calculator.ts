@@ -129,11 +129,12 @@ export class MetricsCalculator {
             // Calculate the score based on the time difference
             RampUpScore += Math.max(0, 0.5 - timeDifference / maxTimeDifference);
         }
-        
+
         return RampUpScore;
     }
 
-        async calculateResponsiveMaintainer(responsiveMaintainerData: any): Promise<number> {
+
+    async calculateResponsiveMaintainer(responsiveMaintainerData: any): Promise<number> {
 
         if (!responsiveMaintainerData || !responsiveMaintainerData.averageTimeInMillis) {
             throw new Error("responsiveMaintainerData or averageTimeInMillis is undefined");
@@ -151,6 +152,8 @@ export class MetricsCalculator {
     async calculateNetScore(busFactor: number, correctness: number, rampUp: number,
                             responsiveMaintainer: number, license: boolean): Promise<number> {
 
-        return 0;
+        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license ? 1 : 0);
+
+        return NetScore;
     }
 }
