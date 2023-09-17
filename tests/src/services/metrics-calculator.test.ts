@@ -72,6 +72,15 @@ describe("MetricsCalculator", () => {
         });
     });
 
+    describe("calculateResponsiveMaintainer", () => {
+        it("should calculate for averageTimeInMillis = 1000 and closedIssuesExist = true", async () => {
+            // Mock average time in milliseconds (15 days)
+            const responsiveMaintainerData = {averageTimeInMillis: 1296000000, closedIssuesExist: true};
+            const result = await metricsCalculator.calculateResponsiveMaintainer(responsiveMaintainerData);
+            expect(result).toBeCloseTo(Math.exp(-0.5));
+        });
+    });
+
 
     // TODO: Add tests for calculateCorrectness, calculateRampUp, calculateResponsiveMaintainer, calculateNetScore
 });

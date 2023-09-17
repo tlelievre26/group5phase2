@@ -94,7 +94,6 @@ export class MetricsCalculator {
     }
 
 
-
     async calculateCorrectness(correctnessData: any): Promise<number> {
 
         return 0;
@@ -109,7 +108,16 @@ export class MetricsCalculator {
 
     async calculateResponsiveMaintainer(responsiveMaintainerData: any): Promise<number> {
 
-        return 0;
+        if (!responsiveMaintainerData || !responsiveMaintainerData.averageTimeInMillis) {
+            throw new Error("responsiveMaintainerData or averageTimeInMillis is undefined");
+        }
+
+        const lambda = 1 / (30 * 24 * 60 * 60 * 1000); // Using 30 days in milliseconds for scaling
+
+        // Calculate the score using the exponential scale
+        const score = Math.exp(-lambda * responsiveMaintainerData.averageTimeInMillis);
+
+        return Math.max(0, Math.min(1, score));  // Ensuring the score is within [0, 1]
     }
 
 
