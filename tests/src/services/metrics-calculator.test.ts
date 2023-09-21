@@ -17,48 +17,38 @@ describe("MetricsCalculator", () => {
 
     describe("calculateMetrics", () => {
         it("should calculate metrics for provided GitHub data", async () => {
-            const urlsPromise = Promise.resolve(["https://github.com/sample1", "https://github.com/sample2"]);
+
+            // Mocking calculate methods
+            metricsCalculator.calculateBusFactor = jest.fn().mockResolvedValue(0.25);
+            metricsCalculator.calculateCorrectness = jest.fn().mockResolvedValue(0.50);
+            metricsCalculator.calculateRampUp = jest.fn().mockResolvedValue(0.75);
+            metricsCalculator.calculateResponsiveMaintainer = jest.fn().mockResolvedValue(0.15);
+            metricsCalculator.calculateNetScore = jest.fn().mockResolvedValue(0.60);
 
             const mockData = [
                 {
                     busFactorData: {contributorCommits: new Map([["user1", 50], ["user2", 50]])},
                     correctnessData: {},
                     rampUpData: {},
-                    responsiveMaintainerData: {}
-                },
-                {
-                    busFactorData: {contributorCommits: new Map([["user1", 20], ["user2", 30], ["user3", 50]])},
-                    correctnessData: {},
-                    rampUpData: {},
-                    responsiveMaintainerData: {}
+                    responsiveMaintainerData: {averageTimeInMillis: 1000, closedIssuesExist: true}
                 }
             ];
 
-            const results = await metricsCalculator.calculateMetrics(urlsPromise, mockData);
+            const urlsPromise = Promise.resolve(["https://github.com/mockOwner/mockRepo"]);
 
-            // TODO Add other expected metrics for the URLs once implementation is done
-            const expectedResults = [
+            const result = await metricsCalculator.calculateMetrics(urlsPromise, mockData);
+
+            expect(result).toEqual([
                 {
-                    Url: "https://github.com/sample1",
-                    BusFactor: 0.5,
-                    Correctness: 0,
+                    Url: "https://github.com/mockOwner/mockRepo",
+                    BusFactor: 0.25,
+                    Correctness: 0.50,
+                    RampUp: 0.75,
+                    ResponsiveMaintainer: 0.15,
                     License: true,
-                    NetScore: 0,
-                    RampUp: 0,
-                    ResponsiveMaintainer: 0
-                },
-                {
-                    Url: "https://github.com/sample2",
-                    BusFactor: 0.33,
-                    Correctness: 0,
-                    License: true,
-                    NetScore: 0,
-                    RampUp: 0,
-                    ResponsiveMaintainer: 0
+                    NetScore: 0.60
                 }
-            ];
-
-            expect(results).toEqual(expectedResults);
+            ]);
         });
     });
 
@@ -77,7 +67,8 @@ describe("MetricsCalculator", () => {
         });
 
         it("should throw error for undefined contributorCommits", async () => {
-            await expect(metricsCalculator.calculateBusFactor({})).rejects.toThrow("busFactorData or contributorCommits is undefined");
+            await expect(metricsCalculator.calculateBusFactor({}))
+                .rejects.toThrow("busFactorData or contributorCommits is undefined");
         });
     });
 
