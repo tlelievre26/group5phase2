@@ -81,6 +81,65 @@ describe("MetricsCalculator", () => {
         });
     });
 
+    //Ramp Up Calculation Testing
+    describe("calculateRampUp", () => {
+        it("should calculate RampUpScore for a repository with a short README and close commit and update", async () => {
+            const rampUpData = {
+                readmeLength: 500, // Short README
+                lastUpdated: new Date("2023-09-01"), // Recent update
+                lastCommit: new Date("2023-09-01"), // Recent commit
+            };
+            const result = await metricsCalculator.calculateRampUp(rampUpData);
+            expect(result).toBeCloseTo(0.75); // Gets Partial Readme Points, and Full Commit/Update Closeness
+        });
+    
+        it("should calculate RampUpScore for a repository with a long README and very far apart commit and update", async () => {
+            const rampUpData = {
+                readmeLength: 1500, // Long README
+                lastUpdated: new Date("2023-08-01"), // Older update
+                lastCommit: new Date("2022-08-01"), // Older commit
+            };
+            const result = await metricsCalculator.calculateRampUp(rampUpData);
+            expect(result).toBeCloseTo(0.5); // Gets Full Readme Points, but No Commit/Update Closeness 
+        });
+    
+        it("should calculate RampUpScore for a repository with missing README", async () => {
+            const rampUpData = {
+                readmeLength: 0, // Missing README
+                lastUpdated: new Date("2023-09-01"), // Recent update
+                lastCommit: new Date("2023-09-01"), // Recent commit
+            };
+            const result = await metricsCalculator.calculateRampUp(rampUpData);
+            expect(result).toBe(0); // No README, so score should be 0
+        });
+    });
+    
+    //Netscore Testing
+    describe("calculateNetScore", () => {
+        it("should calculate NetScore when all metrics have high values and a license is present", async () => {
+            const result = await metricsCalculator.calculateNetScore(0.9, 0.9, 0.9, 0.9, true);
+            expect(result).toBeCloseTo(0.9); // Adjust expected score as needed
+        });
 
+        it("should calculate NetScore when all metrics have low values and a license is present", async () => {
+            const result = await metricsCalculator.calculateNetScore(0.1, 0.1, 0.1, 0.1, true);
+            expect(result).toBeCloseTo(0.1); // Adjust expected score as needed
+        });
+
+        it("should calculate NetScore when some metrics have high values and some have low values, and a license is present", async () => {
+            const result = await metricsCalculator.calculateNetScore(0.5, 0.7, 0.3, 0.6, true);
+            expect(result).toBeCloseTo(0.528); // Adjust expected score as needed
+        });-
+
+        it("should calculate NetScore when all metrics have high values but no license is present", async () => {
+            const result = await metricsCalculator.calculateNetScore(0.9, 0.9, 0.9, 0.9, false);
+            expect(result).toBe(0); // No license, so score should be 0
+        });
+
+        it("should calculate NetScore when all metrics have low values and no license is present", async () => {
+            const result = await metricsCalculator.calculateNetScore(0.1, 0.1, 0.1, 0.1, false);
+            expect(result).toBe(0); // No license, so score should be 0
+        });
+    });
     // TODO: Add tests for calculateCorrectness, calculateRampUp, calculateResponsiveMaintainer, calculateNetScore
 });
