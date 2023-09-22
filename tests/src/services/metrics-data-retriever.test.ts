@@ -80,6 +80,41 @@ describe("MetricsDataRetriever", () => {
         });
     });
 
+    describe("fetchCorrectnessData", () => {
+        it("should fetch correctness data correctly", async () => {
+            // Sample mock data for the GraphQl query
+            const mockGraphqlResponse = {
+                repository: {
+                    openIssues: {totalCount: 200},
+                    closedIssues: {totalCount: 436},
+                    openRequests: {totalCount: 177},
+                    closedRequests: {totalCount: 245},
+                    mergedRequests: {totalCount: 304}
+                }
+            };
+
+            (dataRetriever as any).graphqlWithAuth.mockResolvedValueOnce(mockGraphqlResponse);
+
+            // Define expected output
+            const expectedOutput = {
+                openIssues: 200,
+                closedIssues: 436,
+                openRequests: 177,
+                closedRequests: 245,
+                mergedRequests: 304
+            };
+
+            // Call fetchCorrectnessData method with mock arguments
+            const result = await dataRetriever.fetchCorrectnessData("mockOwner", "mockRepo");
+
+            // Assert that returned results match the expected output
+            expect(result.openIssues).toEqual(expectedOutput.openIssues);
+            expect(result.closedIssues).toEqual(expectedOutput.closedIssues);
+            expect(result.openRequests).toEqual(expectedOutput.openRequests);
+            expect(result.closedRequests).toEqual(expectedOutput.closedRequests);
+            expect(result.mergedRequests).toEqual(expectedOutput.mergedRequests);
+        });
+    });
     //Unit Test for fetchRampUpData
     describe("fetchRampUpData", () => {
         it("should fetch ramp-up data correctly", async () => {
