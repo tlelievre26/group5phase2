@@ -95,8 +95,105 @@ export class MetricsCalculator {
 
 
     async calculateCorrectness(correctnessData: any): Promise<number> {
+        // Handle potential error
+        if (!correctnessData) {
+            throw new Error("correctnessData is undefined");
+        }
 
-        return 0;
+        // Initialize correctness score
+        let correctnessScore = 0;
+
+        // Create constants
+        const openIssues = correctnessData.openIssues;
+        const closedIssues = correctnessData.closedIssues;
+        const openRequests = correctnessData.openRequests;
+        const closedRequests = correctnessData.closedRequests;
+        const mergedRequests = correctnessData.mergedRequests;
+        const mergedAndClosed = closedRequests + mergedRequests;
+
+        // Find total issues and pull requests
+        const totalIssues = openIssues + closedIssues;
+        const totalRequests = openRequests + closedRequests + mergedRequests;
+        
+
+        // If correctnessData is null, no need to calculate score
+        if (correctnessData == null) {
+            return correctnessScore;
+        }
+
+        // Calculate based on number of open and closed issues
+        if ((closedIssues + openIssues) === 0) {
+            correctnessScore += 0.5;
+        }
+        else if (closedIssues > openIssues) {
+            if (closedIssues >= (totalIssues * 0.9)) {
+                correctnessScore += 0.5;
+            }
+            else if (closedIssues >= (totalIssues * 0.75)) {
+                correctnessScore += 0.45;
+            }
+            else if (closedIssues >= (totalIssues * 0.6)) {
+                correctnessScore += 0.4;
+            }
+            else {
+                correctnessScore += 0.38;
+            }
+        }
+        else if (closedIssues < openIssues) {
+            if (openIssues >= (totalIssues * 0.9)) {
+                correctnessScore += 0.1;
+            }
+            else if (openIssues >= (totalIssues * 0.75)) {
+                correctnessScore += 0.15;
+            }
+            else if (openIssues >= (totalIssues * 0.6)) {
+                correctnessScore += 0.2;
+            }
+            else {
+                correctnessScore += 0.25;
+            }
+        }
+        else {
+            correctnessScore += 0.35;
+        }
+
+        // Calculate based on number of open, closed, and merged pull requests
+        if ((mergedAndClosed + openRequests) === 0) {
+            correctnessScore += 0.5;
+        }
+        else if (mergedAndClosed > openRequests) {
+            if (mergedAndClosed >= (totalRequests * 0.9)) {
+                correctnessScore += 0.5;
+            }
+            else if (mergedAndClosed >= (totalRequests * 0.75)) {
+                correctnessScore += 0.45;
+            }
+            else if (mergedAndClosed >= (totalRequests * 0.6)) {
+                correctnessScore += 0.4;
+            }
+            else {
+                correctnessScore += 0.38;
+            }
+        }
+        else if (mergedAndClosed < openRequests) {
+            if (openRequests >= (totalRequests * 0.9)) {
+                correctnessScore += 0.1;
+            }
+            else if (openRequests >= (totalRequests * 0.75)) {
+                correctnessScore += 0.2;
+            }
+            else if (openRequests >= (totalRequests * 0.6)) {
+                correctnessScore += 0.25;
+            }
+            else {
+                correctnessScore += 0.3
+            }
+        }
+        else {
+            correctnessScore += 0.35;
+        }
+
+        return correctnessScore;
     }
 
 
