@@ -19,7 +19,7 @@ export class NpmUrlResolver {
         const data = await response.json();
 
         if (!data.repository?.url) {
-            throw new Error(`No repository URL found for package: ${npmPackageName}`);
+            throw new Error(`No repository URL found for package: ${npmPackageName[1]}`);
         }
 
         return "https://" + data.repository.url.match(this.GITHUB_URL_REGEX)[0];
