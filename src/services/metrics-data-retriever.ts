@@ -118,8 +118,51 @@ export class MetricsDataRetriever {
 
 
     async fetchCorrectnessData(owner: string, repo: string): Promise<any> {
+      // Query GitHub API for issues and pull requests
+      const query = `{
+        repository(owner: "${owner}", name: "${repo}") {
+          openIssues: issues(states: OPEN) {
+            totalCount
+          }
+          closedIssues: issues(states: CLOSED) {
+            totalCount
+          },
+          openRequests: pullRequests(states: OPEN) {
+            totalCount
+          },
+          closedRequests: pullRequests(states: CLOSED) {
+            totalCount
+          },
+          mergedRequests: pullRequests(states: MERGED) {
+            totalCount
+          }
+        }
+      }`;
 
+      const {repository} = await this.graphqlWithAuth(query);
 
+      // Check if repository is defined
+      if (repository) {
+        // Get total counts for issues
+        const openIssues = repository.openIssues.totalCount;
+        const closedIssues = repository.closedIssues.totalCount;
+
+        // Get total counts for pull requests
+        const openRequests = repository.openRequests.totalCount;
+        const closedRequests = repository.closedRequests.totalCount;
+        const mergedRequests = repository.mergedRequests.totalCount;
+
+        return {
+          openIssues: openIssues,
+          closedIssues: closedIssues,
+          openRequests: openRequests,
+          closedRequests: closedRequests,
+          mergedRequests: mergedRequests
+        };
+      }
+      else {
+        return null;
+      }
     }
 
 
