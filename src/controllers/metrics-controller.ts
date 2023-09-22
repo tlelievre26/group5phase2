@@ -24,12 +24,11 @@ export class MetricsController {
         // Process URL file to get list of GitHub URLs
         const urls = this.urlFileProcessor.processUrlFile(urlFilePath);
 
-        // Retrieve metrics data from GitHub
+        // Retrieve metrics data from GitHub API
         const data = this.metricsDataRetriever.retrieveMetricsData(urls);
 
         // Calculate metrics using retrieved data
         const metrics = await this.metricsCalculator.calculateMetrics(urls, await data);
-
         // Output metrics to console in NDJSON format
         console.log(metrics.map(metric => JSON.stringify(metric)).join("\n"));
     }

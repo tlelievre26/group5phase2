@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process');
+const {execSync} = require('child_process');
 const fs = require('fs');
 
 // Check the first argument passed to the script
@@ -10,13 +10,16 @@ if (command === 'install') {
     console.log('Installing dependencies...');
 
     // First, install npm dependencies
-    execSync('npm install', { stdio: 'inherit' });
+    execSync('npm install', {stdio: 'inherit'});
 
-    // Install TypeScript globally for compilation
-    execSync('npm install -g typescript', { stdio: 'inherit' });
+    // Install TypeScript for compiling
+    execSync('npm install typescript --save-dev', {stdio: 'inherit'});
+
+    // Install jest for testing
+    execSync('npm install jest --save-dev', {stdio: 'inherit'});
 
     // Compile the TypeScript files
-    execSync('tsc', { stdio: 'inherit' });
+    execSync('npm run build', {stdio: 'inherit'});
 
     // Indicate that installation is done
     fs.writeFileSync('.installed', 'Installation complete');

@@ -40,13 +40,13 @@ describe("MetricsCalculator", () => {
 
             expect(result).toEqual([
                 {
-                    Url: "https://github.com/mockOwner/mockRepo",
-                    BusFactor: 0.25,
-                    Correctness: 0.50,
-                    RampUp: 0.75,
-                    ResponsiveMaintainer: 0.15,
-                    License: true,
-                    NetScore: 0.60
+                    URL: "https://github.com/mockOwner/mockRepo",
+                    BUS_FACTOR_SCORE: 0.25,
+                    CORRECTNESS_SCORE: 0.50,
+                    RAMP_UP_SCORE: 0.75,
+                    RESPONSIVE_MAINTAINER_SCORE: 0.15,
+                    LICENSE_SCORE: true,
+                    NET_SCORE: 0.60
                 }
             ]);
         });

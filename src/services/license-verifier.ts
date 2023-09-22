@@ -3,13 +3,14 @@ import * as git from "isomorphic-git";
 import http from "isomorphic-git/http/node";
 import { promises as fsPromises } from "fs";
 import { join } from "path";
+//import logger from "../utils/logger";
 
 
 @injectable()
 export class LicenseVerifier {
     public async verifyLicense(url: string): Promise<boolean> {
         if (!this.isValidGitHubURL(url)) {
-            console.error("Invalid GitHub URL");
+            //logger.error("GitHub URL was invalid in verifyLicense");
             throw new Error("GitHub URL was invalid in verifyLicense");
         }
 

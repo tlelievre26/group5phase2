@@ -25,13 +25,13 @@ describe("MetricsController", () => {
     const mockToken = "GITHUB_TOKEN";
     const mockUrlFile = "URL_FILE";
     const mockMetrics: Metrics = {
-        Url: "url",
-        BusFactor: 5,
-        Correctness: 95,
-        RampUp: 3,
-        ResponsiveMaintainer: 4,
-        License: true,
-        NetScore: 80
+        URL: "url",
+        BUS_FACTOR_SCORE: 5,
+        CORRECTNESS_SCORE: 95,
+        RAMP_UP_SCORE: 3,
+        RESPONSIVE_MAINTAINER_SCORE: 4,
+        LICENSE_SCORE: true,
+        NET_SCORE: 80
     };
 
 

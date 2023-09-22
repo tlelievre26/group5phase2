@@ -42,13 +42,13 @@ export class MetricsCalculator {
             const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license);
 
             return {
-                Url: url,
-                BusFactor: busFactor,
-                Correctness: correctness,
-                RampUp: rampUp,
-                ResponsiveMaintainer: responsiveMaintainer,
-                License: license,
-                NetScore: netScore
+                URL: url,
+                BUS_FACTOR_SCORE: busFactor,
+                CORRECTNESS_SCORE: correctness,
+                RAMP_UP_SCORE: rampUp,
+                RESPONSIVE_MAINTAINER_SCORE: responsiveMaintainer,
+                LICENSE_SCORE: license,
+                NET_SCORE: netScore
             };
         }));
     }
