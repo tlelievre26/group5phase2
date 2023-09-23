@@ -10,7 +10,7 @@
 <!-- tocstop -->
 
 ## 🎯 Purpose
-he purpose of this CLI is to determine the quality of NPM packages by using publically available data from GitHub. These metrics include BusFactor, Correctness, Ramp Up Time, Responsiveness Maintainer, and License all scored from [0,1], which are used to calculate a normalized total NetScore.
+The purpose of this CLI is to determine the quality of NPM packages by using publically available data from GitHub. These metrics include BusFactor, Correctness, Ramp Up Time, Responsiveness Maintainer, and License all scored from [0,1], which are used to calculate a normalized total NetScore.
 
 ## 🛠 Setup Instructions
 Follow the steps below to get the `./run <URL_FILE>` command to work:
@@ -49,7 +49,7 @@ Follow the steps below to get the `./run <URL_FILE>` command to work:
 
 - Your input should be a **plain text file** with each URL on a new line.
 - The `<URL_FILE>` should point to the absolute location of this file.
-
+> There is a sample file located in the root project directory: sample-url-file.txt. 
 ### 2. Supported URL Types
 
 Your file can contain URLs from:
