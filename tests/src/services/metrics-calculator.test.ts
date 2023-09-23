@@ -81,6 +81,32 @@ describe("MetricsCalculator", () => {
         });
     });
 
+    describe("calculateCorrectness", () => {
+        it("should calculate for more closed issues (than open issues) and more closed/merged requests (than open requests)", async () => {
+            const correctnessData = {openIssues: 24, closedIssues: 58, openRequests: 88, closedRequests: 91, mergedRequests: 122};
+            const result = await metricsCalculator.calculateCorrectness(correctnessData);
+            expect(result).toEqual(0.8);
+        });
+
+        it("should calculate for more open issues (than closed issues) and more open requests (than closed/merged requests)", async () => {
+            const correctnessData = {openIssues: 101, closedIssues: 56, openRequests: 88, closedRequests: 22, mergedRequests: 40};
+            const result = await metricsCalculator.calculateCorrectness(correctnessData);
+            expect(result).toEqual(0.5);
+        });
+
+        it("should calculate for more closed issues (than open issues) and more open requests (than closed/merged requests)", async () => {
+            const correctnessData = {openIssues: 4, closedIssues: 13, openRequests: 42, closedRequests: 10, mergedRequests: 12};
+            const result = await metricsCalculator.calculateCorrectness(correctnessData);
+            expect(result).toEqual(0.7);
+        });
+
+        it("should calculate for 0 issues (open and closed) and 0 requests (open, closed, and merged)", async () => {
+            const correctnessData = {openIssues: 0, closedIssues: 0, openRequests: 0, closedRequests: 0, mergedRequests: 0};
+            const result = await metricsCalculator.calculateCorrectness(correctnessData);
+            expect(result).toEqual(1);
+        });
+    });
+
     //Ramp Up Calculation Testing
     describe("calculateRampUp", () => {
         it("should calculate RampUpScore for a repository with a short README and close commit and update", async () => {
