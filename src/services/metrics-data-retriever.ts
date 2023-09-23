@@ -2,6 +2,7 @@ import { injectable } from "tsyringe";
 import { graphql } from "@octokit/graphql";
 
 import { RepoIdentifier } from "../types/repo-identifier";
+import logger from "../utils/logger";
 
 
 @injectable()
@@ -11,6 +12,11 @@ export class MetricsDataRetriever {
     private graphqlWithAuth: any;
 
 
+    /**
+     * Creates a new instance of the MetricsDataRetriever class.
+     *
+     * @param token
+     */
     constructor(token: string) {
         this.graphqlWithAuth = graphql.defaults({
             headers: {
@@ -24,8 +30,7 @@ export class MetricsDataRetriever {
      * Retrieves metrics data for a list of GitHub URLs.
      *
      * TODO:
-     *   - Handle errors
-     *   - Handle rate limiting/implement retries
+     *   - Implement retries
      *
      * @param urls List of GitHub repository URLs.
      */
@@ -33,24 +38,26 @@ export class MetricsDataRetriever {
 
         // Fetch data for each URL in parallel and return the results
         return Promise.all((await urls).map(async (url) => {
+            try {
+                // Extract owner and repo from GitHub URL
+                const {owner, repo} = await this.extractGitHubInfo(url);
 
-            // Extract owner and repo from GitHub URL
-            const {owner, repo} = await this.extractGitHubInfo(url);
+                const busFactorData = await this.fetchBusFactorData(owner, repo);
+                const rampUpData = await this.fetchRampUpData(owner, repo);
+                const correctnessData = await this.fetchCorrectnessData(owner, repo);
+                const responsiveMaintainerData = await this.fetchResponsiveMaintainerData(owner, repo);
 
-            // Fetch data for metrics sequentially
-            // TODO: Implement throttling and change to parallel fetching
-            const busFactorData = await this.fetchBusFactorData(owner, repo);
-            const rampUpData = await this.fetchRampUpData(owner, repo);
-            const correctnessData = await this.fetchCorrectnessData(owner, repo);
-            const responsiveMaintainerData = await this.fetchResponsiveMaintainerData(owner, repo);
-
-            return {
-                url,
-                busFactorData,
-                rampUpData,
-                correctnessData,
-                responsiveMaintainerData
-            };
+                return {
+                    url,
+                    busFactorData,
+                    rampUpData,
+                    correctnessData,
+                    responsiveMaintainerData
+                };
+            } catch (error) {
+                logger.error(`Error retrieving metrics data for URL ${url}:`, error);
+                throw error;
+            }
         }));
     }
 
@@ -58,9 +65,6 @@ export class MetricsDataRetriever {
     /**
      * Fetches bus factor data for a GitHub repository.
      *
-     * TODO:
-     *   - Handle errors
-     *   - Handle rate limiting/implement retries
      *
      * @param owner The owner of the repository.
      * @param repo The name of the repository.
@@ -117,9 +121,15 @@ export class MetricsDataRetriever {
     }
 
 
+    /**
+     * Fetches correctness data for a GitHub repository.
+     *
+     * @param owner
+     * @param repo
+     */
     async fetchCorrectnessData(owner: string, repo: string): Promise<any> {
-      // Query GitHub API for issues and pull requests
-      const query = `{
+        // Query GitHub API for issues and pull requests
+        const query = `{
         repository(owner: "${owner}", name: "${repo}") {
           openIssues: issues(states: OPEN) {
             totalCount
@@ -139,30 +149,29 @@ export class MetricsDataRetriever {
         }
       }`;
 
-      const {repository} = await this.graphqlWithAuth(query);
+        const {repository} = await this.graphqlWithAuth(query);
 
-      // Check if repository is defined
-      if (repository) {
-        // Get total counts for issues
-        const openIssues = repository.openIssues.totalCount;
-        const closedIssues = repository.closedIssues.totalCount;
+        // Check if repository is defined
+        if (repository) {
+            // Get total counts for issues
+            const openIssues = repository.openIssues.totalCount;
+            const closedIssues = repository.closedIssues.totalCount;
 
-        // Get total counts for pull requests
-        const openRequests = repository.openRequests.totalCount;
-        const closedRequests = repository.closedRequests.totalCount;
-        const mergedRequests = repository.mergedRequests.totalCount;
+            // Get total counts for pull requests
+            const openRequests = repository.openRequests.totalCount;
+            const closedRequests = repository.closedRequests.totalCount;
+            const mergedRequests = repository.mergedRequests.totalCount;
 
-        return {
-          openIssues: openIssues,
-          closedIssues: closedIssues,
-          openRequests: openRequests,
-          closedRequests: closedRequests,
-          mergedRequests: mergedRequests
-        };
-      }
-      else {
-        return null;
-      }
+            return {
+                openIssues: openIssues,
+                closedIssues: closedIssues,
+                openRequests: openRequests,
+                closedRequests: closedRequests,
+                mergedRequests: mergedRequests
+            };
+        } else {
+            return null;
+        }
     }
 
 

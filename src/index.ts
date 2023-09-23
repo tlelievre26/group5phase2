@@ -1,4 +1,6 @@
 import dotenv from "dotenv";
+
+
 dotenv.config();
 
 import "reflect-metadata";
@@ -17,7 +19,7 @@ import path from "path";
 const controller = container.resolve(MetricsController);
 
 const figlet = require("figlet");
-//console.log(figlet.textSync("Module Metrics"));
+logger.info(figlet.textSync("Module Metrics"));
 
 const program = new Command();
 
@@ -31,7 +33,7 @@ program
     .command("test")
     .description("Run test suite")
     .action(() => {
-        //logger.info("Starting test suite...");
+        logger.info("Starting test suite...");
 
         // Step 1: Run Jest tests
         exec("npx jest --coverage --coverageReporters=\"json-summary\" --json", (error, stdout, stderr) => {
@@ -46,15 +48,15 @@ program
             const passed = jestResult.numPassedTests;
 
             // Step 2: Read the coverage-summary.json
-            const coverageSummaryPath = path.join(process.cwd(), 'coverage', 'coverage-summary.json');
+            const coverageSummaryPath = path.join(process.cwd(), "coverage", "coverage-summary.json");
             if (fs.existsSync(coverageSummaryPath)) {
-                const coverageSummary = JSON.parse(fs.readFileSync(coverageSummaryPath, 'utf-8'));
+                const coverageSummary = JSON.parse(fs.readFileSync(coverageSummaryPath, "utf-8"));
 
                 const coveragePercentage = coverageSummary.total.lines.pct;
 
-                //logger.info(`Total: ${total}`);
-                //logger.info(`Passed: ${passed}`);
-                //logger.info(`Coverage: ${coveragePercentage}%`);
+                logger.info(`Total: ${total}`);
+                logger.info(`Passed: ${passed}`);
+                logger.info(`Coverage: ${coveragePercentage}%`);
                 process.stdout.write(`${passed}/${total} test cases passed. ${parseInt(coveragePercentage)}% line coverage achieved.`);
                 process.exit(0);
             } else {
@@ -72,10 +74,9 @@ program
             logger.error(`File not found: ${urlFilePath}`);
             process.exit(1);
         } else {
-            //console.log("Generating metrics...");
             controller.generateMetrics(urlFilePath)
                 .then(() => {
-                    //logger.info("Successfully generated metrics.");
+                    logger.info("Successfully generated metrics.");
                     process.exit(0);
                 })
                 .catch(error => {

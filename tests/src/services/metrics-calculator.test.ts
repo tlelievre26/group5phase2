@@ -167,5 +167,4 @@ describe("MetricsCalculator", () => {
             expect(result).toBe(0); // No license, so score should be 0
         });
     });
-    // TODO: Add tests for calculateCorrectness, calculateRampUp, calculateResponsiveMaintainer, calculateNetScore
 });

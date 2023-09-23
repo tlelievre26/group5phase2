@@ -6,6 +6,7 @@ import fs from "fs";
 
 // Mocks
 jest.mock("isomorphic-git");
+// Mocking the fs module to avoid writing to the file system
 jest.mock("fs", () => ({
     promises: {
         readFile: jest.fn(),

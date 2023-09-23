@@ -3,14 +3,19 @@ import * as git from "isomorphic-git";
 import http from "isomorphic-git/http/node";
 import { promises as fsPromises } from "fs";
 import { join } from "path";
-//import logger from "../utils/logger";
 
 
 @injectable()
 export class LicenseVerifier {
+
+    /**
+     * Verifies if a GitHub repository has a license.
+     *
+     * @param url
+     */
     public async verifyLicense(url: string): Promise<boolean> {
         if (!this.isValidGitHubURL(url)) {
-            //logger.error("GitHub URL was invalid in verifyLicense");
+            console.error("GitHub URL was invalid in verifyLicense");
             throw new Error("GitHub URL was invalid in verifyLicense");
         }
 
@@ -42,6 +47,11 @@ export class LicenseVerifier {
     }
 
 
+    /**
+     * Checks if a repository has a license file.
+     *
+     * @param filePath
+     */
     async repoHasLicense(filePath: string): Promise<boolean> {
         try {
             // List of licenses compatible with GNU Lesser General Public License v2.1
@@ -69,17 +79,35 @@ export class LicenseVerifier {
     }
 
 
+    /**
+     * Checks if a URL is a valid GitHub URL.
+     *
+     * @param url
+     * @private
+     */
     private isValidGitHubURL(url: string): boolean {
         return /^https?:\/\/github\.com\/[^\/]+\/[^\/]+(\/)?$/.test(url);
     }
 
 
+    /**
+     * Extracts the owner and repo from a GitHub URL.
+     *
+     * @param url
+     * @private
+     */
     private extractRepoIdFromUrl(url: string): string {
         const match = url.match(/github\.com\/([^\/]+\/[^\/]+)/);
         return match ? match[1].replace(/\//g, "_") : "default";
     }
 
 
+    /**
+     * Deletes a directory recursively.
+     *
+     * @param dir
+     * @private
+     */
     private async deleteDirectory(dir: string): Promise<void> {
         const entries = await fsPromises.readdir(dir, {withFileTypes: true});
         await Promise.all(entries.map(entry => {

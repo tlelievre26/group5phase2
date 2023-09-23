@@ -26,13 +26,14 @@ describe("MetricsController", () => {
     const mockUrlFile = "URL_FILE";
     const mockMetrics: Metrics = {
         URL: "url",
-        BUS_FACTOR_SCORE: 5,
-        CORRECTNESS_SCORE: 95,
-        RAMP_UP_SCORE: 3,
-        RESPONSIVE_MAINTAINER_SCORE: 4,
+        BUS_FACTOR_SCORE: 0.5,
+        CORRECTNESS_SCORE: 0.9,
+        RAMP_UP_SCORE: 0.3,
+        RESPONSIVE_MAINTAINER_SCORE: 0.5,
         LICENSE_SCORE: true,
-        NET_SCORE: 80
+        NET_SCORE: 1
     };
+
 
 
     beforeEach(() => {
@@ -44,7 +45,7 @@ describe("MetricsController", () => {
 
         (UrlFileProcessor.prototype.processUrlFile as jest.Mock).mockReturnValue(mockUrls);
         (MetricsDataRetriever.prototype.retrieveMetricsData as jest.Mock).mockReturnValue(mockData);
-        (MetricsCalculator.prototype.calculateMetrics as jest.Mock).mockReturnValue([mockMetrics, mockMetrics]);
+        (MetricsCalculator.prototype.calculateMetrics as jest.Mock).mockReturnValue([mockMetrics]);
 
         metricsController = new MetricsController(
             mockUrlFileProcessor,
@@ -53,21 +54,19 @@ describe("MetricsController", () => {
         );
     });
 
-
-    // TODO: Add tests for error cases
     describe("generateMetrics", () => {
         it("should process, retrieve and calculate metrics, then output them in NDJSON format", async () => {
-            const consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
+            const stdoutSpy = jest.spyOn(process.stdout, 'write').mockImplementation();
 
             await metricsController.generateMetrics(mockUrlFile);
 
             expect(UrlFileProcessor.prototype.processUrlFile).toHaveBeenCalledWith(mockUrlFile);
             expect(MetricsDataRetriever.prototype.retrieveMetricsData).toHaveBeenCalledWith(mockUrls);
             expect(MetricsCalculator.prototype.calculateMetrics).toHaveBeenCalledWith(mockUrls, mockData);
-            expect(consoleLogSpy).toHaveBeenCalledWith([JSON.stringify(mockMetrics), JSON.stringify(mockMetrics)].join("\n"));
+            expect(stdoutSpy).toHaveBeenCalledWith([JSON.stringify(mockMetrics)].join("\n"));
 
 
-            consoleLogSpy.mockRestore();
+           stdoutSpy.mockRestore();
         });
     });
 });

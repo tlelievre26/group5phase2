@@ -5,7 +5,7 @@ import { MetricsDataRetriever } from "./services/metrics-data-retriever";
 import { MetricsCalculator } from "./services/metrics-calculator";
 import { LicenseVerifier } from "./services/license-verifier";
 
-import { container } from 'tsyringe';
+import { container } from "tsyringe";
 import { GITHUB_TOKEN } from "./config";
 
 

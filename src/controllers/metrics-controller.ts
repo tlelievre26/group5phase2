@@ -4,6 +4,7 @@ import { UrlFileProcessor } from "../services/url-file-processor";
 import { MetricsDataRetriever } from "../services/metrics-data-retriever";
 import { MetricsCalculator } from "../services/metrics-calculator";
 import { Metrics } from "../types/metrics";
+import logger from "../utils/logger";
 
 
 @injectable()
@@ -21,15 +22,36 @@ export class MetricsController {
      * @param urlFilePath
      */
     async generateMetrics(urlFilePath: string): Promise<void> {
-        // Process URL file to get list of GitHub URLs
+        if (!urlFilePath) {
+            logger.error("URL file path is empty");
+            throw new Error("URL file path is empty");
+        }
+
+        logger.info(`Generating metrics for URLs in file ${urlFilePath}`);
+
+        logger.debug("Processing URL file...");
         const urls = this.urlFileProcessor.processUrlFile(urlFilePath);
 
+        logger.debug("Retrieving metrics data...");
         // Retrieve metrics data from GitHub API
         const data = this.metricsDataRetriever.retrieveMetricsData(urls);
 
-        // Calculate metrics using retrieved data
+        logger.debug("Calculating metrics scores...")
         const metrics = await this.metricsCalculator.calculateMetrics(urls, await data);
-        // Output metrics to console in NDJSON format
-        console.log(metrics.map(metric => JSON.stringify(metric)).join("\n"));
+
+        logger.debug("Outputting metrics...")
+        // Output metrics in NDJSON format
+        process.stdout.write(
+            metrics.map(metric => {
+                return JSON.stringify({
+                    ...metric,
+                    BUS_FACTOR_SCORE: parseFloat(metric.BUS_FACTOR_SCORE.toFixed(1)),
+                    CORRECTNESS_SCORE: parseFloat(metric.CORRECTNESS_SCORE.toFixed(1)),
+                    RAMP_UP_SCORE: parseFloat(metric.RAMP_UP_SCORE.toFixed(1)),
+                    RESPONSIVE_MAINTAINER_SCORE: parseFloat(metric.RESPONSIVE_MAINTAINER_SCORE.toFixed(1)),
+                    NET_SCORE: parseFloat(metric.NET_SCORE.toFixed(1))
+                });
+            }).join("\n")
+        );
     }
 }

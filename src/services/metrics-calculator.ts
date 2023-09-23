@@ -2,6 +2,7 @@ import { inject, injectable } from "tsyringe";
 import { LicenseVerifier } from "./license-verifier";
 
 import { Metrics } from "../types/metrics";
+import logger from "../utils/logger";
 
 
 @injectable()
@@ -15,49 +16,58 @@ export class MetricsCalculator {
     /**
      * Calculates metrics for a list of GitHub URLs.
      *
-     * TODO: Implement error handling
      *
      * @param urlsPromise
      * @param data
      */
     public async calculateMetrics(urlsPromise: Promise<string[]>, data: any[]): Promise<Metrics[]> {
-        const urls = await urlsPromise;
+        try {
+            const urls = await urlsPromise;
+            logger.debug(`Calculating metrics for ${urls.length} URLs...`);
 
-        // Calculate metrics for each URL in parallel and return the results
-        return Promise.all(urls.map(async (url, index) => {
-            const urlData = data[index];
-            const [
-                busFactor,
-                correctness,
-                rampUp,
-                responsiveMaintainer
-            ] = await Promise.all([
-                this.calculateBusFactor(urlData.busFactorData),
-                this.calculateCorrectness(urlData.correctnessData),
-                this.calculateRampUp(urlData.rampUpData),
-                this.calculateResponsiveMaintainer(urlData.responsiveMaintainerData)
-            ]);
+            // Calculate metrics for each URL in parallel and return the results
+            return await Promise.all(urls.map(async (url, index) => {
+                const urlData = data[index];
+                try {
+                    const [
+                        busFactor,
+                        correctness,
+                        rampUp,
+                        responsiveMaintainer
+                    ] = await Promise.all([
+                        this.calculateBusFactor(urlData.busFactorData),
+                        this.calculateCorrectness(urlData.correctnessData),
+                        this.calculateRampUp(urlData.rampUpData),
+                        this.calculateResponsiveMaintainer(urlData.responsiveMaintainerData)
+                    ]);
 
-            const license = await this.licenseVerifier.verifyLicense(url);
-            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license);
+                    const license = await this.licenseVerifier.verifyLicense(url);
+                    const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license);
 
-            return {
-                URL: url,
-                BUS_FACTOR_SCORE: busFactor,
-                CORRECTNESS_SCORE: correctness,
-                RAMP_UP_SCORE: rampUp,
-                RESPONSIVE_MAINTAINER_SCORE: responsiveMaintainer,
-                LICENSE_SCORE: license,
-                NET_SCORE: netScore
-            };
-        }));
+                    return {
+                        URL: url,
+                        BUS_FACTOR_SCORE: busFactor,
+                        CORRECTNESS_SCORE: correctness,
+                        RAMP_UP_SCORE: rampUp,
+                        RESPONSIVE_MAINTAINER_SCORE: responsiveMaintainer,
+                        LICENSE_SCORE: license,
+                        NET_SCORE: netScore
+                    };
+                } catch (error) {
+                    logger.error(`Error calculating metrics for URL ${url}:`, error);
+                    throw error;
+                }
+            }));
+        } catch (error) {
+            logger.error("Error in calculateMetrics:", error);
+            throw error;
+        }
     }
 
 
     /**
      * Calculates the bus factor for a GitHub repository
      *
-     * TODO: Implement error handling
      *
      * @param busFactorData
      */
@@ -87,13 +97,15 @@ export class MetricsCalculator {
         }
 
         // Normalize the count to a score between 0 and 1
-        const busFactorScore = count === 0 ? 0 : count / contributorArray.length;
-
-        // Return score rounded to 2 decimal places
-        return Math.round(busFactorScore * 100) / 100;
+        return count === 0 ? 0 : count / contributorArray.length
     }
 
 
+    /**
+     * Calculates the correctness score for a GitHub repository
+     *
+     * @param correctnessData
+     */
     async calculateCorrectness(correctnessData: any): Promise<number> {
         // Handle potential error
         if (!correctnessData) {
@@ -114,7 +126,7 @@ export class MetricsCalculator {
         // Find total issues and pull requests
         const totalIssues = openIssues + closedIssues;
         const totalRequests = openRequests + closedRequests + mergedRequests;
-        
+
 
         // If correctnessData is null, no need to calculate score
         if (correctnessData == null) {
@@ -124,72 +136,54 @@ export class MetricsCalculator {
         // Calculate based on number of open and closed issues
         if ((closedIssues + openIssues) === 0) {
             correctnessScore += 0.5;
-        }
-        else if (closedIssues > openIssues) {
+        } else if (closedIssues > openIssues) {
             if (closedIssues >= (totalIssues * 0.9)) {
                 correctnessScore += 0.5;
-            }
-            else if (closedIssues >= (totalIssues * 0.75)) {
+            } else if (closedIssues >= (totalIssues * 0.75)) {
                 correctnessScore += 0.45;
-            }
-            else if (closedIssues >= (totalIssues * 0.6)) {
+            } else if (closedIssues >= (totalIssues * 0.6)) {
                 correctnessScore += 0.4;
-            }
-            else {
+            } else {
                 correctnessScore += 0.38;
             }
-        }
-        else if (closedIssues < openIssues) {
+        } else if (closedIssues < openIssues) {
             if (openIssues >= (totalIssues * 0.9)) {
                 correctnessScore += 0.1;
-            }
-            else if (openIssues >= (totalIssues * 0.75)) {
+            } else if (openIssues >= (totalIssues * 0.75)) {
                 correctnessScore += 0.15;
-            }
-            else if (openIssues >= (totalIssues * 0.6)) {
+            } else if (openIssues >= (totalIssues * 0.6)) {
                 correctnessScore += 0.2;
-            }
-            else {
+            } else {
                 correctnessScore += 0.25;
             }
-        }
-        else {
+        } else {
             correctnessScore += 0.35;
         }
 
         // Calculate based on number of open, closed, and merged pull requests
         if ((mergedAndClosed + openRequests) === 0) {
             correctnessScore += 0.5;
-        }
-        else if (mergedAndClosed > openRequests) {
+        } else if (mergedAndClosed > openRequests) {
             if (mergedAndClosed >= (totalRequests * 0.9)) {
                 correctnessScore += 0.5;
-            }
-            else if (mergedAndClosed >= (totalRequests * 0.75)) {
+            } else if (mergedAndClosed >= (totalRequests * 0.75)) {
                 correctnessScore += 0.45;
-            }
-            else if (mergedAndClosed >= (totalRequests * 0.6)) {
+            } else if (mergedAndClosed >= (totalRequests * 0.6)) {
                 correctnessScore += 0.4;
-            }
-            else {
+            } else {
                 correctnessScore += 0.38;
             }
-        }
-        else if (mergedAndClosed < openRequests) {
+        } else if (mergedAndClosed < openRequests) {
             if (openRequests >= (totalRequests * 0.9)) {
                 correctnessScore += 0.1;
-            }
-            else if (openRequests >= (totalRequests * 0.75)) {
+            } else if (openRequests >= (totalRequests * 0.75)) {
                 correctnessScore += 0.2;
-            }
-            else if (openRequests >= (totalRequests * 0.6)) {
+            } else if (openRequests >= (totalRequests * 0.6)) {
                 correctnessScore += 0.25;
-            }
-            else {
+            } else {
                 correctnessScore += 0.3
             }
-        }
-        else {
+        } else {
             correctnessScore += 0.35;
         }
 
@@ -197,6 +191,11 @@ export class MetricsCalculator {
     }
 
 
+    /**
+     * Calculates the ramp up score for a GitHub repository
+     *
+     * @param rampUpData
+     */
     async calculateRampUp(rampUpData: any): Promise<number> {
 
         //Initializes the RampUpScore
@@ -231,6 +230,11 @@ export class MetricsCalculator {
     }
 
 
+    /**
+     * Calculates the responsive maintainer score for a GitHub repository
+     *
+     * @param responsiveMaintainerData
+     */
     async calculateResponsiveMaintainer(responsiveMaintainerData: any): Promise<number> {
 
         if (!responsiveMaintainerData || !responsiveMaintainerData.averageTimeInMillis) {
@@ -246,6 +250,15 @@ export class MetricsCalculator {
     }
 
 
+    /**
+     * Calculates the Net Score for a GitHub repository
+     *
+     * @param busFactor
+     * @param correctness
+     * @param rampUp
+     * @param responsiveMaintainer
+     * @param license
+     */
     async calculateNetScore(busFactor: number, correctness: number, rampUp: number,
                             responsiveMaintainer: number, license: boolean): Promise<number> {
 
