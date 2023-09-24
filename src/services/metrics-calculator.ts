@@ -237,11 +237,12 @@ export class MetricsCalculator {
      */
     async calculateResponsiveMaintainer(responsiveMaintainerData: any): Promise<number> {
 
+        // Error is the responsive data is not fetched properly
         if (!responsiveMaintainerData || !responsiveMaintainerData.averageTimeInMillis) {
             throw new Error("responsiveMaintainerData or averageTimeInMillis is undefined");
         }
 
-        const lambda = 1 / (30 * 24 * 60 * 60 * 1000); // Using 30 days in milliseconds for scaling
+        const lambda = 1 / (30 * 24 * 60 * 60 * 1000); // Using 30 days as a benchmark in milliseconds for scaling 
 
         // Calculate the score using the exponential scale
         const score = Math.exp(-lambda * responsiveMaintainerData.averageTimeInMillis);
@@ -262,6 +263,7 @@ export class MetricsCalculator {
     async calculateNetScore(busFactor: number, correctness: number, rampUp: number,
                             responsiveMaintainer: number, license: boolean): Promise<number> {
 
+        // Formulae for the Net Score                        
         const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license ? 1 : 0);
 
         return NetScore;
