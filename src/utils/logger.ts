@@ -1,15 +1,21 @@
-import { ILogObj, ISettingsParam, Logger } from "tslog";
+import { ILogObj, Logger } from "tslog";
 import * as fs from "fs";
-import { appendFileSync } from "fs";
+import * as path from "path";
+import * as os from 'os';
 
 // Parse the LOG_LEVEL environment variable, defaulting to 0 if none found
 const logLevel: number = parseInt(process.env.LOG_LEVEL || "0", 10);
-const logFilePath = process.env.LOG_FILE;
 
-if (!logFilePath) {
+let logFileName : string;
+if (process.env.LOG_FILE) {
+    logFileName = path.basename(process.env.LOG_FILE);
+}
+else {
     console.log("Log file path is not set. Exiting (Code 1)...");
     throw new Error("Log file path is not set. Exiting (Code 1)...");
 }
+
+const logFilePath = path.join(os.tmpdir(), logFileName);
 
 // Ensure the log file exists. If not, create it.
 if (!fs.existsSync(logFilePath)) {
@@ -48,7 +54,9 @@ switch (logLevel) {
 // Attach the file transport
 log.debug("Attaching file transport...");
 log.attachTransport((logObj) => {
-    appendFileSync(logFilePath, JSON.stringify(logObj) + "\n");
+    fs.appendFile(logFilePath, JSON.stringify(logObj) + "\n", err => {
+        if(err) log.error("Error writing to log file:", err);
+    });
 });
 
 log.info(`Logger configured with minLevel=${log.settings.minLevel}, type=${log.settings.type}`);
