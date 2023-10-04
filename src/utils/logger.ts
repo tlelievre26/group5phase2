@@ -15,18 +15,19 @@ else {
     throw new Error("Log file path is not set. Exiting (Code 1)...");
 }
 
+
 const logFilePath = path.join(os.tmpdir(), logFileName);
 
 // Ensure the log file exists. If not, create it.
 if (!fs.existsSync(logFilePath)) {
-    console.log("Log file does not exist. Creating...");
     fs.writeFileSync(logFilePath, "");
 }
 
 // Create a new logger instance
 const log: Logger<ILogObj> = new Logger({
     name: "ModuleMetricsCLI",
-    minLevel: 0 // default verbosity is 0
+    minLevel: 0, // default verbosity is 0
+    type: "hidden"
 });
 
 switch (logLevel) {
@@ -50,14 +51,16 @@ switch (logLevel) {
         throw new Error("Configuration Error in logger.ts. Exiting (Code 1)...");
 }
 
-
+if (logLevel != 0) {
 // Attach the file transport
-log.debug("Attaching file transport...");
-log.attachTransport((logObj) => {
-    fs.appendFile(logFilePath, JSON.stringify(logObj) + "\n", err => {
-        if(err) log.error("Error writing to log file:", err);
+    log.debug("Attaching file transport...");
+    log.attachTransport((logObj) => {
+        fs.appendFile(logFilePath, JSON.stringify(logObj) + "\n", err => {
+            if (err) log.error("Error writing to log file:", err);
+        });
     });
-});
+}
 
+log.debug("Log file path is set to: " + path.join(os.tmpdir(), logFileName));
 log.info(`Logger configured with minLevel=${log.settings.minLevel}, type=${log.settings.type}`);
 export default log;
