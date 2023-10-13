@@ -13,6 +13,10 @@ jobs:
   phase1tests:
     runs-on: ubuntu-latest
 
+    env: #Define environment variables for the runtime
+      GITHUB_TOKEN: ${{ secrets.GithubAPITokenTaylor }}
+      LOG_LEVEL: 0
+      LOG_FILE: "./logging.txt"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,6 +28,8 @@ jobs:
 
       - name: Setup Repo
         run: ./run install
+
+      -
 
       - name: Run Tests
         run: ./run test

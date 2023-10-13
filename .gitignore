@@ -2,3 +2,5 @@
 node_modules/
 dist/
 checker.py
+coverage/
+logging.txt
