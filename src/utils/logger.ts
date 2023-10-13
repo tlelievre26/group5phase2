@@ -11,6 +11,7 @@ if (process.env.LOG_FILE) {
     logFileName = path.basename(process.env.LOG_FILE);
 }
 else {
+    console.log(process.env.LOG_FILE)
     console.log("Log file path is not set. Exiting (Code 1)...");
     throw new Error("Log file path is not set. Exiting (Code 1)...");
 }

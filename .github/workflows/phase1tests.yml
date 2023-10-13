@@ -16,7 +16,8 @@ jobs:
     env: #Define environment variables for the runtime
       GITHUB_TOKEN: ${{ secrets.GithubAPITokenTaylor }}
       LOG_LEVEL: 0
-      LOG_FILE: "./logging.txt"
+      LOG_FILE: "logging.txt"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
