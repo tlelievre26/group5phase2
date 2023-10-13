@@ -237,8 +237,8 @@ export class MetricsCalculator {
      */
     async calculateResponsiveMaintainer(responsiveMaintainerData: any): Promise<number> {
 
-        // Error is the responsive data is not fetched properly
-        if (!responsiveMaintainerData || !responsiveMaintainerData.averageTimeInMillis) {
+        // Error if the responsive data is not fetched properly
+        if (!responsiveMaintainerData || (!responsiveMaintainerData.averageTimeInMillis && responsiveMaintainerData.closedIssuesExist)) {
             throw new Error("responsiveMaintainerData or averageTimeInMillis is undefined");
         }
 
