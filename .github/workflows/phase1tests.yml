@@ -30,7 +30,5 @@ jobs:
       - name: Setup Repo
         run: ./run install
 
-      -
-
       - name: Run Tests
         run: ./run test
