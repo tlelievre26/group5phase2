@@ -17,125 +17,341 @@ app.post('/packages', (req: Request, res: Response) => {
 
     //The response is paginated; the response header includes the offset to use in the next query.
 
-    // Request body schema: schemas.PackageQuery[]
-    // Response schema: schemas.PackageMetadata[]
-    // Query parameter: offset (optional) - schemas.EnumerateOffset
-    
+    //QUESTION
+    //So how do we match packages to the query? The example in the spec just says "string" and gets matches based off version
+    //It's an array input, can we assume each entry in the array is something we should try to match?
+    //Also, should we match either the version or the name or should we only return packages that match both?
 
+    //Post requests have a "request body" that is the data being posted
+    const req_body: schemas.PackageQuery[] = req.body;
+    const offset = req.params.offset;
+    const auth_token = req.params.auth_token;
+    var response_obj: schemas.PackageMetadata[];
+
+
+
+
+    var response_code = 0; //Probably wont implement it like this, just using it as a placeholder
+
+    if(response_code == 200) {
+        res.status(200).send("Successfully queried for X packages");
+    }
+    else if(response_code == 400) {
+        if(auth_token) { //If its invalid
+        //VALIDATION CHECK UNIMPLEMENTED
+            res.status(400).send("Invalid auth token");
+        }
+        else {
+            res.status(400).send("Invalid or malformed request body");
+        }
+    }
+    else if(response_code == 413) {
+        res.status(413).send("Too many packages returned");
+    }
 
     res.send('List of packages');
 });
 
+
 // Endpoint to reset the registry
 app.delete('/reset', (req: Request, res: Response) => {
-  // Handle the DELETE request for /reset
-  // Check 'X-Authorization' header for permissions
-  // Reset the registry to a default state
+    //Reset the registry to a system default state.
 
-  // Replace with your implementation
-  res.send('Registry is reset');
+    const auth_token = req.params.auth_token;
+    var response_code = 0; //Probably wont implement it like this, just using it as a placeholder
+
+
+
+
+    if(response_code == 200) {
+        res.status(200).send("Successfully reset registry to default state");
+    }
+    else if(response_code == 400) {
+        res.status(400).send("Invalid auth token");
+    }
+    else if(response_code == 401) {
+        res.status(401).send("You do not have permission to reset the registry");
+    }
 });
+
 
 // Endpoint to retrieve a specific package by ID
 app.get('/package/:id', (req: Request, res: Response) => {
-  const { id } = req.params;
+    //Return this package
+    const id = req.params.id;
+    const auth_token = req.params.auth_token;
+    var response_obj: schemas.Package;
 
-  // Handle the GET request for /package/:id
-  // Retrieve the package with the given ID
-  // Check 'X-Authorization' header for authentication
 
-  // Replace with your implementation
-  res.send(`Retrieve package with ID: ${id}`);
+
+
+
+    var response_code = 0; //Probably wont implement it like this, just using it as a placeholder
+
+    if(response_code == 200) {
+        res.status(200).send("Successfully returned {packageName}");
+    }
+    else if(response_code == 400) {
+        if(auth_token) { //If its invalid
+            //VALIDATION CHECK UNIMPLEMENTED
+            res.status(400).send("Invalid auth token");
+        }
+        else {
+            res.status(400).send("Invalid package ID");
+        }
+    }
+    else if(response_code == 401) {
+        res.status(401).send("You do not have permission to reset the registry");
+    }
+
+    res.send(`Retrieve package with ID: ${id}`);
 });
+
 
 // Endpoint to update a package by ID
 app.put('/package/:id', (req: Request, res: Response) => {
-  const { id } = req.params;
+    //The name, version, and ID must match.
+    //The package contents (from PackageData) will replace the previous contents.
 
-  // Handle the PUT request for /package/:id
-  // Update the package with the given ID
-  // Check 'X-Authorization' header for authentication
+    const req_body: schemas.Package = req.body;
+    const id = req.params.id;
+    const auth_token = req.params.auth_token;
 
-  // Replace with your implementation
-  res.send(`Update package with ID: ${id}`);
+
+
+
+    var response_code = 0; //Probably wont implement it like this, just using it as a placeholder
+
+    if(response_code == 200) {
+        res.status(200).send("Successfully updated {packageName} to version X");
+    }
+    else if(response_code == 400) {
+        if(auth_token) { //If its invalid
+            //VALIDATION CHECK UNIMPLEMENTED
+            res.status(400).send("Invalid auth token");
+        }
+        else {
+            res.status(400).send("Invalid package ID in header");
+        }
+    }
+    else if(response_code == 404) {
+        res.status(404).send("Could not find existing package with matching name, ID, and version");
+    }
+
+    res.send(`Update package with ID: ${id}`);
 });
+
 
 // Endpoint to delete a package by ID
 app.delete('/package/:id', (req: Request, res: Response) => {
-  const { id } = req.params;
 
-  // Handle the DELETE request for /package/:id
-  // Delete the package with the given ID
-  // Check 'X-Authorization' header for authentication
+    const id = req.params.id;
+    const auth_token = req.params.auth_token;
 
-  // Replace with your implementation
-  res.send(`Delete package with ID: ${id}`);
+
+
+
+
+    var response_code = 0; //Probably wont implement it like this, just using it as a placeholder
+
+    if(response_code == 200) {
+        res.status(200).send("Successfully deleted {packageName} from the registry");
+    }
+    else if(response_code == 400) {
+        if(auth_token) { //If its invalid
+            //VALIDATION CHECK UNIMPLEMENTED
+            res.status(400).send("Invalid auth token");
+        }
+        else {
+            res.status(400).send("Invalid package ID in header");
+        }
+    }
+    else if(response_code == 404) {
+        res.status(404).send("Could not find existing package with matching ID");
+    }
+    res.send(`Delete package with ID: ${id}`);
 });
+
 
 // Endpoint to create a new package
 app.post('/package', (req: Request, res: Response) => {
-  // Handle the POST request for /package
-  // Create a new package based on the request data
-  // Check 'X-Authorization' header for authentication
+    const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
+    const auth_token = req.params.auth_token;
+    var response_obj: schemas.Package;
 
-  // Replace with your implementation
-  res.send('Package is created');
+
+
+
+    var response_code = 0; //Probably wont implement it like this, just using it as a placeholder
+
+    if(response_code == 201) {
+        res.status(201).send("Successfully created new package {packageName} with ID = {id}");
+    }
+    else if(response_code == 400) {
+        if(auth_token) { //If its invalid
+            //VALIDATION CHECK UNIMPLEMENTED
+            res.status(400).send("Invalid auth token");
+        }
+        else {
+            res.status(400).send("Invalid or malformed PackageData in request body");
+        }
+    }
+    else if(response_code == 409) {
+        res.status(404).send("Uploaded package already exists in registry");
+    }
+    else if(response_code == 424) {
+        //Should probably return the scores along with the message
+        res.status(404).send("npm package failed to pass rating check for public ingestion");
+    }
 });
+
 
 // Endpoint to get the rating of a package by ID
 app.get('/package/:id/rate', (req: Request, res: Response) => {
-  const { id } = req.params;
+    //Gets scores for the specified package
+    const id = req.params.id;
+    const auth_token = req.params.auth_token;
+    var response_obj: schemas.PackageRating;
 
-  // Handle the GET request for /package/:id/rate
-  // Retrieve the rating of the package with the given ID
-  // Check 'X-Authorization' header for authentication
 
-  // Replace with your implementation
-  res.send(`Get rating for package with ID: ${id}`);
+
+
+    var response_code = 0; //Probably wont implement it like this, just using it as a placeholder
+
+    if(response_code == 200) {
+        res.status(200).send("Successfully rated {packageName}");
+    }
+    else if(response_code == 400) {
+        if(auth_token) { //If its invalid
+            //VALIDATION CHECK UNIMPLEMENTED
+            res.status(400).send("Invalid auth token");
+        }
+        else {
+            res.status(400).send("Invalid package ID");
+        }
+    }
+    else if(response_code == 404) {
+        res.status(404).send("Could not find existing package with matching ID");
+    }
+    else if(response_code == 500) {
+        res.status(500).send("Fatal error during rating calculations");
+    }
+    res.send(`Get rating for package with ID: ${id}`);
 });
+
 
 // Endpoint to authenticate and obtain an access token
 app.put('/authenticate', (req: Request, res: Response) => {
-  // Handle the PUT request for /authenticate
-  // Authenticate the user and return an access token
-  // Check 'X-Authorization' header for authentication support
+    //Create an access token.
+    const req_body: schemas.AuthenticationRequest = req.body;
 
-  // Replace with your implementation
-  res.send('Access token is obtained');
+
+
+
+    var response_code = 0; //Probably wont implement it like this, just using it as a placeholder
+
+    if(response_code == 200) {
+        res.status(200).send("Successfully created new auth token");
+    }
+    else if(response_code == 400) {
+        res.status(400).send("Invalid or malformed AuthenticationRequest in request body");
+    }
+    else if(response_code == 401) {
+        res.status(401).send("Invalid username/password");
+    }
+    else if(response_code == 501) {
+        res.status(501).send("This system does not support authentication");
+    }
+
+    res.send('Access token is obtained');
 });
+
 
 // Endpoint to get the history of a package by name
 app.get('/package/byName/:name', (req: Request, res: Response) => {
-  const { name } = req.params;
+    const name = req.params.name;
+    const auth_token = req.params.auth_token;
+    var response_obj: schemas.PackageHistoryEntry[];
 
-  // Handle the GET request for /package/byName/:name
-  // Retrieve the history of the package with the given name
-  // Check 'X-Authorization' header for authentication
 
-  // Replace with your implementation
-  res.send(`Get history for package with name: ${name}`);
+
+    var response_code = 0; //Probably wont implement it like this, just using it as a placeholder
+
+    if(response_code == 200) {
+        res.status(200).send("Successfully retrieved package history");
+    }
+    else if(response_code == 400) {
+        if(auth_token) { //If its invalid
+            //VALIDATION CHECK UNIMPLEMENTED
+            res.status(400).send("Invalid auth token");
+        }
+        else {
+            res.status(400).send("Invalid package name");
+        }
+    }
+    else if(response_code == 404) {
+        res.status(404).send("Could not find existing package with matching name");
+    }
+    res.send(`Get history for package with name: ${name}`);
 });
+
 
 // Endpoint to delete all versions of a package by name
 app.delete('/package/byName/:name', (req: Request, res: Response) => {
-  const { name } = req.params;
+    const name = req.params.name;
+    const auth_token = req.params.auth_token;
 
-  // Handle the DELETE request for /package/byName/:name
-  // Delete all versions of the package with the given name
-  // Check 'X-Authorization' header for authentication
 
-  // Replace with your implementation
-  res.send(`Delete all versions of package with name: ${name}`);
+
+
+    var response_code = 0; //Probably wont implement it like this, just using it as a placeholder
+
+    if(response_code == 200) {
+        res.status(200).send("Successfully deleted all versions of package with name {packageName}");
+    }
+    else if(response_code == 400) {
+        if(auth_token) { //If its invalid
+            //VALIDATION CHECK UNIMPLEMENTED
+            res.status(400).send("Invalid auth token");
+        }
+        else {
+            res.status(400).send("Invalid package name");
+        }
+    }
+    else if(response_code == 404) {
+        res.status(404).send("Could not find existing package with matching name");
+    }
+    res.send(`Deleted all versions of package with name: ${name}`);
 });
+
 
 // Endpoint to get packages based on a regular expression
 app.post('/package/byRegEx', (req: Request, res: Response) => {
-  // Handle the POST request for /package/byRegEx
-  // Retrieve packages based on the provided regular expression
-  // Check 'X-Authorization' header for authentication
+    //Search for a package using regular expression over package names and READMEs. This is similar to search by name.
 
-  // Replace with your implementation
-  res.send('Get packages based on regular expression');
+    const auth_token = req.params.auth_token;
+    const regex: schemas.PackageRegEx = req.body;
+    var response_obj: schemas.PackageMetadata[];
+
+
+    var response_code = 0; //Probably wont implement it like this, just using it as a placeholder
+
+    if(response_code == 200) {
+        res.status(200).send("Successfully retrieved package history");
+    }
+    else if(response_code == 400) {
+        if(auth_token) { //If its invalid
+            //VALIDATION CHECK UNIMPLEMENTED
+            res.status(400).send("Invalid auth token");
+        }
+        else {
+            res.status(400).send("Invalid or malformed PackageRegEx in request body");
+        }
+    }
+    else if(response_code == 404) {
+        res.status(404).send("Could not find existing package matching regex");
+    }
+    res.send('Get packages based on regular expression');
 });
 
 app.listen(PORT, () => {
