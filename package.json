@@ -1,8 +1,8 @@
 {
-  "name": "ece461-cli",
+  "name": "ece461-group5phase2",
   "version": "1.0.0",
-  "description": "Retrieve metrics on npm modules hosted on GitHub",
-  "main": "dist/index.js",
+  "description": "RESTful API for custom package manager",
+  "main": "dist/app.js",
   "bin": {
     "./run": "run"
   },
@@ -13,14 +13,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yasmiins/ece461-npm-module-metrics.git"
+    "url": "git+https://github.com/tlelievr27/group5-ece461-npm-module-metrics"
   },
   "author": "",
   "license": "LGPL-2.1",
-  "bugs": {
-    "url": "https://github.com/yasmiins/ece461-npm-module-metrics/issues"
-  },
-  "homepage": "https://github.com/yasmiins/ece461-npm-module-metrics#readme",
   "dependencies": {
     "@octokit/graphql": "^7.0.1",
     "commander": "^11.0.0",

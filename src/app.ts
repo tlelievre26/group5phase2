@@ -14,5 +14,3 @@ app.use(api_router); //Tells it to use the routes defined in the router in our a
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
-
-export default app;
