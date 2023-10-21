@@ -18,7 +18,7 @@ import * as schemas from "../models/api_schemas"
 
 
 export const getPackageQuery = (req: Request, res: Response) => {
-
+    console.log("Got a package query request");
     //Get any packages fitting the query. Search for packages satisfying the indicated query.
 
     //If you want to enumerate all packages, provide an array with a single PackageQuery whose name is "*".
@@ -74,7 +74,7 @@ export const getPkgById = (req: Request, res: Response) => {
     var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
 
     if(response_code == 200) {
-        res.status(200).send("Successfully returned {packageName}");
+        res.status(200).send(`Successfully returned {packageName} with ID = ${id}`);
     }
     else if(response_code == 400) {
         if(auth_token) { //If its invalid
@@ -89,7 +89,7 @@ export const getPkgById = (req: Request, res: Response) => {
         res.status(401).send("You do not have permission to reset the registry");
     }
 
-    res.send(`Retrieve package with ID: ${id}`);
+    //res.send(`Retrieve package with ID: ${id}`);
 }
 
 export const updatePkgById = (req: Request, res: Response) => {
@@ -155,9 +155,22 @@ export const deletePkgById = (req: Request, res: Response) => {
 
 export const createPkg =  (req: Request, res: Response) => {
     const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
-    const auth_token = req.params.auth_token;
-    var response_obj: schemas.Package;
 
+    var response_obj: schemas.Package;
+    console.log(req_body)
+    //Would the GitHub URL be the "ingestion of npm package" in the spec?
+
+    if(req_body.hasOwnProperty("URL") && !req_body.hasOwnProperty("Content")) {
+        console.log("Provided URL to GitHub repo")
+        //parseUrlToZip(req_body.URL);
+    }
+    else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
+        console.log("Contents uploaded directly")
+        //Steps: Take the contents and save it to an AWS bucket 
+    }
+    else {
+        return res.status(400).send("Invalid or malformed PackageData in request body");
+    }
 
 
 
@@ -165,15 +178,6 @@ export const createPkg =  (req: Request, res: Response) => {
 
     if(response_code == 201) {
         res.status(201).send("Successfully created new package {packageName} with ID = {id}");
-    }
-    else if(response_code == 400) {
-        if(auth_token) { //If its invalid
-            //VALIDATION CHECK UNIMPLEMENTED
-            res.status(400).send("Invalid auth token");
-        }
-        else {
-            res.status(400).send("Invalid or malformed PackageData in request body");
-        }
     }
     else if(response_code == 409) {
         res.status(404).send("Uploaded package already exists in registry");

@@ -10,9 +10,12 @@ function verifyAuthToken(req: Request, res: Response, next: NextFunction) {
     if (!authToken) {
         return res.status(400).json({ error: 'Authorization token is missing' });
     }
+    else {
+        console.log(authToken)
+    }
 
     // Here you would verify the validity of the token, for example by decoding it and checking its expiration date
-    // If the token is invalid, you would return a 401 Unauthorized response
+    // If the token is invalid, you would return a 400 Unauthorized response
 
 
 

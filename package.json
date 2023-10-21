@@ -3,11 +3,8 @@
   "version": "1.0.0",
   "description": "RESTful API for custom package manager",
   "main": "dist/app.js",
-  "bin": {
-    "./run": "run"
-  },
   "scripts": {
-    "build": "tsc",
+    "build": "npx tsc",
     "start": "node run",
     "test": "npx jest"
   },
@@ -19,6 +16,7 @@
   "license": "LGPL-2.1",
   "dependencies": {
     "@octokit/graphql": "^7.0.1",
+    "aws-sdk": "^2.1478.0",
     "commander": "^11.0.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
