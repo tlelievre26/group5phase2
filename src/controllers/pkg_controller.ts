@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, response } from 'express';
 import * as schemas from "../models/api_schemas"
 
 //Controllers are basically a way to organize the functions called by your API
@@ -35,11 +35,10 @@ export const getPackageQuery = (req: Request, res: Response) => {
     const offset = req.params.offset;
     const auth_token = req.params.auth_token;
     var response_obj: schemas.PackageMetadata[];
+    var response_code; //Probably wont implement it like this, just using it as a placeholder
 
 
-
-
-    var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
+    response_code = 200;
 
     if(response_code == 200) {
         res.status(200).send("Successfully queried for X packages");

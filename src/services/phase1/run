@@ -27,7 +27,7 @@ if (command === 'install') {
     console.log('Installation completed.');
 
 } else if (fs.existsSync('./dist/index.js')) {
-    require('./dist/index.js');  // Load CLI
+    require('../../../dist/index.js');  // Load CLI
 } else {
     console.error("The project hasn't been built yet. Please run './run install' first.");
     process.exit(1);
