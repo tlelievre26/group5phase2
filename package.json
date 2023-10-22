@@ -6,7 +6,9 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node run",
-    "test": "npx jest"
+    "test": "npx jest",
+    "lint": "eslint . --ext .ts"
+
   },
   "repository": {
     "type": "git",
