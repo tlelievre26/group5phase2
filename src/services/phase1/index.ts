@@ -17,7 +17,7 @@ import path from "path";
 
 const controller = container.resolve(MetricsController);
 
-const figlet = require("figlet");
+import figlet from "figlet";
 logger.info(figlet.textSync("Module Metrics"));
 
 const program = new Command();

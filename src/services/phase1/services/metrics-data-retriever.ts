@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { injectable } from "tsyringe";
 import { graphql } from "@octokit/graphql";
 

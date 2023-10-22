@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import { UrlFileProcessor } from "../../../src/services/url-file-processor";
-import { NpmUrlResolver } from "../../../src/services/npm-url-resolver";
+import { UrlFileProcessor } from "../../../services/url-file-processor";
+import { NpmUrlResolver } from "../../../services/npm-url-resolver";
 import fs from "fs";
 
 // Mocks
-jest.mock("../../../src/services/npm-url-resolver");
+jest.mock("../../../services/npm-url-resolver");
 jest.mock("fs");
 
 const mockNpmUrlResolver = new NpmUrlResolver();

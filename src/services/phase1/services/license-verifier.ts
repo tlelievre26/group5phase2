@@ -72,6 +72,7 @@ export class LicenseVerifier {
                 return licenseRegExp.test(fileText);
             });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error.code === "ENOENT") return false;
             throw new Error("An error occurred in repoHasLicense: " + error);
@@ -86,7 +87,7 @@ export class LicenseVerifier {
      * @private
      */
     private isValidGitHubURL(url: string): boolean {
-        return /^https?:\/\/github\.com\/[^\/]+\/[^\/]+(\/)?$/.test(url);
+        return /^https?:\/\/github\.com\/[^/]+\/[^/]+(\/)?$/.test(url);
     }
 
 
@@ -97,7 +98,7 @@ export class LicenseVerifier {
      * @private
      */
     private extractRepoIdFromUrl(url: string): string {
-        const match = url.match(/github\.com\/([^\/]+\/[^\/]+)/);
+        const match = url.match(/github\.com\/([^/]+\/[^/]+)/);
         return match ? match[1].replace(/\//g, "_") : "default";
     }
 

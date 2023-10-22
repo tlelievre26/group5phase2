@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { LicenseVerifier } from "../../../src/services/license-verifier";
+import { LicenseVerifier } from "../../../services/license-verifier";
 import * as git from "isomorphic-git";
 import fs from "fs";
 

@@ -1,19 +1,19 @@
 import "reflect-metadata";
 
-import { MetricsController } from "../../../src/controllers/metrics-controller";
-import { UrlFileProcessor } from "../../../src/services/url-file-processor";
-import { MetricsDataRetriever } from "../../../src/services/metrics-data-retriever";
-import { MetricsCalculator } from "../../../src/services/metrics-calculator";
-import { Metrics } from "../../../src/types/metrics";
-import { NpmUrlResolver } from "../../../src/services/npm-url-resolver";
-import { LicenseVerifier } from "../../../src/services/license-verifier";
+import { MetricsController } from "../../../controllers/metrics-controller";
+import { UrlFileProcessor } from "../../../services/url-file-processor";
+import { MetricsDataRetriever } from "../../../services/metrics-data-retriever";
+import { MetricsCalculator } from "../../../services/metrics-calculator";
+import { Metrics } from "../../../types/metrics";
+import { NpmUrlResolver } from "../../../services/npm-url-resolver";
+import { LicenseVerifier } from "../../../services/license-verifier";
 
 
-jest.mock("../../../src/services/url-file-processor")
-jest.mock("../../../src/services/npm-url-resolver");
-jest.mock("../../../src/services/metrics-data-retriever");
-jest.mock("../../../src/services/metrics-calculator");
-jest.mock("../../../src/services/license-verifier");
+jest.mock("../../../services/url-file-processor")
+jest.mock("../../../services/npm-url-resolver");
+jest.mock("../../../services/metrics-data-retriever");
+jest.mock("../../../services/metrics-calculator");
+jest.mock("../../../services/license-verifier");
 
 
 describe("MetricsController", () => {
