@@ -1,4 +1,4 @@
-name: phase1tests
+name: Linter
 
 on:
   push:
@@ -27,8 +27,8 @@ jobs:
         with:
           node-version: 18.x
 
-      - name: Setup Repo
-        run: ./run install
+    - name: Install dependencies
+        run: npm ci
 
-      - name: Run Tests
-        run: ./run test
+    - name: Lint
+        run: npm run lint

@@ -163,14 +163,29 @@ export const createPkg =  (req: Request, res: Response) => {
     if(req_body.hasOwnProperty("URL") && !req_body.hasOwnProperty("Content")) {
         console.log("Provided URL to GitHub repo")
         //parseUrlToZip(req_body.URL);
+        //Calculate scores for repo using URL and see if it passes
+
+        //***CAN WE RETOOL THE PHASE 1 REPO TO JUST TAKE IN THE URL DIRECTLY */
+
+        //If it does, get the zipped version of the file from the GitHub API endpoint /repos/{owner}/{repo}/zipball/{ref}
+
+        //*** ORIGINAL GROUP USED GRAPHQL, DO WE HAVE TO DO THE SAME FOR FUTURE API CALLS*/
+
+        //Convert zipped contexts to base64 text
+        //Proceed as normal
     }
     else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
         console.log("Contents uploaded directly")
-        //Steps: Take the contents and save it to an AWS bucket 
+        
     }
     else {
         return res.status(400).send("Invalid or malformed PackageData in request body");
     }
+    
+    //Steps: Take the contents and save it to an AWS bucket 
+    //Extract contents and get metadata from package.json
+    //Calculate scores for repo and store all relevant info in our database
+    //Create response object
 
 
 
