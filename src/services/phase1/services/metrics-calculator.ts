@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, injectable } from "tsyringe";
 import { LicenseVerifier } from "./license-verifier";
 

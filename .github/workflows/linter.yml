@@ -1,4 +1,4 @@
-name: phase1tests
+name: linter
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  phase1tests:
+  linter:
     runs-on: ubuntu-latest
 
     env: #Define environment variables for the runtime
@@ -27,8 +27,8 @@ jobs:
         with:
           node-version: 18.x
 
-      - name: Setup Repo
-        run: ./run install
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Run Tests
-        run: ./run test
+      - name: Lint
+        run: npm run lint

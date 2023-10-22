@@ -1,9 +1,9 @@
 import "reflect-metadata";
-import { MetricsCalculator } from "../../../src/services/metrics-calculator";
-import { LicenseVerifier } from "../../../src/services/license-verifier";
+import { MetricsCalculator } from "../../../services/metrics-calculator";
+import { LicenseVerifier } from "../../../services/license-verifier";
 
 
-jest.mock("../../../src/services/license-verifier");
+jest.mock("../../../services/license-verifier");
 
 describe("MetricsCalculator", () => {
     let metricsCalculator: MetricsCalculator;

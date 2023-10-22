@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { injectable } from "tsyringe";
 import { graphql } from "@octokit/graphql";
 
@@ -293,9 +294,9 @@ export class MetricsDataRetriever {
     /**
      * Extracts owner and repo from a GitHub URL.
      * @param url
-     * @private
+     * 
      */
-    private async extractGitHubInfo(url: string): Promise<RepoIdentifier> {
+    async extractGitHubInfo(url: string): Promise<RepoIdentifier> {
         const urlMatch = url.match(this.GITHUB_URL_REGEX);
         if (!urlMatch) {
             throw new Error(`Invalid GitHub URL: ${url}`);
