@@ -1,4 +1,4 @@
-name: lint
+name: linter
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  lint:
+  linter:
     runs-on: ubuntu-latest
 
     env: #Define environment variables for the runtime
