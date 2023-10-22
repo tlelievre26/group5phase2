@@ -1,4 +1,4 @@
-name: Linter
+name: lint
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  phase1tests:
+  lint:
     runs-on: ubuntu-latest
 
     env: #Define environment variables for the runtime
