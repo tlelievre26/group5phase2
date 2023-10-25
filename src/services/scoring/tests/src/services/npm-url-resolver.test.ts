@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "reflect-metadata";
-import { NpmUrlResolver } from "../../../services/npm-url-resolver";
+import { NpmUrlResolver } from "../../../legacy/npm-url-resolver";
 
 
 const mockFetch = jest.fn();

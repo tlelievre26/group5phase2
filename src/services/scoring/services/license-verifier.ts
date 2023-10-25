@@ -3,6 +3,7 @@ import * as git from "isomorphic-git";
 import http from "isomorphic-git/http/node";
 import { promises as fsPromises } from "fs";
 import { join } from "path";
+import e from "express";
 
 
 @injectable()
@@ -13,7 +14,7 @@ export class LicenseVerifier {
      *
      * @param url
      */
-    public async verifyLicense(url: string): Promise<boolean> {
+    public async verifyLicense(url: string): Promise<number> {
         if (!this.isValidGitHubURL(url)) {
             console.error("GitHub URL was invalid in verifyLicense");
             throw new Error("GitHub URL was invalid in verifyLicense");
@@ -35,11 +36,18 @@ export class LicenseVerifier {
             const licenseFilePath = join(dirPath, "LICENSE.md");
             const readmeFilePath = join(dirPath, "README.md");
 
-            return await this.repoHasLicense(licenseFilePath) || await this.repoHasLicense(readmeFilePath);
+            if(await this.repoHasLicense(licenseFilePath) || await this.repoHasLicense(readmeFilePath)) {
+                return 1;
+            }
+            else { 
+                return 0;
+            }
+
+
 
         } catch (error) {
             console.error("An error occurred in verifyLicense: ", error);
-            return false;
+            return 0;
         } finally {
             // Cleanup
             await this.deleteDirectory(dirPath);

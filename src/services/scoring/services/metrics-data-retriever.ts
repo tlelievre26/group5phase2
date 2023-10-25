@@ -2,8 +2,8 @@
 import { injectable } from "tsyringe";
 import { graphql } from "@octokit/graphql";
 
-import { RepoIdentifier } from "../types/repo-identifier";
-import logger from "../utils/logger";
+import { extractGitHubInfo } from "./parseURL";
+import logger from "../../../utils/logger";
 
 
 @injectable()
@@ -35,31 +35,30 @@ export class MetricsDataRetriever {
      *
      * @param urls List of GitHub repository URLs.
      */
-    async retrieveMetricsData(urls: Promise<string[]>): Promise<any[]> {
+    async retrieveMetricsData(url: string): Promise<any> {
+      try {
+        // Extract owner and repo from GitHub URL
+        const {owner, repo} = await extractGitHubInfo(url);
 
-        // Fetch data for each URL in parallel and return the results
-        return Promise.all((await urls).map(async (url) => {
-            try {
-                // Extract owner and repo from GitHub URL
-                const {owner, repo} = await this.extractGitHubInfo(url);
+        const busFactorData = await this.fetchBusFactorData(owner, repo);
+        const rampUpData = await this.fetchRampUpData(owner, repo);
+        const correctnessData = await this.fetchCorrectnessData(owner, repo);
+        const responsiveMaintainerData = await this.fetchResponsiveMaintainerData(owner, repo);
+        //Note we do NOT include pinning data here, as its obtained by parsing the package.json from a local clone
+        const pullRequestData = await this.fetchPullRequestData(owner, repo);
 
-                const busFactorData = await this.fetchBusFactorData(owner, repo);
-                const rampUpData = await this.fetchRampUpData(owner, repo);
-                const correctnessData = await this.fetchCorrectnessData(owner, repo);
-                const responsiveMaintainerData = await this.fetchResponsiveMaintainerData(owner, repo);
-
-                return {
-                    url,
-                    busFactorData,
-                    rampUpData,
-                    correctnessData,
-                    responsiveMaintainerData
-                };
-            } catch (error) {
-                logger.error(`Error retrieving metrics data for URL ${url}:`, error);
-                throw error;
-            }
-        }));
+        return {
+          url,
+          busFactorData,
+          rampUpData,
+          correctnessData,
+          responsiveMaintainerData,
+          pullRequestData
+        };
+      } catch (error) {
+        logger.error(`Error retrieving metrics data for URL ${url}:`, error);
+        throw error;
+      }
     }
 
 
@@ -290,18 +289,22 @@ export class MetricsDataRetriever {
         };
     }
 
-
-    /**
-     * Extracts owner and repo from a GitHub URL.
-     * @param url
-     * 
-     */
-    async extractGitHubInfo(url: string): Promise<RepoIdentifier> {
-        const urlMatch = url.match(this.GITHUB_URL_REGEX);
-        if (!urlMatch) {
-            throw new Error(`Invalid GitHub URL: ${url}`);
-        }
-        const {1: owner, 2: repo} = urlMatch;
-        return {owner, repo};
+    async fetchPullRequestData(owner: string, repo: string): Promise<any> {
+      //TO IMPLEMENT:
+      //GitHub API calls within this function that get relevant data for pull requests metric
+      return null
     }
+
+
+
+    // async extractGitHubInfo(url: string): Promise<RepoIdentifier> {
+    //     const urlMatch = url.match(this.GITHUB_URL_REGEX);
+    //     if (!urlMatch) {
+    //         throw new Error(`Invalid GitHub URL: ${url}`);
+    //     }
+    //     const {1: owner, 2: repo} = urlMatch;
+    //     return {owner, repo};
+    // }
+
+    //Moved this to its own file, other things want to call this outside this class
 }

@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, injectable } from "tsyringe";
 import { LicenseVerifier } from "./license-verifier";
+import { PackageRating } from "../../../models/api_schemas";
 
-import { Metrics } from "../types/metrics";
-import logger from "../utils/logger";
+import logger from "../../../utils/logger";
+import { pull } from "isomorphic-git";
 
 
 @injectable()
@@ -21,46 +22,49 @@ export class MetricsCalculator {
      * @param urlsPromise
      * @param data
      */
-    public async calculateMetrics(urlsPromise: Promise<string[]>, data: any[]): Promise<Metrics[]> {
+    public async calculateMetrics(url: string, data: any): Promise<PackageRating> {
+
         try {
-            const urls = await urlsPromise;
-            logger.debug(`Calculating metrics for ${urls.length} URLs...`);
+            logger.debug(`Calculating metrics for ${url}...`);
 
-            // Calculate metrics for each URL in parallel and return the results
-            return await Promise.all(urls.map(async (url, index) => {
-                const urlData = data[index];
-                try {
-                    const [
-                        busFactor,
-                        correctness,
-                        rampUp,
-                        responsiveMaintainer
-                    ] = await Promise.all([
-                        this.calculateBusFactor(urlData.busFactorData),
-                        this.calculateCorrectness(urlData.correctnessData),
-                        this.calculateRampUp(urlData.rampUpData),
-                        this.calculateResponsiveMaintainer(urlData.responsiveMaintainerData)
-                    ]);
+            const [
+                busFactor,
+                correctness,
+                rampUp,
+                responsiveMaintainer,
+                pullRequest
+            ] = await Promise.all([
+                this.calculateBusFactor(data.busFactorData),
+                this.calculateCorrectness(data.correctnessData),
+                this.calculateRampUp(data.rampUpData),
+                this.calculateResponsiveMaintainer(data.responsiveMaintainerData),
+                this.calculatePercentPullRequest(data.pullRequestData)
+            ]);
 
-                    const license = await this.licenseVerifier.verifyLicense(url);
-                    const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license);
+            //Pretty sure license is seperate here bc it clones the repo locally instead of reading from the API
+            const license = await this.licenseVerifier.verifyLicense(url);
 
-                    return {
-                        URL: url,
-                        BUS_FACTOR_SCORE: busFactor,
-                        CORRECTNESS_SCORE: correctness,
-                        RAMP_UP_SCORE: rampUp,
-                        RESPONSIVE_MAINTAINER_SCORE: responsiveMaintainer,
-                        LICENSE_SCORE: license,
-                        NET_SCORE: netScore
-                    };
-                } catch (error) {
-                    logger.error(`Error calculating metrics for URL ${url}:`, error);
-                    throw error;
-                }
-            }));
+
+            //*********** TO DO: Implement scoring method for pinning practice ***********
+            //Similar to license, pinning practice will require a local clone of the repo
+            const pinningPractice = 0
+
+            //Net score does NOT factor in the 2 new metrics
+            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license);
+
+            return {
+                BusFactor: busFactor,
+                Correctness: correctness,
+                RampUp: rampUp,
+                ResponsiveMaintainer: responsiveMaintainer,
+                LicenseScore: license,
+                GoodPinningPractice: pinningPractice,
+                PullRequest: pullRequest,
+                NetScore: netScore
+            }
+
         } catch (error) {
-            logger.error("Error in calculateMetrics:", error);
+            logger.error(`Error calculating metrics for URL ${url}:`, error);
             throw error;
         }
     }
@@ -251,6 +255,12 @@ export class MetricsCalculator {
         return Math.max(0, Math.min(1, score));  // Ensuring the score is within [0, 1]
     }
 
+    async calculatePercentPullRequest(pullRequestData: any): Promise<number> {
+        //TO IMPLEMENT:
+        //Equations calculating the pull request score
+        return 0
+    }
+
 
     /**
      * Calculates the Net Score for a GitHub repository
@@ -262,11 +272,15 @@ export class MetricsCalculator {
      * @param license
      */
     async calculateNetScore(busFactor: number, correctness: number, rampUp: number,
-                            responsiveMaintainer: number, license: boolean): Promise<number> {
+                            responsiveMaintainer: number, license: number): Promise<number> {
+
+        //Note that the net score DOES NOT factor in the 2 new metrics
 
         // Formulae for the Net Score                        
-        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license ? 1 : 0);
+        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license);
 
         return NetScore;
     }
+
+
 }

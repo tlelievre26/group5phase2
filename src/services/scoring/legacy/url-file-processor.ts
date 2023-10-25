@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import fs from "fs";
-import logger from "../utils/logger";
+import logger from "../../../utils/logger";
 import { NpmUrlResolver } from "./npm-url-resolver";
 
 

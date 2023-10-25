@@ -1,12 +1,12 @@
 import { MetricsController } from "./controllers/metrics-controller";
-import { UrlFileProcessor } from "./services/url-file-processor";
-import { NpmUrlResolver } from "./services/npm-url-resolver";
+import { UrlFileProcessor } from "./legacy/url-file-processor";
+import { NpmUrlResolver } from "./legacy/npm-url-resolver";
 import { MetricsDataRetriever } from "./services/metrics-data-retriever";
 import { MetricsCalculator } from "./services/metrics-calculator";
 import { LicenseVerifier } from "./services/license-verifier";
 
 import { container } from "tsyringe";
-import { GITHUB_TOKEN } from "./config";
+import { GITHUB_TOKEN } from "../../utils/config";
 
 
 container.register("MetricsController", {useClass: MetricsController});

@@ -4,13 +4,13 @@ dotenv.config();
 
 import "reflect-metadata";
 
-import logger from "./utils/logger";
+import logger from "../../../utils/logger";
 import { Command } from "commander";
 
 import * as fs from "fs";
 
-import { MetricsController } from "./controllers/metrics-controller";
-import { container } from "./container"
+import { MetricsController } from "../controllers/metrics-controller";
+import { container } from "../container"
 import { exec } from "child_process";
 import path from "path";
 
