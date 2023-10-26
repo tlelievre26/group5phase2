@@ -1,0 +1,33 @@
+name: Build and Commit Build Artifacts
+
+on:
+  push:
+    branches:
+      - main  # Change this to your main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+
+    - name: Install dependencies
+      run: npm install  # Replace with your package manager and build commands
+
+    - name: Build
+      run: npm run build  # Replace with your build command
+
+    - name: Commit and Push Build Artifacts
+      run: |
+        git config --global user.email "ramiyadevesh@gmail.com"
+        git config --global user.name "GitHub Actions"
+        git add -A
+        git commit -m "Add build artifacts"
+        git push
