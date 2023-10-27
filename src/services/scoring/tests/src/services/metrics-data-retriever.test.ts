@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "reflect-metadata";
-import { graphql } from "@octokit/graphql";
+// import { graphql } from "@octokit/graphql";
 
-import { MetricsDataRetriever } from "../../../services/metrics-data-retriever";
+// import { MetricsDataRetriever } from "../../../services/metrics-data-retriever";
 
 
 jest.mock("@octokit/graphql");

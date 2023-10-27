@@ -3,9 +3,21 @@ import api_router from './routes/api_routes';
 import verifyAuthToken from './middleware/token_auth';
 import dotenv from "dotenv";
 import logger from "./utils/logger"; //Get logger in this main file
-//MAIN FILE
 
 dotenv.config(); //Load in environment variables from .env file
+
+import aws_s3 from "./utils/aws_sdk_setup"
+
+
+//MAIN FILE
+
+aws_s3.listBuckets(function(err, data) {
+  if (err) {
+    console.log("Error", err);
+  } else {
+    console.log("Success", data.Buckets);
+  }
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
