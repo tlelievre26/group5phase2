@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
-import { inject, injectable } from "tsyringe";
+import { uploadBase64Contents } from '../services/upload/unzip_contents';
+import logger from "../utils/logger";
+//import { inject, injectable } from "tsyringe";
 
 //Controllers are basically a way to organize the functions called by your API
 //Obviously most of our functions will be too complex to have within the API endpoint declaration
@@ -82,15 +84,17 @@ export class PackageUploader {
         res.send(`Delete package with ID: ${id}`);
     }
     
-    public createPkg (req: Request, res: Response) {
+    public async createPkg (req: Request, res: Response) {
+        logger.debug("Successfully routed to endpoint for uploading a new package")
         const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
-    
         var response_obj: schemas.Package;
-        console.log(req_body)
+        
         //Would the GitHub URL be the "ingestion of npm package" in the spec?
     
+        //Need to add: check that package doesn't already exist
+
         if(req_body.hasOwnProperty("URL") && !req_body.hasOwnProperty("Content")) {
-            console.log("Provided URL to GitHub repo")
+            logger.debug("Recieved GitHub URL in request body")
             //parseUrlToZip(req_body.URL);
             //Calculate scores for repo using URL and see if it passes
     
@@ -105,12 +109,26 @@ export class PackageUploader {
 
         }
         else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
-            console.log("Contents uploaded directly")
+            logger.debug("Recieved encoded package contents in request body")
+            //Package contents encoded into a base64 string
+            //Conundrum: We can't unzip the package once it's already in the S3, and we need to give it an appropriate name
+            //Here's what we probably need to extract:
+            //package.json
+            //README.md
+            //any license file
+
+            //Can get relevant name from package.json + GitHub repo URL
+            //Once we have those, we use the name to upload the package and c
+            //Can use that URL to call scoring functions
+
+            //Raw package contents, decoded from base64 text into binary data
             
+            await uploadBase64Contents(req_body.Content!); //We know it'll exist
         }
         else {
             return res.status(400).send("Invalid or malformed PackageData in request body");
         }
+        
         
         //Steps: Take the contents and save it to an AWS bucket 
         //Extract contents and get metadata from package.json

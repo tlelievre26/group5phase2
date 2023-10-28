@@ -23,6 +23,7 @@
     "express": "^4.18.2",
     "figlet": "^1.6.0",
     "isomorphic-git": "^1.24.5",
+    "jszip": "^3.10.1",
     "reflect-metadata": "^0.1.13",
     "tslog": "^4.9.2",
     "tsyringe": "^4.8.0"

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
-import { inject, injectable } from "tsyringe";
+//import { inject, injectable } from "tsyringe";
 
 //This file contains a class that acts a controller for everything relating to getting data about a package
 

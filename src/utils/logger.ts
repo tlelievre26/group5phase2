@@ -1,7 +1,7 @@
 import { ILogObj, Logger } from "tslog";
 import * as fs from "fs";
 import * as path from "path";
-import * as os from 'os';
+import process from "process"
 
 // Parse the LOG_LEVEL environment variable, defaulting to 0 if none found
 const logLevel: number = parseInt(process.env.LOG_LEVEL || "0", 10);
@@ -17,7 +17,7 @@ else {
 }
 
 
-const logFilePath = path.join(os.tmpdir(), logFileName);
+const logFilePath = path.join(process.cwd(), logFileName);
 
 // Ensure the log file exists. If not, create it.
 if (!fs.existsSync(logFilePath)) {
@@ -28,7 +28,7 @@ if (!fs.existsSync(logFilePath)) {
 const log: Logger<ILogObj> = new Logger({
     name: "ModuleMetricsCLI",
     minLevel: 0, // default verbosity is 0
-    type: "hidden"
+    type: "pretty"
 });
 
 switch (logLevel) {
@@ -56,12 +56,12 @@ if (logLevel != 0) {
 // Attach the file transport
     log.debug("Attaching file transport...");
     log.attachTransport((logObj) => {
-        fs.appendFile(logFilePath, JSON.stringify(logObj) + "\n", err => {
+        fs.appendFile(logFilePath, JSON.stringify(logObj, null, 2) + "\n", err => {
             if (err) log.error("Error writing to log file:", err);
         });
     });
 }
 
-log.debug("Log file path is set to: " + path.join(os.tmpdir(), logFileName));
+log.debug("Log file path is set to: " + path.join(process.cwd(), logFileName));
 log.info(`Logger configured with minLevel=${log.settings.minLevel}, type=${log.settings.type}`);
 export default log;
