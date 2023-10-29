@@ -40,7 +40,7 @@ jobs:
     - name: Create Zip Folder
       run: |
         mkdir npmfiles
-        cp -r coverage LICENSE README.md dist appspec.yml jest.config.js package-lock.json package.json tsconfig.json npmfiles
+        cp -r LICENSE README.md dist jest.config.js package-lock.json package.json tsconfig.json npmfiles
         # Create a folder with the content you want to include in the zip coverage dist LICENSE README.md appspec.yml jest.config.js package-lock.json package.json tsconfig.json
         zip -r npmfiles.zip npmfiles
     - name: Commit and Push Zip Folder
