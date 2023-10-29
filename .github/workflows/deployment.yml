@@ -1,0 +1,55 @@
+name: Build and Commit Build Artifacts
+
+on:
+  push:
+    branches:
+      - main  # Change this to your main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+
+    - name: Install dependencies
+      run: npm install  # Replace with your package manager and build commands
+    - name: delete build
+      run : | 
+        git config --global user.email "ramiyadevesh@gmail.com"
+        git config --global user.name "GitHub Actions"
+        git pull
+        git rm -r dist
+        git commit -m "Delete folder"
+        git push
+    - name: Build
+      run: npm run build  # Replace with your build command
+    - name: Commit and Push Build Artifacts
+      run: |
+        git config --global user.email "ramiyadevesh@gmail.com"
+        git config --global user.name "GitHub Actions"
+        git add dist
+        git commit -m "Add build artifacts"
+        git push
+    - name: Create Zip Folder
+      run: |
+        mkdir npmfiles
+        cp -r coverage LICENSE README.md dist appspec.yml jest.config.js package-lock.json package.json tsconfig.json npmfiles
+        # Create a folder with the content you want to include in the zip coverage dist LICENSE README.md appspec.yml jest.config.js package-lock.json package.json tsconfig.json
+        zip -r npmfiles.zip npmfiles
+    - name: Commit and Push Zip Folder
+      run: |
+        git config --local user.email "ramiyadevesh@gmail.com"
+        git config --local user.name "GitHub Action"
+        # Add and commit the zip folder
+        git add npmfiles.zip
+        git commit -m "Add my_folder.zip"
+
+        # Push the changes back to the repository
+        git push
