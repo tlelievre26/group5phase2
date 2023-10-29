@@ -16,7 +16,10 @@ export async function uploadBase64Contents(contents: string) {
 
     // We have now loaded the zip file into memory
 
+    //DEBLOATING HERE
+
     const package_info = await extractFromZip(zip);
+
     // Upload the zip file binary to S3
     const zipBinary = Buffer.from(zipData, 'binary') //Converts the binary string into a Buffer for upload to S3
     await uploadToS3("group5phase2packages", `${package_info.name}/${package_info.name}.zip`, zipBinary);
@@ -71,7 +74,7 @@ async function extractFromZip(zip: JSZip) {
     for (const [filename, file] of Object.entries(zip.files)) {
         //Iterates through file objects and their names, checking if they match one of the regexes
         //Stores it in our directionary if it does
-        console.log(filename)
+        //console.log(filename)
         if (package_json_match.test(filename)) {
             const fileData = await file.async('nodebuffer');
             retrieved_files["package.json"] = fileData; //*****ideally should be using retrieved_files[filename]*****

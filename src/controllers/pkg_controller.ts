@@ -88,6 +88,7 @@ export class PackageUploader {
         logger.debug("Successfully routed to endpoint for uploading a new package")
         const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
         var response_obj: schemas.Package;
+        let package_name;
         
         //Would the GitHub URL be the "ingestion of npm package" in the spec?
     
@@ -106,7 +107,7 @@ export class PackageUploader {
     
             //Convert zipped contexts to base64 text
             //Proceed as normal
-
+            package_name = req_body.URL;
         }
         else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
             logger.debug("Recieved encoded package contents in request body")
@@ -123,7 +124,8 @@ export class PackageUploader {
 
             //Raw package contents, decoded from base64 text into binary data
             
-            await uploadBase64Contents(req_body.Content!); //We know it'll exist
+            const pkg_json = await uploadBase64Contents(req_body.Content!); //We know it'll exist
+            package_name = pkg_json.name;
         }
         else {
             return res.status(400).send("Invalid or malformed PackageData in request body");
@@ -140,7 +142,7 @@ export class PackageUploader {
         var response_code = 201; //Probably wont implement it like this, just using it as a placeholder
     
         if(response_code == 201) {
-            res.status(201).send("Successfully created new package {packageName} with ID = {id}");
+            res.status(201).send(`Successfully created new package ${package_name}`);
         }
         else if(response_code == 409) {
             res.status(404).send("Uploaded package already exists in registry");
