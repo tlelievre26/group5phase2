@@ -13,7 +13,10 @@ export class LicenseVerifier {
      *
      * @param url
      */
-    public async verifyLicense(url: string): Promise<boolean> {
+    public async verifyLicense(url: string): Promise<number> {
+        //NEED TO REPLACE THIS WITH LOOKING FOR THE FILE IN THE S3 BUCKET
+
+
         if (!this.isValidGitHubURL(url)) {
             console.error("GitHub URL was invalid in verifyLicense");
             throw new Error("GitHub URL was invalid in verifyLicense");
@@ -35,11 +38,18 @@ export class LicenseVerifier {
             const licenseFilePath = join(dirPath, "LICENSE.md");
             const readmeFilePath = join(dirPath, "README.md");
 
-            return await this.repoHasLicense(licenseFilePath) || await this.repoHasLicense(readmeFilePath);
+            if(await this.repoHasLicense(licenseFilePath) || await this.repoHasLicense(readmeFilePath)) {
+                return 1;
+            }
+            else { 
+                return 0;
+            }
+
+
 
         } catch (error) {
             console.error("An error occurred in verifyLicense: ", error);
-            return false;
+            return 0;
         } finally {
             // Cleanup
             await this.deleteDirectory(dirPath);

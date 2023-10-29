@@ -1,16 +1,17 @@
 import { injectable, inject } from "tsyringe";
 
-import { UrlFileProcessor } from "../services/url-file-processor";
+//import { UrlFileProcessor } from "../legacy/url-file-processor";
 import { MetricsDataRetriever } from "../services/metrics-data-retriever";
 import { MetricsCalculator } from "../services/metrics-calculator";
-import { Metrics } from "../types/metrics";
-import logger from "../utils/logger";
+
+import { PackageRating } from "../../../models/api_schemas";
+import logger from "../../../utils/logger";
 
 
 @injectable()
 export class MetricsController {
     constructor(
-        @inject("UrlFileProcessor") private urlFileProcessor: UrlFileProcessor,
+        //@inject("UrlFileProcessor") private urlFileProcessor: UrlFileProcessor,
         @inject("MetricsDataRetrieverToken") private metricsDataRetriever: MetricsDataRetriever,
         @inject("MetricsCalculator") private metricsCalculator: MetricsCalculator
     ) {
@@ -21,7 +22,12 @@ export class MetricsController {
      * Generates metrics for a list of GitHub URLs in a given file.
      * @param urlFilePath
      */
-    async generateMetrics(urlFilePath: string): Promise<void> {
+
+    //Modifying this to accomodate new format, basically just removing the file parsing and jumping straight to the list of URLs
+    async generateMetrics(repo_url: string): Promise<PackageRating> {
+
+        /* Unneeded code from phase 1, now we just want to take in a single
+
         if (!urlFilePath) {
             logger.error("URL file path is empty");
             throw new Error("URL file path is empty");
@@ -32,15 +38,19 @@ export class MetricsController {
         logger.debug("Processing URL file...");
         const urls = this.urlFileProcessor.processUrlFile(urlFilePath);
 
+        */
+
         logger.debug("Retrieving metrics data...");
         // Retrieve metrics data from GitHub API
-        const data = this.metricsDataRetriever.retrieveMetricsData(urls);
+        const data = this.metricsDataRetriever.retrieveMetricsData(repo_url);
+
 
         logger.debug("Calculating metrics scores...")
-        const metrics = await this.metricsCalculator.calculateMetrics(urls, await data);
+        const metrics = await this.metricsCalculator.calculateMetrics(repo_url, await data);
 
         logger.debug("Outputting metrics...")
         // Output metrics in NDJSON format
+        /*
         process.stdout.write(
             metrics.map(metric => {
                 return JSON.stringify({
@@ -53,5 +63,7 @@ export class MetricsController {
                 });
             }).join("\n")
         );
+        */
+       return metrics
     }
 }

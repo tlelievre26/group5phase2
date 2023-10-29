@@ -1,6 +1,6 @@
 import "reflect-metadata";
-import { UrlFileProcessor } from "../../../services/url-file-processor";
-import { NpmUrlResolver } from "../../../services/npm-url-resolver";
+import { UrlFileProcessor } from "../../../legacy/url-file-processor";
+import { NpmUrlResolver } from "../../../legacy/npm-url-resolver";
 import fs from "fs";
 
 // Mocks

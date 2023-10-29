@@ -17,8 +17,6 @@ function verifyAuthToken(req: Request, res: Response, next: NextFunction) {
     // Here you would verify the validity of the token, for example by decoding it and checking its expiration date
     // If the token is invalid, you would return a 400 Unauthorized response
 
-
-
     next();
 }
 
