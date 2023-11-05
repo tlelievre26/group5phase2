@@ -3,6 +3,8 @@ import * as git from "isomorphic-git";
 import http from "isomorphic-git/http/node";
 import { promises as fsPromises } from "fs";
 import { join } from "path";
+import aws_s3 from "../../../utils/aws_sdk_setup";
+
 
 
 @injectable()
@@ -16,6 +18,8 @@ export class LicenseVerifier {
     public async verifyLicense(url: string): Promise<number> {
         //NEED TO REPLACE THIS WITH LOOKING FOR THE FILE IN THE S3 BUCKET
 
+
+        //ALSO PROBABLY NEED TO REVISE THIS IN GENERAL, METHOD SEEMS SKETCHY
 
         if (!this.isValidGitHubURL(url)) {
             console.error("GitHub URL was invalid in verifyLicense");

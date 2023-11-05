@@ -39,7 +39,7 @@ export class MetricsDataRetriever {
       try {
         // Extract owner and repo from GitHub URL
         const {owner, repo} = await extractGitHubInfo(url);
-
+        logger.debug(`Extracted owner ${owner} and repo ${repo} from URL ${url}`)
         const busFactorData = await this.fetchBusFactorData(owner, repo);
         const rampUpData = await this.fetchRampUpData(owner, repo);
         const correctnessData = await this.fetchCorrectnessData(owner, repo);

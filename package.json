@@ -5,6 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "npx tsc",
+    "rebuild": "npx tsc && node dist/app.js",
     "start": "node run",
     "test": "npx jest",
     "lint": "eslint . --ext .ts"

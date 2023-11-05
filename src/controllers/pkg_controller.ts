@@ -2,7 +2,10 @@ import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
 import { uploadBase64Contents } from '../services/upload/unzip_contents';
 import logger from "../utils/logger";
-//import { inject, injectable } from "tsyringe";
+import { MetricsController } from '../services/scoring/controllers/metrics-controller';
+
+import { container } from '../services/scoring/container';
+
 
 //Controllers are basically a way to organize the functions called by your API
 //Obviously most of our functions will be too complex to have within the API endpoint declaration
@@ -16,9 +19,12 @@ import logger from "../utils/logger";
 //And providing the correct status will be done by the controller
 
 
+const controller = container.resolve(MetricsController); //Basically gets an instance of the MetricsController class
+
+
 //This controller contains a class that handles everything related to creating, deleting, and updating packages
 export class PackageUploader {
-    
+
     public updatePkgById (req: Request, res: Response) {
         //The name, version, and ID must match.
         //The package contents (from PackageData) will replace the previous contents.
@@ -84,8 +90,13 @@ export class PackageUploader {
         res.send(`Delete package with ID: ${id}`);
     }
     
+    
+
+
     public async createPkg (req: Request, res: Response) {
+
         logger.debug("Successfully routed to endpoint for uploading a new package")
+
         const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
         var response_obj: schemas.Package;
         let package_name;
@@ -107,7 +118,8 @@ export class PackageUploader {
     
             //Convert zipped contexts to base64 text
             //Proceed as normal
-            package_name = req_body.URL;
+            const metric_scores = await controller.generateMetrics(req_body.URL!);
+            console.log(metric_scores)
         }
         else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
             logger.debug("Recieved encoded package contents in request body")
@@ -125,7 +137,19 @@ export class PackageUploader {
             //Raw package contents, decoded from base64 text into binary data
             
             const pkg_json = await uploadBase64Contents(req_body.Content!); //We know it'll exist
-            package_name = pkg_json.name;
+            const metric_scores = await controller.generateMetrics(pkg_json.repository.url);
+            console.log(metric_scores)
+            response_obj = {
+                metadata: {
+                    Name: pkg_json.name,
+                    Version: pkg_json.version,
+                    ID: pkg_json.name + pkg_json.version //****HOW ARE WE DEFINING ID****
+                    //metrics: metric_scores
+                },
+                data: {
+                    Content: req_body.Content
+                }
+            }
         }
         else {
             return res.status(400).send("Invalid or malformed PackageData in request body");

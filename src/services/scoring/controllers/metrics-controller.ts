@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 
-//import { UrlFileProcessor } from "../legacy/url-file-processor";
+import { UrlFileProcessor } from "../legacy/url-file-processor";
 import { MetricsDataRetriever } from "../services/metrics-data-retriever";
 import { MetricsCalculator } from "../services/metrics-calculator";
 
@@ -11,7 +11,7 @@ import logger from "../../../utils/logger";
 @injectable()
 export class MetricsController {
     constructor(
-        //@inject("UrlFileProcessor") private urlFileProcessor: UrlFileProcessor,
+        @inject("UrlFileProcessor") private urlFileProcessor: UrlFileProcessor,
         @inject("MetricsDataRetrieverToken") private metricsDataRetriever: MetricsDataRetriever,
         @inject("MetricsCalculator") private metricsCalculator: MetricsCalculator
     ) {
