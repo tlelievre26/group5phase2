@@ -12,28 +12,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const aws_sdk_setup_1 = __importDefault(require("../../utils/aws_sdk_setup"));
-function uploadToS3(bucketName, key, uploadBody) {
+const aws_sdk_1 = __importDefault(require("aws-sdk"));
+const s3 = new aws_sdk_1.default.S3();
+function saveToS3(bucketName, key, base64Zip) {
     return __awaiter(this, void 0, void 0, function* () {
-        const uploadParams = {
+        const buffer = Buffer.from(base64Zip, 'base64');
+        const params = {
             Bucket: bucketName,
             Key: key,
-            Body: uploadBody
+            Body: buffer,
+            ContentType: 'application/zip',
         };
-        aws_sdk_setup_1.default.upload(uploadParams, function (err, data) {
-            if (err) {
-                console.error('Error uploading file to S3:', err);
-            }
-            else {
-                console.log('File uploaded successfully. S3 Location:', data.Location);
-            }
-        });
+        yield s3.upload(params).promise();
     });
 }
-exports.default = uploadToS3;
 // // Example usage
 // const bucketName = 'my-bucket';
 // const key = 'path/to/my/file.zip';
 // const base64Zip = 'UEsDBAoAAAAA...'; // base64-encoded zip folder
 // await saveToS3(bucketName, key, base64Zip);
-//# sourceMappingURL=s3upload.js.map
+//# sourceMappingURL=save_toS3.js.map
