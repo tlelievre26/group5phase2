@@ -5,7 +5,13 @@ import logger from "../utils/logger";
 import { MetricsController } from '../services/scoring/controllers/metrics-controller';
 
 import { container } from '../services/scoring/container';
+import axios from 'axios'
+import graphqlWithAuth from '../utils/graphql_query_setup';
+import { extractGitHubInfo } from '../services/scoring/services/parseURL';
+import uploadToS3 from '../services/upload/s3upload';
 
+import JSZip from 'jszip';
+import { extractBase64ContentsFromUrl } from '../services/upload/convert_zipball';
 
 //Controllers are basically a way to organize the functions called by your API
 //Obviously most of our functions will be too complex to have within the API endpoint declaration
@@ -100,81 +106,142 @@ export class PackageUploader {
         const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
         var response_obj: schemas.Package;
         let package_name;
+        let extractedContents
         
         //Would the GitHub URL be the "ingestion of npm package" in the spec?
     
         //Need to add: check that package doesn't already exist
 
         if(req_body.hasOwnProperty("URL") && !req_body.hasOwnProperty("Content")) {
+
             logger.debug("Recieved GitHub URL in request body")
-            //parseUrlToZip(req_body.URL);
-            //Calculate scores for repo using URL and see if it passes
-    
-            //***CAN WE RETOOL THE PHASE 1 REPO TO JUST TAKE IN THE URL DIRECTLY */
-    
-            //If it does, get the zipped version of the file from the GitHub API endpoint /repos/{owner}/{repo}/zipball/{ref}
-    
-            //*** ORIGINAL GROUP USED GRAPHQL, DO WE HAVE TO DO THE SAME FOR FUTURE API CALLS*/
-    
-            //Convert zipped contexts to base64 text
-            //Proceed as normal
-            const metric_scores = await controller.generateMetrics(req_body.URL!);
-            console.log(metric_scores)
-        }
-        else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
-            logger.debug("Recieved encoded package contents in request body")
-            //Package contents encoded into a base64 string
-            //Conundrum: We can't unzip the package once it's already in the S3, and we need to give it an appropriate name
-            //Here's what we probably need to extract:
-            //package.json
-            //README.md
-            //any license file
+            const github_URL = req_body.URL!
+            //Get the owner and repo name from the URL
+            const {owner, repo} = extractGitHubInfo(github_URL);
 
-            //Can get relevant name from package.json + GitHub repo URL
-            //Once we have those, we use the name to upload the package and c
-            //Can use that URL to call scoring functions
+            //Get the zipped version of the file from the GitHub API
 
-            //Raw package contents, decoded from base64 text into binary data
+            const zipball_query = `{
+                repository(owner: "${owner}", name: "${repo}") {
+              
+                  defaultBranchRef {
+                    target {
+                      ... on Commit {
+                        zipballUrl
+                      }
+                    }
+                  }
+                }
+              }`
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const response: any = await graphqlWithAuth(zipball_query);
+
+            const zipballUrl = response.repository.defaultBranchRef.target.zipballUrl;
+            //Query returns a URL that downloads the repo when GET requested
+            logger.debug(`Retrieved zipball URL ${zipballUrl} from GitHub API`)
             
-            const pkg_json = await uploadBase64Contents(req_body.Content!); //We know it'll exist
-            const metric_scores = await controller.generateMetrics(pkg_json.repository.url);
-            console.log(metric_scores)
+            const contents = await extractBase64ContentsFromUrl(zipballUrl);
+
+            //And now we can proceed the same way
+
+            //The reason we get the zipball before doing the score check is we would've had to clone the repo anyways, which probably takes a similar amount of memory and time
+            //Doing this makes it easier to integrate with the other input formats
+            
+            extractedContents = await uploadBase64Contents(contents); //We know it'll exist
+            const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
+            //**************************************************************
+            //***Can we assume this repo URL exists in the package.json??***
+            //Currently waiting on piazza post for clarification
+
+            const repo_ID = owner + "_" + repo
+
+            //Check DB if package id already exists in database
+
+            /*
+            if(package already exists) {
+                res.status(404).send("Uploaded package already exists in registry");
+            }
+            */
+
             response_obj = {
                 metadata: {
                     Name: pkg_json.name,
                     Version: pkg_json.version,
-                    ID: pkg_json.name + pkg_json.version //****HOW ARE WE DEFINING ID****
+                    ID: repo_ID
+                    //metrics: metric_scores
+                },
+                data: {
+                    Content: contents
+                }
+            }
+
+            const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
+            
+            //Ensure it passes the metric checks
+            if(metric_scores["BusFactor"] < 0.5 || metric_scores["RampUp"] < 0.5 || metric_scores["Correctness"] < 0.5 || metric_scores["ResponsiveMaintainer"] < 0.5 || metric_scores["LicenseScore"] < 0.5) {
+                return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
+            }
+            else {
+                uploadToS3(extractedContents)
+            }
+
+        }
+        else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
+            logger.debug("Recieved encoded package contents in request body")
+
+            
+            extractedContents = await uploadBase64Contents(req_body.Content!); //We know it'll exist
+
+            //NEED TO CHECK IT ISNT A DUPE
+
+            const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
+            const repo_url = pkg_json.repository.url;
+            //**************************************************************
+            //***Can we assume this repo URL exists in the package.json??***
+            //Currently waiting on piazza post for clarification
+
+            const {owner, repo} = extractGitHubInfo(repo_url);
+            const repo_ID = owner + "_" + repo
+
+            //Check DB if package id already exists in database
+
+            /*
+            if(package already exists) {
+                res.status(404).send("Uploaded package already exists in registry");
+            }
+            */
+
+            response_obj = {
+                metadata: {
+                    Name: pkg_json.name,
+                    Version: pkg_json.version,
+                    ID: repo_ID
                     //metrics: metric_scores
                 },
                 data: {
                     Content: req_body.Content
                 }
             }
+
+            //We decode the package.json several times which is technically inefficient but whatever
+
+
+            const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
+
+            uploadToS3(extractedContents)
+
+            //Write scores to db
         }
         else {
             return res.status(400).send("Invalid or malformed PackageData in request body");
         }
+
         
-        
-        //Steps: Take the contents and save it to an AWS bucket 
-        //Extract contents and get metadata from package.json
-        //Calculate scores for repo and store all relevant info in our database
-        //Create response object
+
+
     
-    
-    
-        var response_code = 201; //Probably wont implement it like this, just using it as a placeholder
-    
-        if(response_code == 201) {
-            res.status(201).send(`Successfully created new package ${package_name}`);
-        }
-        else if(response_code == 409) {
-            res.status(404).send("Uploaded package already exists in registry");
-        }
-        else if(response_code == 424) {
-            //Should probably return the scores along with the message
-            res.status(404).send("npm package failed to pass rating check for public ingestion");
-        }
+        res.status(201).json(response_obj);
     }
 
     public deletePkgByName (req: Request, res: Response) {

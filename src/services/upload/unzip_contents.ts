@@ -1,55 +1,50 @@
 import JSZip from 'jszip';
-import uploadToS3 from './s3upload';
+import { ExtractedMetadata, ExtractedPackage } from '../../models/other_schemas';
 import logger from "../../utils/logger";
 
-//Probably have to add a TON of logging to this
+/**
+ * Extracts package.json, README.md, and LICENSE.md files from a base64-encoded zip file, 
+ * uploads the zip file to S3, and returns the contents of package.json as a dictionary.
+ * @param contents - Base64-encoded string of the zip file contents
+ * @returns A dictionary containing the contents of package.json, README.md, and LICENSE.md as Buffers in an object called metadata and the entire package contents as buffer
+ */
+export async function uploadBase64Contents(contents: string): Promise<ExtractedPackage> {
 
-export async function uploadBase64Contents(contents: string) {
     // Decode the base64 encoded zip content into a binary string
     const zipData = atob(contents);
     logger.debug("Decoded zip data successfully");
 
     // Create a JSZip instance and load the decoded data
-    const zip = new JSZip();
-    await zip.loadAsync(zipData, { base64: false });
+    const pkg_zip = new JSZip();
+    await pkg_zip.loadAsync(zipData, { base64: false });
     logger.debug("Loaded data into JSZip object successfully");
 
     // We have now loaded the zip file into memory
 
     //DEBLOATING HERE
 
-    const package_info = await extractFromZip(zip);
+
+    const extractedContents = await extractFromZip(pkg_zip);
 
     // Upload the zip file binary to S3
     const zipBinary = Buffer.from(zipData, 'binary') //Converts the binary string into a Buffer for upload to S3
-    await uploadToS3("group5phase2packages", `${package_info.name}/${package_info.name}.zip`, zipBinary);
+    //await uploadToS3("group5phase2packages", `${package_info.name}/${package_info.name}.zip`, zipBinary);
+
 
     //Want to pass the package.json info all the way up so it can be used with scoring and create the metadata for the response object
-    return package_info;
-    
+    return { metadata: extractedContents, contents: zipBinary };
 }
 
 
-
-async function extractFromZip(zip: JSZip) {
+/**
+ * Extracts package.json, README.md, and LICENSE.md files from a JSZip object and returns their contents as a dictionary.
+ * @param zip - A JSZip object containing the zip file contents
+ * @returns A dictionary containing the contents of package.json, README.md, and LICENSE.md as Buffers
+ */
+async function extractFromZip(zip: JSZip): Promise<ExtractedMetadata> {
     // Extracts the package.json, README.md, and LICENSE.md files from the zip
-    //Returns the name of the S3 directory where the full binary can be saved
+    //Returns a dictionary containing their contents as Buffers
 
-    // const package_json_match = /^package\.json$/i //Regex to match the package.json file
-    // const readme_match = [ //Regex for several possible names for a readme
-    //     /^ readme\.md$/i,
-    //     /^readme\.txt$/i,
-    //     /^readme$/i,
-    //     /^readme_[a-z]{2}\.md$/i 
-    // ]
-    // const license_match = [ //Regex for several possible names of a license
-    //     /^license$/i,
-    //     /^license\.txt$/i,
-    //     /^license\.md$/i,
-    //     /^copying$/i,
-    //     /^copying\.txt$/i,
-    //     /^copying\.md$/i
-    // ]
 
     //NOTE: should use the above version once I figure out how to deal with the extra folder in there
     const package_json_match = /package\.json$/i //Regex to match the package.json file
@@ -68,8 +63,10 @@ async function extractFromZip(zip: JSZip) {
         /copying\.md$/i
     ]
 
-    const retrieved_files: { [key: string]: Buffer } = {}; //Dictionary that will store the filedata of each file we retrieve
-
+    const retrieved_files: ExtractedMetadata = {
+        "package.json": Buffer.from(""), //Empty placeholders
+        //There might not always be a license or a readme, so don't want to specify those yet
+    };
 
     for (const [filename, file] of Object.entries(zip.files)) {
         //Iterates through file objects and their names, checking if they match one of the regexes
@@ -84,8 +81,7 @@ async function extractFromZip(zip: JSZip) {
             for (const pattern of license_match) {
                 if (pattern.test(filename)) {
                   const fileData = await file.async('nodebuffer');
-                  retrieved_files["README"] = fileData;
-                  console.log(filename)
+                  retrieved_files["LICENSE"] = fileData;
                   logger.debug("Successfully retrieved LICENSE file from zip");
                   break;
                 }
@@ -94,7 +90,7 @@ async function extractFromZip(zip: JSZip) {
                 for (const pattern of readme_match) {
                     if (pattern.test(filename)) {
                       const fileData = await file.async('nodebuffer');
-                      retrieved_files["LICENSE"] = fileData;
+                      retrieved_files["README"] = fileData;
                       logger.debug("Successfully retrieved README file from zip");
                       break;
                     }
@@ -102,14 +98,14 @@ async function extractFromZip(zip: JSZip) {
             }
         }
     }
-    const package_json_obj = JSON.parse(retrieved_files["package.json"].toString());
-    logger.debug("Successfully parsed package.json file into JSON object");
+    // const package_json_obj = JSON.parse(retrieved_files["package.json"].toString());
+    // logger.debug("Successfully parsed package.json file into JSON object");
 
-    const dir_name = package_json_obj.name
-    for(const [filename, file] of Object.entries(retrieved_files)) {
-        await uploadToS3("group5phase2packages", `${dir_name}/metadata/${filename}`, file);
-        logger.debug(`Successfully uploaded ${filename} to S3 under key ${dir_name}/metadata/${filename}`);
-    }
+    // const dir_name = package_json_obj.name
+    // for(const [filename, file] of Object.entries(retrieved_files)) {
+    //     await uploadToS3("group5phase2packages", `${dir_name}/metadata/${filename}`, file);
+    //     logger.debug(`Successfully uploaded ${filename} to S3 under key ${dir_name}/metadata/${filename}`);
+    // }
 
-    return package_json_obj;
+    return retrieved_files;
 }

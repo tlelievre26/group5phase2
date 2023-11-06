@@ -6,6 +6,7 @@ import { MetricsCalculator } from "../services/metrics-calculator";
 
 import { PackageRating } from "../../../models/api_schemas";
 import logger from "../../../utils/logger";
+import { ExtractedMetadata } from "../../../models/other_schemas";
 
 
 @injectable()
@@ -24,7 +25,7 @@ export class MetricsController {
      */
 
     //Modifying this to accomodate new format, basically just removing the file parsing and jumping straight to the list of URLs
-    async generateMetrics(repo_url: string): Promise<PackageRating> {
+    async generateMetrics(owner: string, repo: string, pkg_metadata: ExtractedMetadata): Promise<PackageRating> {
 
         /* Unneeded code from phase 1, now we just want to take in a single
 
@@ -42,11 +43,11 @@ export class MetricsController {
 
         logger.debug("Retrieving metrics data...");
         // Retrieve metrics data from GitHub API
-        const data = this.metricsDataRetriever.retrieveMetricsData(repo_url);
+        const data = this.metricsDataRetriever.retrieveMetricsData(owner, repo);
 
 
         logger.debug("Calculating metrics scores...")
-        const metrics = await this.metricsCalculator.calculateMetrics(repo_url, await data);
+        const metrics = await this.metricsCalculator.calculateMetrics(owner, repo, await data, pkg_metadata);
 
         logger.debug("Outputting metrics...")
         // Output metrics in NDJSON format
