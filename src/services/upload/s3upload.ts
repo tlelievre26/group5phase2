@@ -3,7 +3,7 @@ import aws_s3 from "../../utils/aws_sdk_setup";
 import logger from "../../utils/logger";
 
 
-export default async function uploadToS3(package_contents: ExtractedPackage): Promise<void> {
+export default async function uploadToS3(package_contents: ExtractedPackage): Promise<string> {
 
     const bucketName = 'group5phase2packages';
     const dir_name = JSON.parse(package_contents.metadata["package.json"].toString()).name;
@@ -39,7 +39,7 @@ export default async function uploadToS3(package_contents: ExtractedPackage): Pr
         }
     });
     logger.debug(`Successfully uploaded contents to S3 under key ${dir_name}/${dir_name}.zip`);
-    
+    return `${dir_name}/${dir_name}.zip`
 }
 
 // // Example usage

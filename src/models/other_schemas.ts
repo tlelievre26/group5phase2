@@ -12,3 +12,8 @@ export type ExtractedPackage = {
     metadata: ExtractedMetadata;
     contents: Buffer;
 }
+
+export interface DbQuery {
+    sql: string;
+    values: (number | string | boolean)[];
+}

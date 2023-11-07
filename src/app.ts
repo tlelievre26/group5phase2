@@ -10,6 +10,8 @@ import logger from "./utils/logger"; //Get logger in this main file
 
 //MAIN FILE
 
+
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -20,3 +22,6 @@ app.use(api_router); //Tells it to use the routes defined in the router in our a
 app.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT}`);
   });
+
+
+// Handle application shutdown gracefully

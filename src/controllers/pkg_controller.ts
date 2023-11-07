@@ -5,13 +5,12 @@ import logger from "../utils/logger";
 import { MetricsController } from '../services/scoring/controllers/metrics-controller';
 
 import { container } from '../services/scoring/container';
-import axios from 'axios'
 import graphqlWithAuth from '../utils/graphql_query_setup';
 import { extractGitHubInfo } from '../services/scoring/services/parseURL';
 import uploadToS3 from '../services/upload/s3upload';
 
-import JSZip from 'jszip';
 import { extractBase64ContentsFromUrl } from '../services/upload/convert_zipball';
+import { checkPkgIDInDB, insertPackageIntoDB } from '../services/database/operation_queries';
 
 //Controllers are basically a way to organize the functions called by your API
 //Obviously most of our functions will be too complex to have within the API endpoint declaration
@@ -104,7 +103,7 @@ export class PackageUploader {
         logger.debug("Successfully routed to endpoint for uploading a new package")
 
         const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
-        var response_obj: schemas.Package;
+        let response_obj: schemas.Package;
         let package_name;
         let extractedContents
         
@@ -118,6 +117,11 @@ export class PackageUploader {
             const github_URL = req_body.URL!
             //Get the owner and repo name from the URL
             const {owner, repo} = extractGitHubInfo(github_URL);
+            const repo_ID = owner + "_" + repo
+
+            if(await checkPkgIDInDB(repo_ID)) {
+                return res.status(409).send("Uploaded package already exists in registry");
+            }
 
             //Get the zipped version of the file from the GitHub API
 
@@ -150,19 +154,12 @@ export class PackageUploader {
             
             extractedContents = await uploadBase64Contents(contents); //We know it'll exist
             const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
-            //**************************************************************
-            //***Can we assume this repo URL exists in the package.json??***
-            //Currently waiting on piazza post for clarification
 
-            const repo_ID = owner + "_" + repo
+
 
             //Check DB if package id already exists in database
 
-            /*
-            if(package already exists) {
-                res.status(404).send("Uploaded package already exists in registry");
-            }
-            */
+
 
             response_obj = {
                 metadata: {
@@ -183,7 +180,9 @@ export class PackageUploader {
                 return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
             }
             else {
-                uploadToS3(extractedContents)
+                const contentsPath = await uploadToS3(extractedContents)
+                //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
+                await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
             }
 
         }
@@ -197,12 +196,12 @@ export class PackageUploader {
 
             const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
             const repo_url = pkg_json.repository.url;
-            //**************************************************************
-            //***Can we assume this repo URL exists in the package.json??***
-            //Currently waiting on piazza post for clarification
-
             const {owner, repo} = extractGitHubInfo(repo_url);
             const repo_ID = owner + "_" + repo
+            if(await checkPkgIDInDB(repo_ID)) {
+                return res.status(409).send("Uploaded package already exists in registry");
+            }
+
 
             //Check DB if package id already exists in database
 
@@ -229,7 +228,9 @@ export class PackageUploader {
 
             const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
 
-            uploadToS3(extractedContents)
+            const contentsPath = await uploadToS3(extractedContents)
+            //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
+            await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
 
             //Write scores to db
         }
