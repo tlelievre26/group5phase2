@@ -35,12 +35,12 @@ export async function insertPackageIntoDB(metric_scores: PackageRating, pkg_meta
  */
 export async function checkPkgIDInDB(pkg_ID: string): Promise<boolean> {
     const check_id_exists_query: DbQuery = {
-        sql: `SELECT COUNT(*) AS count FROM your_table WHERE ID = ?;`, 
+        sql: `SELECT COUNT(*) AS count FROM pkg_data WHERE ID = ?;`, 
         values: [pkg_ID]
     }
     const id_exists = await queryDatabase("packages", check_id_exists_query)
-
-    if(id_exists[0].count > 0) {
+    console.log(id_exists)
+    if(id_exists[0][0].count > 0) { //Need to do [0][0] because query returns a list of Promises bc of its atomic nature
         return true
     }
     else {

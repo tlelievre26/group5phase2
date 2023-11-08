@@ -176,14 +176,18 @@ export class PackageUploader {
             const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
             
             //Ensure it passes the metric checks
-            if(metric_scores["BusFactor"] < 0.5 || metric_scores["RampUp"] < 0.5 || metric_scores["Correctness"] < 0.5 || metric_scores["ResponsiveMaintainer"] < 0.5 || metric_scores["LicenseScore"] < 0.5) {
-                return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
-            }
-            else {
+            //********************************************************************* */
+            //***** NOT CHECKING THIS FOR NOW BECAUSE THE PHASE 1 SCORING KINDA SUCKS */
+            //********************************************************************* */
+
+            // if(metric_scores["BusFactor"] < 0.5 || metric_scores["RampUp"] < 0.5 || metric_scores["Correctness"] < 0.5 || metric_scores["ResponsiveMaintainer"] < 0.5 || metric_scores["LicenseScore"] < 0.5) {
+                //return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
+            // }
+            // else {
                 const contentsPath = await uploadToS3(extractedContents)
                 //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
                 await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
-            }
+            // }
 
         }
         else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {

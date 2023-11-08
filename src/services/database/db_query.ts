@@ -21,7 +21,9 @@ export default function queryDatabase(databaseName: string, queries: DbQuery | D
             }
       
             connection.beginTransaction((beginErr) => {
+
               if (beginErr) {
+                logger.error("Error beginning transaction", beginErr)
                 connection.rollback(() => {
                   connection.release();
                   reject(beginErr);
@@ -31,6 +33,7 @@ export default function queryDatabase(databaseName: string, queries: DbQuery | D
       
               connection.query(`USE ${databaseName}`, (useErr) => {
                 if (useErr) {
+                  logger.error("Error selecting table from DB", useErr)
                   connection.rollback(() => {
                     connection.release();
                     reject(useErr);
@@ -46,6 +49,7 @@ export default function queryDatabase(databaseName: string, queries: DbQuery | D
                   return new Promise((queryResolve, queryReject) => {
                     connection.query(query.sql, query.values, (queryErr, results) => {
                       if (queryErr) {
+                        logger.error("Error running main query", queryErr)
                         connection.rollback(() => {
                           connection.release();
                           queryReject(queryErr);
@@ -61,6 +65,7 @@ export default function queryDatabase(databaseName: string, queries: DbQuery | D
                   .then((results) => {
                     connection.commit((commitErr) => {
                       if (commitErr) {
+                        logger.error("Error committing results to DB", commitErr)
                         connection.rollback(() => {
                           connection.release();
                           reject(commitErr);
