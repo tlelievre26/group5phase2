@@ -292,7 +292,19 @@ export class MetricsDataRetriever {
     async fetchPullRequestData(owner: string, repo: string): Promise<any> {
       //TO IMPLEMENT:
       //GitHub API calls within this function that get relevant data for pull requests metric
-      return null
+      //return null
+      const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+      return octokit.request('GET /repos/{owner}/{repo}/pulls?state=closed', {
+        owner: this.owner,
+        repo: this.name,
+        per_page: 100,
+    });
+
+    }
+
+    async fetchReviewComments(url: string): Promise<any>{
+      const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+      return octokit.request('GET ' + url);
     }
 
 

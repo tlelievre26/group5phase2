@@ -258,6 +258,36 @@ export class MetricsCalculator {
     async calculatePercentPullRequest(pullRequestData: any): Promise<number> {
         //TO IMPLEMENT:
         //Equations calculating the pull request score
+        try {
+            // Get list of pull requests
+            const pullResponse = await this.fetchPullRequests();
+    
+            // No pull requests made, score is 0 since all pushes were to main and unreviewed
+            if (pullResponse.data.length === 0) {
+                return 0;
+            }
+    
+            // Get list of the review comments URLs for each merged pull request
+            const review_comments_urls = pullResponse.data
+                .filter(pull => pull.merged_at !== null)
+                .map(pull => pull.review_comments_url);
+    
+            // Check reviews, add to num_reviewed if not empty
+            let num_reviewed = 0;
+            for (const url of review_comments_urls) {
+                const review_comment_response = await this.fetchReviewComments(url);
+                if (review_comment_response.data.length > 0) {
+                    num_reviewed += 1;
+                }
+            }
+    
+            // Calculate and return the fraction of reviewed requests divided by the number of all pull requests
+            return num_reviewed / pullResponse.data.length;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+
         return 0
     }
 
