@@ -2,17 +2,18 @@
 import { inject, injectable } from "tsyringe";
 import { LicenseVerifier } from "./license-verifier";
 import { PackageRating } from "../../../models/api_schemas";
-import {Octokit} from "@octokit/core";
-//import {fetchPullRequestData} from "./metrics-data-retriever"; 
+import {Octokit} from "@octokit/core"; 
 
 import logger from "../../../utils/logger";
 import { pull } from "isomorphic-git";
+import { MetricsDataRetriever } from "./metrics-data-retriever";
 
 
 @injectable()
 export class MetricsCalculator {
     constructor(
-        @inject("LicenseVerifier") private licenseVerifier: LicenseVerifier
+        @inject("LicenseVerifier") private licenseVerifier: LicenseVerifier,
+        @inject(MetricsDataRetriever) private metricsDataRetriever: MetricsDataRetriever
     ) {
     }
 
@@ -261,29 +262,20 @@ export class MetricsCalculator {
         //TO IMPLEMENT:
         //Equations calculating the pull request score
         try {
-            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-            const pullResponse = await octokit.request('GET /repos/{owner}/{repo}/pulls?state=closed', {
-                owner: owner,
-                repo: repo,
-                per_page: 100,
-            });
+            const pullRequest = await this.metricsDataRetriever.fetchPullRequestData(owner, repo);
 
-            if (pullResponse.data.length === 0) {
+            if (pullRequest.data.length === 0) {
                 return 0; // No pull requests made, score is 0 all pushes were to main and unreviewed
             }
 
             let numReviewedPullRequests = 0;
             
-            for (const pull of pullResponse.data) {
+            for (const pull of pullRequest.data) {
                 //checking if pull request has been merged 
                 if (pull.merged_at !== null) {
                     //checking for reviews on pull request 
-                    const reviewsResponse = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews', {
-                        owner: owner,
-                        repo: repo,
-                        pull_number: pull.number,
-                        per_page: 100,
-                    });
+
+                    const reviewsResponse = await this.metricsDataRetriever.fetchReviewComments(pull.url);//octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews', {
 
                     if (reviewsResponse.data.length > 0) {
                         numReviewedPullRequests += 1;
@@ -291,7 +283,7 @@ export class MetricsCalculator {
                 }
             }
             //calculate fraction 
-            const fractionReviewed = numReviewedPullRequests / pullResponse.data.length;
+            const fractionReviewed = numReviewedPullRequests / pullRequest.data.length;
             return fractionReviewed;
         } catch (error) {
             console.error(error);

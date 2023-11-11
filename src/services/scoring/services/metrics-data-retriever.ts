@@ -290,25 +290,41 @@ export class MetricsDataRetriever {
         };
     }
 
-    async fetchPullRequestData(owner: string, repo: string): Promise<any> {
+    /**
+     * Fetches pull review data from Github.
+     *
+     *
+     * @param owner The owner of the repository.
+     * @param repo The name of the repository.
+     */
+
+   async fetchPullRequestData(owner: string, repo: string): Promise<any> {
       //TO IMPLEMENT:
       //GitHub API calls within this function that get relevant data for pull requests metric
-      return null
-      /*
+      //return null
+      
       const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-      return octokit.request('GET /repos/{owner}/{repo}/pulls?state=closed', {
-        owner: owner,
-        repo: repo,
-        per_page: 100,
-    }); */
+      try{
+        const response =  await octokit.request('GET /repos/{owner}/{repo}/pulls?state=closed', {
+          owner: owner,
+          repo: repo,
+          per_page: 100,
+        }); 
+        return response.data || []; 
+      } 
+        catch(error){
+          console.error(error);
+          throw error;
+      }
+      
 
     }
-/*
+
     async fetchReviewComments(url: string): Promise<any>{
       const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
       return octokit.request('GET ' + url);
     }
-*/
+
 
 
     // async extractGitHubInfo(url: string): Promise<RepoIdentifier> {
