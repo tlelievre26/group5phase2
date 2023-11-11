@@ -313,7 +313,7 @@ export class MetricsDataRetriever {
         return response.data || []; 
       } 
         catch(error){
-          console.error(error);
+          console.error("Pull request data error: ",error);
           throw error;
       }
       
@@ -322,7 +322,14 @@ export class MetricsDataRetriever {
 
     async fetchReviewComments(url: string): Promise<any>{
       const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-      return octokit.request('GET ' + url);
+      try {
+        const response = await octokit.request('GET ${url}');
+        return response.data;
+      } catch (error){
+        console.error('Error fetching review comments for URL ${url}', error);
+        throw error;
+      }
+      
     }
 
 
