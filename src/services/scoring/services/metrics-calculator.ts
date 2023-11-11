@@ -2,6 +2,8 @@
 import { inject, injectable } from "tsyringe";
 import { LicenseVerifier } from "./license-verifier";
 import { PackageRating } from "../../../models/api_schemas";
+import {Octokit} from "@octokit/core";
+//import {fetchPullRequestData} from "./metrics-data-retriever"; 
 
 import logger from "../../../utils/logger";
 import { pull } from "isomorphic-git";
@@ -38,7 +40,7 @@ export class MetricsCalculator {
                 this.calculateCorrectness(data.correctnessData),
                 this.calculateRampUp(data.rampUpData),
                 this.calculateResponsiveMaintainer(data.responsiveMaintainerData),
-                this.calculatePercentPullRequest(data.pullRequestData)
+                this.calculatePercentPullRequest(data.owner, data.repo)
             ]);
 
             //Pretty sure license is seperate here bc it clones the repo locally instead of reading from the API
@@ -255,40 +257,46 @@ export class MetricsCalculator {
         return Math.max(0, Math.min(1, score));  // Ensuring the score is within [0, 1]
     }
 
-    async calculatePercentPullRequest(pullRequestData: any): Promise<number> {
+    async calculatePercentPullRequest(owner: string, repo: string): Promise<number> { //pullRequestData: any
         //TO IMPLEMENT:
         //Equations calculating the pull request score
         try {
-            // Get list of pull requests
-            const pullResponse = await this.fetchPullRequests();
-    
-            // No pull requests made, score is 0 since all pushes were to main and unreviewed
+            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+            const pullResponse = await octokit.request('GET /repos/{owner}/{repo}/pulls?state=closed', {
+                owner: owner,
+                repo: repo,
+                per_page: 100,
+            });
+
             if (pullResponse.data.length === 0) {
-                return 0;
+                return 0; // No pull requests made, score is 0 all pushes were to main and unreviewed
             }
-    
-            // Get list of the review comments URLs for each merged pull request
-            const review_comments_urls = pullResponse.data
-                .filter(pull => pull.merged_at !== null)
-                .map(pull => pull.review_comments_url);
-    
-            // Check reviews, add to num_reviewed if not empty
-            let num_reviewed = 0;
-            for (const url of review_comments_urls) {
-                const review_comment_response = await this.fetchReviewComments(url);
-                if (review_comment_response.data.length > 0) {
-                    num_reviewed += 1;
+
+            let numReviewedPullRequests = 0;
+            
+            for (const pull of pullResponse.data) {
+                //checking if pull request has been merged 
+                if (pull.merged_at !== null) {
+                    //checking for reviews on pull request 
+                    const reviewsResponse = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews', {
+                        owner: owner,
+                        repo: repo,
+                        pull_number: pull.number,
+                        per_page: 100,
+                    });
+
+                    if (reviewsResponse.data.length > 0) {
+                        numReviewedPullRequests += 1;
+                    }
                 }
             }
-    
-            // Calculate and return the fraction of reviewed requests divided by the number of all pull requests
-            return num_reviewed / pullResponse.data.length;
+            //calculate fraction 
+            const fractionReviewed = numReviewedPullRequests / pullResponse.data.length;
+            return fractionReviewed;
         } catch (error) {
             console.error(error);
             throw error;
         }
-
-        return 0
     }
 
 
