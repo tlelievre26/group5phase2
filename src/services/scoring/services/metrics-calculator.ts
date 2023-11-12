@@ -5,7 +5,8 @@ import { PackageRating } from "../../../models/api_schemas";
 
 import logger from "../../../utils/logger";
 import { pull } from "isomorphic-git";
-import {OctokitResponse} from OctokitResponse; 
+import {Octokit} from "@octokit/core"; 
+ 
 
 
 @injectable()
@@ -265,7 +266,11 @@ export class MetricsCalculator {
     }
 
 
-    async dependency(owner: string, repo: string): Promise<number> {
+    async dependency(owner: string, repo: string) {
+        const octokit = new Octokit({
+            auth: process.env.GITHUB_TOKEN,
+            version: "latest",
+          });
         try {
           const response = await octokit.repos.getContent({
             owner,
@@ -275,7 +280,9 @@ export class MetricsCalculator {
     
 
         }
-        return 0
+        catch(error){
+            return 0
+        } 
     }
 
     /**
