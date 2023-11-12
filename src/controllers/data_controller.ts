@@ -55,10 +55,7 @@ export class PkgDataManager {
         const auth_token = req.params.auth_token;
         var response_obj: schemas.Package;
     
-    
-    
-    
-    
+
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
     
         if(response_code == 200) {

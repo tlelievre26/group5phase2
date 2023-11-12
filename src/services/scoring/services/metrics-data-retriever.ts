@@ -323,10 +323,10 @@ export class MetricsDataRetriever {
     async fetchReviewComments(url: string): Promise<any>{
       const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
       try {
-        const response = await octokit.request('GET ${url}');
+        const response = await octokit.request(`GET ${url}`);
         return response.data;
       } catch (error){
-        console.error('Error fetching review comments for URL ${url}', error);
+        console.error(`Error fetching review comments for URL ${url}`, error);
         throw error;
       }
       
