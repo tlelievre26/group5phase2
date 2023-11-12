@@ -4,7 +4,7 @@ import { LicenseVerifier } from "./license-verifier";
 import { PackageRating } from "../../../models/api_schemas";
 
 import logger from "../../../utils/logger";
-import { pull } from "isomorphic-git";
+import { ExtractedMetadata } from "../../../models/other_schemas";
 
 
 @injectable()
@@ -22,10 +22,10 @@ export class MetricsCalculator {
      * @param urlsPromise
      * @param data
      */
-    public async calculateMetrics(url: string, data: any): Promise<PackageRating> {
+    public async calculateMetrics(owner: string, repo: string, data: any, pkg_metadata: ExtractedMetadata): Promise<PackageRating> {
 
         try {
-            logger.debug(`Calculating metrics for ${url}...`);
+            logger.debug(`Calculating metrics for ${repo}...`);
 
             const [
                 busFactor,
@@ -42,7 +42,7 @@ export class MetricsCalculator {
             ]);
 
             //Pretty sure license is seperate here bc it clones the repo locally instead of reading from the API
-            const license = await this.licenseVerifier.verifyLicense(url);
+            const license = await this.licenseVerifier.verifyLicense(pkg_metadata);
 
 
             //*********** TO DO: Implement scoring method for pinning practice ***********
@@ -64,7 +64,7 @@ export class MetricsCalculator {
             }
 
         } catch (error) {
-            logger.error(`Error calculating metrics for URL ${url}:`, error);
+            logger.error(`Error calculating metrics for repo ${repo}:`, error);
             throw error;
         }
     }

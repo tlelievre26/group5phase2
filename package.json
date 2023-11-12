@@ -5,6 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "npx tsc",
+    "rebuild": "npx tsc && node dist/app.js",
     "start": "node run",
     "test": "npx jest",
     "lint": "eslint . --ext .ts"
@@ -18,12 +19,14 @@
   "dependencies": {
     "@octokit/graphql": "^7.0.1",
     "aws-sdk": "^2.1483.0",
+    "axios": "^1.6.0",
     "commander": "^11.0.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "figlet": "^1.6.0",
     "isomorphic-git": "^1.24.5",
     "jszip": "^3.10.1",
+    "mysql": "^2.18.1",
     "reflect-metadata": "^0.1.13",
     "tslog": "^4.9.2",
     "tsyringe": "^4.8.0"
@@ -32,6 +35,7 @@
     "@types/express": "^4.17.19",
     "@types/figlet": "^1.5.7",
     "@types/jest": "^29.5.4",
+    "@types/mysql": "^2.15.23",
     "@types/node": "^20.5.7",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@typescript-eslint/parser": "^6.8.0",

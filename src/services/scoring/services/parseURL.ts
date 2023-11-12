@@ -1,4 +1,5 @@
 import { RepoIdentifier } from "../../../models/other_schemas";
+import logger from "../../../utils/logger";
 
 /**
  * Extracts owner and repo from a GitHub URL.
@@ -12,6 +13,7 @@ export function extractGitHubInfo(url: string): RepoIdentifier {
         throw new Error(`Invalid GitHub URL: ${url}`);
     }
     const {1: owner, 2: repo} = urlMatch;
+    logger.debug(`Extracted owner ${owner} and repo ${repo} from URL ${url}`)
     return {owner, repo};
 }
 

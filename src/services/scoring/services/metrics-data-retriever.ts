@@ -35,20 +35,19 @@ export class MetricsDataRetriever {
      *
      * @param urls List of GitHub repository URLs.
      */
-    async retrieveMetricsData(url: string): Promise<any> {
+    async retrieveMetricsData(owner: string, repo: string): Promise<any> {
       try {
         // Extract owner and repo from GitHub URL
-        const {owner, repo} = await extractGitHubInfo(url);
-
         const busFactorData = await this.fetchBusFactorData(owner, repo);
         const rampUpData = await this.fetchRampUpData(owner, repo);
         const correctnessData = await this.fetchCorrectnessData(owner, repo);
         const responsiveMaintainerData = await this.fetchResponsiveMaintainerData(owner, repo);
+        
         //Note we do NOT include pinning data here, as its obtained by parsing the package.json from a local clone
         const pullRequestData = await this.fetchPullRequestData(owner, repo);
 
         return {
-          url,
+          repo,
           busFactorData,
           rampUpData,
           correctnessData,
@@ -56,7 +55,7 @@ export class MetricsDataRetriever {
           pullRequestData
         };
       } catch (error) {
-        logger.error(`Error retrieving metrics data for URL ${url}:`, error);
+        logger.error(`Error retrieving metrics data for repo ${repo}:`, error);
         throw error;
       }
     }
@@ -296,15 +295,4 @@ export class MetricsDataRetriever {
     }
 
 
-
-    // async extractGitHubInfo(url: string): Promise<RepoIdentifier> {
-    //     const urlMatch = url.match(this.GITHUB_URL_REGEX);
-    //     if (!urlMatch) {
-    //         throw new Error(`Invalid GitHub URL: ${url}`);
-    //     }
-    //     const {1: owner, 2: repo} = urlMatch;
-    //     return {owner, repo};
-    // }
-
-    //Moved this to its own file, other things want to call this outside this class
 }
