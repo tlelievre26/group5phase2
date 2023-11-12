@@ -86,4 +86,4 @@ export default function queryDatabase(databaseName: string, queries: DbQuery | D
             });
           });
         });
-      }
+}

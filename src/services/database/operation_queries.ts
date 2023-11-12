@@ -47,3 +47,11 @@ export async function checkPkgIDInDB(pkg_ID: string): Promise<boolean> {
         return false
     }
 }
+
+
+export function searchPackage(databaseName: string, packageNameOrId: string): Promise<any> {
+    const query = `SELECT * FROM packages WHERE name = ? OR id = ?`;
+    const values = [packageNameOrId, packageNameOrId];
+    const dbQuery = { sql: query, values };
+    return queryDatabase(databaseName, dbQuery);
+}
