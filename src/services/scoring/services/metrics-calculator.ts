@@ -5,6 +5,7 @@ import { PackageRating } from "../../../models/api_schemas";
 
 import logger from "../../../utils/logger";
 import { pull } from "isomorphic-git";
+import {OctokitResponse} from OctokitResponse; 
 
 
 @injectable()
@@ -48,6 +49,8 @@ export class MetricsCalculator {
             //*********** TO DO: Implement scoring method for pinning practice ***********
             //Similar to license, pinning practice will require a local clone of the repo
             const pinningPractice = 0
+
+
 
             //Net score does NOT factor in the 2 new metrics
             const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license);
@@ -261,6 +264,19 @@ export class MetricsCalculator {
         return 0
     }
 
+
+    async dependency(owner: string, repo: string): Promise<number> {
+        try {
+          const response = await octokit.repos.getContent({
+            owner,
+            repo,
+            path: "package.json"
+          });
+    
+
+        }
+        return 0
+    }
 
     /**
      * Calculates the Net Score for a GitHub repository
