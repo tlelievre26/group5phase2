@@ -258,6 +258,9 @@ export class MetricsCalculator {
     async calculatePercentPullRequest(pullRequestData: any): Promise<number> {
         //TO IMPLEMENT:
         //Equations calculating the pull request score
+
+        // pullRequestData is from metrics-data-retriever 
+        
         return 0
     }
 
