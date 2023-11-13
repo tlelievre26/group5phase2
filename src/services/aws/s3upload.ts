@@ -16,14 +16,14 @@ export default async function uploadToS3(package_contents: ExtractedPackage, pkg
             Key: `${pkg_ID}/metadata/${filename}`,
             Body: file
         };
-        aws_s3.upload(uploadParams, function(err: Error | null, data: AWS.S3.ManagedUpload.SendData) {
+        aws_s3.upload(uploadParams, function(err: Error | null) {
             if (err) {
                 logger.error('Error uploading file to S3:', err);
             } else {
-                logger.debug('File uploaded successfully. S3 Location:', data.Location);
+                logger.debug(`Successfully uploaded ${filename} to S3 under key ${pkg_ID}/metadata/${filename}`);
             }
         });
-        logger.debug(`Successfully uploaded ${filename} to S3 under key ${pkg_ID}/metadata/${filename}`);
+
     }
 
     const uploadParams = {
@@ -31,14 +31,14 @@ export default async function uploadToS3(package_contents: ExtractedPackage, pkg
         Key: `${pkg_ID}/${dir_name}.zip`,
         Body: package_contents.contents
     };
-    aws_s3.upload(uploadParams, function(err: Error | null, data: AWS.S3.ManagedUpload.SendData) {
+    aws_s3.upload(uploadParams, function(err: Error | null) {
         if (err) {
             logger.error('Error uploading file to S3:', err);
         } else {
-            logger.debug('File uploaded successfully. S3 Location:', data.Location);
+            logger.debug(`Successfully uploaded contents to S3 under key ${pkg_ID}/${dir_name}.zip`);
         }
     });
-    logger.debug(`Successfully uploaded contents to S3 under key ${pkg_ID}/${dir_name}.zip`);
+
     return `${pkg_ID}/${dir_name}.zip`
 }
 

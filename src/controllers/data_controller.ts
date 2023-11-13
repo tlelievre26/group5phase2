@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
+import logger from "../utils/logger";
 //import { inject, injectable } from "tsyringe";
 
 //This file contains a class that acts a controller for everything relating to getting data about a package
@@ -7,7 +8,7 @@ import * as schemas from "../models/api_schemas"
 export class PkgDataManager {
 
     getPackageQuery(req: Request, res: Response) {
-        console.log("Got a package query request");
+        logger.debug("Got a package query request");
         //Get any packages fitting the query. Search for packages satisfying the indicated query.
     
         //If you want to enumerate all packages, provide an array with a single PackageQuery whose name is "*".

@@ -10,8 +10,8 @@ import { extractGitHubInfo } from '../services/scoring/services/parseURL';
 import uploadToS3 from '../services/aws/s3upload';
 
 import { extractBase64ContentsFromUrl } from '../services/upload/convert_zipball';
-import { checkPkgIDInDB, insertPackageIntoDB } from '../services/database/operation_queries';
-import deleteFromS3 from '../services/aws/s3delete';
+import { checkPkgIDInDB, genericPkgDataGet, insertPackageIntoDB } from '../services/database/operation_queries';
+import { deleteFromS3 } from '../services/aws/s3delete';
 import { deletePackageDataByID } from '../services/database/delete_queries';
 
 //Controllers are basically a way to organize the functions called by your API
@@ -74,28 +74,19 @@ export class PackageUploader {
         if(!id) {
             res.status(400).send("Invalid/missing package ID in header");
         }
-        
         else if(!await checkPkgIDInDB(id)) {
             res.status(404).send("Could not find existing package with matching ID");
         }
         else {
+            const pkg_name = await genericPkgDataGet("NAME", id)
             //Delete package from S3 bucket
-            await deleteFromS3(id);
+            await deleteFromS3(id, pkg_name)
             //Delete all package data from DB
             await deletePackageDataByID(id);
 
             res.status(200).send(`Successfully deleted ${id} from the registry`);
         }
-
-        // var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
-    
-        // if(response_code == 200) {
-        //     
-        // }
-        // else if(response_code == 404) {
-        //     res.status(404).send("Could not find existing package with matching ID");
-        // }
-        // res.send(`Delete package with ID: ${id}`);
+        
     }
     
     

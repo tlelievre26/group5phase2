@@ -47,20 +47,22 @@ async function extractFromZip(zip: JSZip): Promise<ExtractedMetadata> {
 
 
     //NOTE: should use the above version once I figure out how to deal with the extra folder in there
-    const package_json_match = /package\.json$/i //Regex to match the package.json file
+    const package_json_match = /^[^/]*\/package\.json$/i //Regex to match the package.json file
+    //Can only match file in the root directory
+
     const readme_match = [ //Regex for several possible names for a readme
-        /readme\.md$/i,
-        /readme\.txt$/i,
-        /readme$/i,
-        /readme_[a-z]{2}\.md$/i 
+        /^[^/]*\readme\.md$/i,
+        /^[^/]*\readme\.txt$/i,
+        /^[^/]*\readme$/i,
+        /^[^/]*\readme_[a-z]{2}\.md$/i 
     ]
     const license_match = [ //Regex for several possible names of a license
-        /license$/i,
-        /license\.txt$/i,
-        /license\.md$/i,
-        /copying$/i,
-        /copying\.txt$/i,
-        /copying\.md$/i
+        /^[^/]*\/license$/i,
+        /^[^/]*\/license\.txt$/i,
+        /^[^/]*\/license\.md$/i,
+        /^[^/]*\/copying$/i,
+        /^[^/]*\/copying\.txt$/i,
+        /^[^/]*\/copying\.md$/i
     ]
 
     const retrieved_files: ExtractedMetadata = {
@@ -68,18 +70,21 @@ async function extractFromZip(zip: JSZip): Promise<ExtractedMetadata> {
         //There might not always be a license or a readme, so don't want to specify those yet
     };
 
+    let found_pkg_json = false;
+
     for (const [filename, file] of Object.entries(zip.files)) {
         //Iterates through file objects and their names, checking if they match one of the regexes
         //Stores it in our directionary if it does
         //console.log(filename)
-        if (package_json_match.test(filename)) {
+        if (package_json_match.test(filename) && !found_pkg_json) {
+            found_pkg_json = true
             const fileData = await file.async('nodebuffer');
             retrieved_files["package.json"] = fileData; //*****ideally should be using retrieved_files[filename]*****
-            logger.debug("Successfully retrieved package.json file from zip");
+            logger.debug(`Successfully retrieved package.json file called ${filename} from zip`);
         }
         else {
             for (const pattern of license_match) {
-                if (pattern.test(filename)) {
+                if (pattern.test(filename) && !retrieved_files.hasOwnProperty("LICENSE")) {
                   const fileData = await file.async('nodebuffer');
                   retrieved_files["LICENSE"] = fileData;
                   logger.debug("Successfully retrieved LICENSE file from zip");
@@ -88,7 +93,7 @@ async function extractFromZip(zip: JSZip): Promise<ExtractedMetadata> {
             }
             if(!retrieved_files.hasOwnProperty(filename)) { //If we haven't matched the file to either of the previous 2 patterns
                 for (const pattern of readme_match) {
-                    if (pattern.test(filename)) {
+                    if (pattern.test(filename) && !retrieved_files.hasOwnProperty("package.json")) {
                       const fileData = await file.async('nodebuffer');
                       retrieved_files["README"] = fileData;
                       logger.debug("Successfully retrieved README file from zip");

@@ -1,26 +1,36 @@
 import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
+import { wipeS3packages } from '../services/aws/s3delete';
+import { wipeDBpackages } from '../services/database/delete_queries';
 
 //This is our controller for all of our non-package related endpoints
 
 export class UtilsController{
-    public hardReset(req: Request, res: Response) {
+    public async hardReset(req: Request, res: Response) {
         //Reset the registry to a system default state.
+
+        /***********************************************
+         * 
+         *   NEED TO ADD USER AUTH TO THIS FUNCTION
+         * 
+         */
+
+
+        /***********************************************
+         * 
+         *   NEED TO BE ABLE TO CLEAR USERS
+         * 
+         */
+
+        await wipeDBpackages();
+        await wipeS3packages();
+
+
     
-        const auth_token = req.params.auth_token;
-        var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
-    
-    
-    
-        if(response_code == 200) {
-            res.status(200).send("Successfully reset registry to default state");
-        }
-        else if(response_code == 400) {
-            res.status(400).send("Invalid auth token");
-        }
-        else if(response_code == 401) {
-            res.status(401).send("You do not have permission to reset the registry");
-        }
+        res.status(200).send("Successfully reset registry to default state");
+        // else if(response_code == 401) {
+        //     res.status(401).send("You do not have permission to reset the registry");
+        // }
     }
     
     public getAuthToken (req: Request, res: Response) {
