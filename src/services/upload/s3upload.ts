@@ -42,6 +42,8 @@ export default async function uploadToS3(package_contents: ExtractedPackage): Pr
     return `${dir_name}/${dir_name}.zip`
 }
 
+
+
 // // Example usage
 // const bucketName = 'my-bucket';
 // const key = 'path/to/my/file.zip';
