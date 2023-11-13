@@ -7,10 +7,12 @@ import { MetricsController } from '../services/scoring/controllers/metrics-contr
 import { container } from '../services/scoring/container';
 import graphqlWithAuth from '../utils/graphql_query_setup';
 import { extractGitHubInfo } from '../services/scoring/services/parseURL';
-import uploadToS3 from '../services/upload/s3upload';
+import uploadToS3 from '../services/aws/s3upload';
 
 import { extractBase64ContentsFromUrl } from '../services/upload/convert_zipball';
 import { checkPkgIDInDB, insertPackageIntoDB } from '../services/database/operation_queries';
+import deleteFromS3 from '../services/aws/s3delete';
+import { deletePackageDataByID } from '../services/database/delete_queries';
 
 //Controllers are basically a way to organize the functions called by your API
 //Obviously most of our functions will be too complex to have within the API endpoint declaration
@@ -65,34 +67,35 @@ export class PackageUploader {
 
 
     
-    public deletePkgByID (req: Request, res: Response) {
+    public async deletePkgByID (req: Request, res: Response) {
     
         const id = req.params.id;
-        const auth_token = req.params.auth_token;
     
-        //******* IMPLEMENTATION HERE ********* 
+        if(!id) {
+            res.status(400).send("Invalid/missing package ID in header");
+        }
         
-        //************************************** 
-
-    
-        var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
-    
-        if(response_code == 200) {
-            res.status(200).send("Successfully deleted {packageName} from the registry");
-        }
-        else if(response_code == 400) {
-            if(auth_token) { //If its invalid
-                //VALIDATION CHECK UNIMPLEMENTED
-                res.status(400).send("Invalid auth token");
-            }
-            else {
-                res.status(400).send("Invalid package ID in header");
-            }
-        }
-        else if(response_code == 404) {
+        else if(!await checkPkgIDInDB(id)) {
             res.status(404).send("Could not find existing package with matching ID");
         }
-        res.send(`Delete package with ID: ${id}`);
+        else {
+            //Delete package from S3 bucket
+            await deleteFromS3(id);
+            //Delete all package data from DB
+            await deletePackageDataByID(id);
+
+            res.status(200).send(`Successfully deleted ${id} from the registry`);
+        }
+
+        // var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
+    
+        // if(response_code == 200) {
+        //     
+        // }
+        // else if(response_code == 404) {
+        //     res.status(404).send("Could not find existing package with matching ID");
+        // }
+        // res.send(`Delete package with ID: ${id}`);
     }
     
     
@@ -104,7 +107,6 @@ export class PackageUploader {
 
         const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
         let response_obj: schemas.Package;
-        let package_name;
         let extractedContents
         
         //Would the GitHub URL be the "ingestion of npm package" in the spec?
@@ -184,7 +186,7 @@ export class PackageUploader {
                 //return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
             // }
             // else {
-                const contentsPath = await uploadToS3(extractedContents)
+                const contentsPath = await uploadToS3(extractedContents, repo_ID)
                 //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
                 await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
             // }
@@ -232,7 +234,7 @@ export class PackageUploader {
 
             const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
 
-            const contentsPath = await uploadToS3(extractedContents)
+            const contentsPath = await uploadToS3(extractedContents, repo_ID)
             //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
             await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
 
