@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { injectable } from "tsyringe";
 import { graphql } from "@octokit/graphql";
-import {Octokit} from "@octokit/core";
+
 
 import { extractGitHubInfo } from "./parseURL";
 import logger from "../../../utils/logger";
@@ -298,41 +298,75 @@ export class MetricsDataRetriever {
      * @param repo The name of the repository.
      */
 
-   async fetchPullRequestData(owner: string, repo: string): Promise<any> {
-      //TO IMPLEMENT:
+         //TO IMPLEMENT:
       //GitHub API calls within this function that get relevant data for pull requests metric
       //return null
       
-      const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-      try{
-        const response =  await octokit.request('GET /repos/{owner}/{repo}/pulls?state=closed', {
-          owner: owner,
-          repo: repo,
-          per_page: 100,
-        }); 
-        return response.data || []; 
-      } 
-        catch(error){
-          console.error("Pull request data error: ",error);
+      async fetchPullRequestData(owner: string, repo: string): Promise<any> {
+        try {
+          const query = `
+            {
+              repository(owner: "${owner}", name: "${repo}") {
+                pullRequests(states: [MERGED, CLOSED], last: 100) {
+                  nodes {
+                    number
+                    title
+                    mergedAt
+                    reviews(first: 1) {
+                      nodes {
+                        author {
+                          login
+                        }
+                        state
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          `;
+    
+          const { repository } = await this.graphqlWithAuth(query);
+    
+          return repository.pullRequests.nodes || [];
+        } catch (error) {
+          console.error("Pull request data error: ", error);
           throw error;
+        }
+      }
+
+      async fetchReviewComments(pullRequestId: string): Promise<any> {
+        try {
+          const query = `
+            {
+              node(id: "${pullRequestId}") {
+                ... on PullRequest {
+                  reviews(last: 1) {
+                    nodes {
+                      comments(last: 10) {
+                        nodes {
+                          body
+                          author {
+                            login
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          `;
+      
+          const { node } = await this.graphqlWithAuth(query);
+      
+          return node.reviews.nodes[0].comments.nodes || [];
+        } catch (error) {
+          console.error(`Error fetching review comments for pull request ${pullRequestId}`, error);
+          throw error;
+        }
       }
       
-
-    }
-
-    async fetchReviewComments(url: string): Promise<any>{
-      const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-      try {
-        const response = await octokit.request(`GET ${url}`);
-        return response.data;
-      } catch (error){
-        console.error(`Error fetching review comments for URL ${url}`, error);
-        throw error;
-      }
-      
-    }
-
-
 
     // async extractGitHubInfo(url: string): Promise<RepoIdentifier> {
     //     const urlMatch = url.match(this.GITHUB_URL_REGEX);

@@ -2,7 +2,7 @@
 import { inject, injectable } from "tsyringe";
 import { LicenseVerifier } from "./license-verifier";
 import { PackageRating } from "../../../models/api_schemas";
-import {Octokit} from "@octokit/core"; 
+
 
 import logger from "../../../utils/logger";
 import { pull } from "isomorphic-git";
