@@ -1,35 +1,60 @@
-import { Octokit } from "@octokit/rest";
+import { graphql } from "@octokit/graphql";
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-  version: "latest",
+interface RepositoryObject {
+  text: string;
+}
+
+interface RepositoryResponse {
+  repository: {
+    object: RepositoryObject;
+  };
+}
+
+const octokit = graphql.defaults({
+  headers: {
+    authorization: `token ${process.env.GITHUB_TOKEN}`,
+  },
 });
 
 async function processDependencies(owner: string, repo: string, filename: string): Promise<number> {
   try {
-    const response = await octokit.repos.getContent({
+    //fetching content of the github repo 
+    const query = `
+      query($owner: String!, $repo: String!, $filename: String!) {
+        repository(owner: $owner, name: $repo) {
+          object(expression: $filename) {
+            ... on Blob {
+              text
+            }
+          }
+        }
+      }
+    `;
+    
+    //holding data from query 
+    const response = await octokit<RepositoryResponse>(query, {
       owner,
       repo,
-      path: filename,
+      filename,
     });
 
-    const responseJSON = JSON.parse(JSON.stringify(response.data));
-    const packageJson = JSON.parse(Buffer.from(responseJSON.content, 'base64').toString('utf8'));
+    const content = response.repository.object.text;
+    const packageJson = JSON.parse(content);
     const dependencies = packageJson.dependencies;
 
     let notPinned = 0;
     let pinned = 0;
-
+    //iterating dependencies 
     for (const [dependencyName, version] of Object.entries(dependencies)) {
       const versionJSON = JSON.parse(JSON.stringify(version));
-      const [large, med, small] = versionJSON.toString().split('.');
+      const [major, med, minor] = versionJSON.toString().split('.');
       const finder = versionJSON.toString().indexOf("-");
       const carrot = versionJSON.toString().indexOf("^");
 
-      // Check if the version is in an acceptable format
-      if ((med == undefined && small == undefined) || finder != -1 || (carrot != -1 && large != undefined)) {
+      // Check if version in acceptable format
+      if ((med == undefined && minor == undefined) || finder != -1 || (carrot != -1 && major != undefined)) {
         notPinned++;
       } else {
         pinned++;
@@ -50,6 +75,7 @@ async function processDependencies(owner: string, repo: string, filename: string
   }
 }
 
+//wraps for exporting, probably need to structure this another way with phase 1
 export async function dependency(owner: string, repo: string): Promise<number> {
   const jsonResult = await processDependencies(owner, repo, "package.json");
   if (jsonResult !== -1) {
