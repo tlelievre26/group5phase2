@@ -45,7 +45,7 @@ async function processDependencies(owner: string, repo: string, filename: string
     return pinned / numberOfDependencies;
   } catch (error) {
     // Log or handle the error appropriately
-    console.error(`Error processing ${filename}: ${error.message}`);
+    console.error(`Error processing ${filename}`);
     return -1;
   }
 }
