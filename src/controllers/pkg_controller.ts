@@ -2,7 +2,15 @@ import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
 import { uploadBase64Contents } from '../services/upload/unzip_contents';
 import logger from "../utils/logger";
-//import { inject, injectable } from "tsyringe";
+import { MetricsController } from '../services/scoring/controllers/metrics-controller';
+
+import { container } from '../services/scoring/container';
+import graphqlWithAuth from '../utils/graphql_query_setup';
+import { extractGitHubInfo } from '../services/scoring/services/parseURL';
+import uploadToS3 from '../services/upload/s3upload';
+
+import { extractBase64ContentsFromUrl } from '../services/upload/convert_zipball';
+import { checkPkgIDInDB, insertPackageIntoDB } from '../services/database/operation_queries';
 
 //Controllers are basically a way to organize the functions called by your API
 //Obviously most of our functions will be too complex to have within the API endpoint declaration
@@ -16,9 +24,12 @@ import logger from "../utils/logger";
 //And providing the correct status will be done by the controller
 
 
+const controller = container.resolve(MetricsController); //Basically gets an instance of the MetricsController class
+
+
 //This controller contains a class that handles everything related to creating, deleting, and updating packages
 export class PackageUploader {
-    
+
     public updatePkgById (req: Request, res: Response) {
         //The name, version, and ID must match.
         //The package contents (from PackageData) will replace the previous contents.
@@ -84,73 +95,158 @@ export class PackageUploader {
         res.send(`Delete package with ID: ${id}`);
     }
     
+    
+
+
     public async createPkg (req: Request, res: Response) {
+
         logger.debug("Successfully routed to endpoint for uploading a new package")
+
         const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
-        var response_obj: schemas.Package;
+        let response_obj: schemas.Package;
         let package_name;
+        let extractedContents
         
         //Would the GitHub URL be the "ingestion of npm package" in the spec?
     
         //Need to add: check that package doesn't already exist
 
         if(req_body.hasOwnProperty("URL") && !req_body.hasOwnProperty("Content")) {
+
             logger.debug("Recieved GitHub URL in request body")
-            //parseUrlToZip(req_body.URL);
-            //Calculate scores for repo using URL and see if it passes
-    
-            //***CAN WE RETOOL THE PHASE 1 REPO TO JUST TAKE IN THE URL DIRECTLY */
-    
-            //If it does, get the zipped version of the file from the GitHub API endpoint /repos/{owner}/{repo}/zipball/{ref}
-    
-            //*** ORIGINAL GROUP USED GRAPHQL, DO WE HAVE TO DO THE SAME FOR FUTURE API CALLS*/
-    
-            //Convert zipped contexts to base64 text
-            //Proceed as normal
-            package_name = req_body.URL;
+            const github_URL = req_body.URL!
+            //Get the owner and repo name from the URL
+            const {owner, repo} = extractGitHubInfo(github_URL);
+            const repo_ID = owner + "_" + repo
+
+            if(await checkPkgIDInDB(repo_ID)) {
+                return res.status(409).send("Uploaded package already exists in registry");
+            }
+
+            //Get the zipped version of the file from the GitHub API
+
+            const zipball_query = `{
+                repository(owner: "${owner}", name: "${repo}") {
+              
+                  defaultBranchRef {
+                    target {
+                      ... on Commit {
+                        zipballUrl
+                      }
+                    }
+                  }
+                }
+              }`
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const response: any = await graphqlWithAuth(zipball_query);
+
+            const zipballUrl = response.repository.defaultBranchRef.target.zipballUrl;
+            //Query returns a URL that downloads the repo when GET requested
+            logger.debug(`Retrieved zipball URL ${zipballUrl} from GitHub API`)
+            
+            const contents = await extractBase64ContentsFromUrl(zipballUrl);
+
+            //And now we can proceed the same way
+
+            //The reason we get the zipball before doing the score check is we would've had to clone the repo anyways, which probably takes a similar amount of memory and time
+            //Doing this makes it easier to integrate with the other input formats
+            
+            extractedContents = await uploadBase64Contents(contents); //We know it'll exist
+            const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
+
+
+
+            //Check DB if package id already exists in database
+
+
+
+            response_obj = {
+                metadata: {
+                    Name: pkg_json.name,
+                    Version: pkg_json.version,
+                    ID: repo_ID
+                    //metrics: metric_scores
+                },
+                data: {
+                    Content: contents
+                }
+            }
+
+            const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
+            
+            //Ensure it passes the metric checks
+            //********************************************************************* */
+            //***** NOT CHECKING THIS FOR NOW BECAUSE THE PHASE 1 SCORING KINDA SUCKS */
+            //********************************************************************* */
+
+            // if(metric_scores["BusFactor"] < 0.5 || metric_scores["RampUp"] < 0.5 || metric_scores["Correctness"] < 0.5 || metric_scores["ResponsiveMaintainer"] < 0.5 || metric_scores["LicenseScore"] < 0.5) {
+                //return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
+            // }
+            // else {
+                const contentsPath = await uploadToS3(extractedContents)
+                //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
+                await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
+            // }
+
         }
         else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
             logger.debug("Recieved encoded package contents in request body")
-            //Package contents encoded into a base64 string
-            //Conundrum: We can't unzip the package once it's already in the S3, and we need to give it an appropriate name
-            //Here's what we probably need to extract:
-            //package.json
-            //README.md
-            //any license file
 
-            //Can get relevant name from package.json + GitHub repo URL
-            //Once we have those, we use the name to upload the package and c
-            //Can use that URL to call scoring functions
-
-            //Raw package contents, decoded from base64 text into binary data
             
-            const pkg_json = await uploadBase64Contents(req_body.Content!); //We know it'll exist
-            package_name = pkg_json.name;
+            extractedContents = await uploadBase64Contents(req_body.Content!); //We know it'll exist
+
+            //NEED TO CHECK IT ISNT A DUPE
+
+            const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
+            const repo_url = pkg_json.repository.url;
+            const {owner, repo} = extractGitHubInfo(repo_url);
+            const repo_ID = owner + "_" + repo
+            if(await checkPkgIDInDB(repo_ID)) {
+                return res.status(409).send("Uploaded package already exists in registry");
+            }
+
+
+            //Check DB if package id already exists in database
+
+            /*
+            if(package already exists) {
+                res.status(404).send("Uploaded package already exists in registry");
+            }
+            */
+
+            response_obj = {
+                metadata: {
+                    Name: pkg_json.name,
+                    Version: pkg_json.version,
+                    ID: repo_ID
+                    //metrics: metric_scores
+                },
+                data: {
+                    Content: req_body.Content
+                }
+            }
+
+            //We decode the package.json several times which is technically inefficient but whatever
+
+
+            const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
+
+            const contentsPath = await uploadToS3(extractedContents)
+            //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
+            await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
+
+            //Write scores to db
         }
         else {
             return res.status(400).send("Invalid or malformed PackageData in request body");
         }
+
         
-        
-        //Steps: Take the contents and save it to an AWS bucket 
-        //Extract contents and get metadata from package.json
-        //Calculate scores for repo and store all relevant info in our database
-        //Create response object
+
+
     
-    
-    
-        var response_code = 201; //Probably wont implement it like this, just using it as a placeholder
-    
-        if(response_code == 201) {
-            res.status(201).send(`Successfully created new package ${package_name}`);
-        }
-        else if(response_code == 409) {
-            res.status(404).send("Uploaded package already exists in registry");
-        }
-        else if(response_code == 424) {
-            //Should probably return the scores along with the message
-            res.status(404).send("npm package failed to pass rating check for public ingestion");
-        }
+        res.status(201).json(response_obj);
     }
 
     public deletePkgByName (req: Request, res: Response) {

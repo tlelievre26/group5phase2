@@ -67,24 +67,24 @@ program
     });
 
 // ./run <URL_FILE>
-program
-    .arguments("<URL_FILE>")
-    .action((urlFilePath) => {
-        if (!fs.existsSync(urlFilePath)) {
-            logger.error(`File not found: ${urlFilePath}`);
-            process.exit(1);
-        } else {
-            controller.generateMetrics(urlFilePath)
-                .then(() => {
-                    logger.info("Successfully generated metrics.");
-                    process.exit(0);
-                })
-                .catch(error => {
-                    logger.error("An error occurred in generateMetrics: ", error);
-                    process.exit(1);
-                });
-        }
-    });
+// program
+//     .arguments("<URL_FILE>")
+//     .action((urlFilePath) => {
+//         if (!fs.existsSync(urlFilePath)) {
+//             logger.error(`File not found: ${urlFilePath}`);
+//             process.exit(1);
+//         } else {
+//             controller.generateMetrics(urlFilePath)
+//                 .then(() => {
+//                     logger.info("Successfully generated metrics.");
+//                     process.exit(0);
+//                 })
+//                 .catch(error => {
+//                     logger.error("An error occurred in generateMetrics: ", error);
+//                     process.exit(1);
+//                 });
+//         }
+//     });
 
 
 program.parse(process.argv);
