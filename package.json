@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npx tsc",
     "rebuild": "npx tsc && node dist/app.js",
-    "start": "node run",
+    "start": "node dist/app.js",
     "test": "npx jest",
     "lint": "eslint . --ext .ts"
   },

@@ -39,11 +39,20 @@ export async function checkPkgIDInDB(pkg_ID: string): Promise<boolean> {
         values: [pkg_ID]
     }
     const id_exists = await queryDatabase("packages", check_id_exists_query)
-    console.log(id_exists)
+
     if(id_exists[0][0].count > 0) { //Need to do [0][0] because query returns a list of Promises bc of its atomic nature
         return true
     }
     else {
         return false
     }
+}
+
+export async function genericPkgDataGet(db_field: string, pkg_ID: string) {
+    const get_pkgdata_query: DbQuery = {
+        sql: `SELECT ${db_field} FROM pkg_data WHERE ID = ?;`,
+        values: [pkg_ID]
+    }
+    const response = await queryDatabase("packages", get_pkgdata_query)
+    return response[0][0][db_field]
 }
