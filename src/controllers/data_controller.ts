@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { searchPackage, getScores, searchPackageWithRegex } from '../services/database/operation_queries';
 import * as schemas from "../models/api_schemas"
 //import { inject, injectable } from "tsyringe";
 
@@ -48,9 +49,10 @@ export class PkgDataManager {
         res.send('List of packages');
     }
     
-    getPkgById (req: Request, res: Response) {
+    public async getPkgById(req: Request, res: Response) {
         //Retrieves a package by its ID
         //Return this package
+        const { databaseName, packageNameOrId } = req.query;
         const id = req.params.id;
         const auth_token = req.params.auth_token;
         var response_obj: schemas.Package;
@@ -62,7 +64,13 @@ export class PkgDataManager {
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
     
         if(response_code == 200) {
-            res.status(200).send(`Successfully returned {packageName} with ID = ${id}`);
+            // res.status(200).send(`Successfully returned {packageName} with ID = ${id}`);
+            try {
+                const result = await searchPackage(databaseName as string, packageNameOrId as string);
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: 'Error querying the database' });
+            }
         }
         else if(response_code == 400) {
             if(auth_token) { //If its invalid
@@ -82,19 +90,25 @@ export class PkgDataManager {
     
     
     
-    ratePkgById(req: Request, res: Response) {
+    public async ratePkgById(req: Request, res: Response) {
         //Gets scores for the specified package
         const id = req.params.id;
         const auth_token = req.params.auth_token;
         var response_obj: schemas.PackageRating;
-    
+        const { databaseName, packageNameOrId } = req.query;
     
     
     
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
     
-        if(response_code == 200) {
-            res.status(200).send("Successfully rated {packageName}");
+        if (response_code == 200) {
+            try {
+                const result = await getScores(databaseName as string, packageNameOrId as string);
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: 'Error querying the database' });
+            }
+        // res.status(200).send("Successfully rated {packageName}");
         }
         else if(response_code == 400) {
             if(auth_token) { //If its invalid
@@ -143,18 +157,26 @@ export class PkgDataManager {
     
     
     
-    getPkgByRegex(req: Request, res: Response) {
+    public async getPkgByRegex(req: Request, res: Response) {
         //Search for a package using regular expression over package names and READMEs. This is similar to search by name.
     
         const auth_token = req.params.auth_token;
         const regex: schemas.PackageRegEx = req.body;
         var response_obj: schemas.PackageMetadata[];
     
-    
+        const { databaseName, packageNameOrId } = req.query;
+
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
     
-        if(response_code == 200) {
-            res.status(200).send("Successfully retrieved package history");
+        if (response_code == 200) {
+            try {
+                const result = await searchPackageWithRegex(databaseName as string, packageNameOrId as string);
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: 'Error querying the database' });
+            }
+
+        // res.status(200).send("Successfully retrieved package history");
         }
         else if(response_code == 400) {
             if(auth_token) { //If its invalid

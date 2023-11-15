@@ -50,8 +50,26 @@ export async function checkPkgIDInDB(pkg_ID: string): Promise<boolean> {
 
 
 export function searchPackage(databaseName: string, packageNameOrId: string): Promise<any> {
-    const query = `SELECT * FROM packages WHERE name = ? OR id = ?`;
+    const query = `SELECT * FROM pkg_data WHERE name = ? OR id = ?`;
     const values = [packageNameOrId, packageNameOrId];
     const dbQuery = { sql: query, values };
     return queryDatabase(databaseName, dbQuery);
 }
+
+export function getScores(databaseName: string, packageNameOrId: string): Promise<any> {
+    const query = `SELECT * FROM scores WHERE name = ? OR id = ?`;
+    const values = [packageNameOrId, packageNameOrId];
+    const dbQuery = { sql: query, values };
+    return queryDatabase(databaseName, dbQuery);
+}
+
+export function searchPackageWithRegex(databaseName: string, regex: string): Promise<any> {
+    const query = `SELECT * FROM pkg_data WHERE name REGEXP ? OR id REGEXP ?`;
+    const values = [regex, regex];
+    const dbQuery = { sql: query, values };
+    return queryDatabase(databaseName, dbQuery);
+}
+
+
+
+
