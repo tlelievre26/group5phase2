@@ -216,21 +216,6 @@ export class MetricsCalculator {
             RampUpScore += 0.5;
         }
 
-        //Assigns Half of the RampUpScore to how far apart the Readme Update and the Last Commit Are
-        //The Score goes from 0-0.5 for a range of 1 year apart to the same
-        const lastUpdatedDate = new Date(rampUpData.lastUpdated);
-        const lastCommitDate = rampUpData.lastCommit ? new Date(rampUpData.lastCommit) : null;
-        if (lastCommitDate) {
-            // Calculate the absolute time difference in milliseconds
-            const timeDifference = Math.abs(lastUpdatedDate.getTime() - lastCommitDate.getTime());
-
-            // Define a maximum time difference (adjust as needed)
-            const maxTimeDifference = 1000 * 60 * 60 * 24 * 30; // 30 days in milliseconds
-
-            // Calculate the score based on the time difference
-            RampUpScore += Math.max(0, 0.5 - timeDifference / maxTimeDifference);
-        }
-
         return RampUpScore;
     }
 
