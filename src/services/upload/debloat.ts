@@ -1,4 +1,6 @@
 import JSZip from 'jszip';
+import logger from "../../utils/logger";
+
 
 export function debloatZip(zip: JSZip): JSZip {
     var filesToDelete = [
@@ -19,6 +21,7 @@ export function debloatZip(zip: JSZip): JSZip {
     ];
 
     filesToDelete.forEach(file => {
+        logger.debug(`Removing ${file} from zip file`);
         zip.remove(file);
     });
 
