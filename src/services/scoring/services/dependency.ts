@@ -49,17 +49,16 @@ async function processDependencies(owner: string, repo: string, filename: string
     //iterating dependencies 
     for (const [dependencyName, version] of Object.entries(dependencies)) {
       const versionJSON = JSON.parse(JSON.stringify(version));
-      const [major, med, minor] = versionJSON.toString().split('.');
-      const finder = versionJSON.toString().indexOf("-");
-      const carrot = versionJSON.toString().indexOf("^");
-
-      // Check if version in acceptable format
-      if ((med == undefined && minor == undefined) || finder != -1 || (carrot != -1 && major != undefined)) {
-        notPinned++;
+      const versionString = versionJSON.toString();
+      const isExactVersion = /^\d+\.\d+\.\d+$/.test(versionString);
+  
+      // Check if version is not an exact version (not following good pinning practice)
+      if (!isExactVersion) {
+          notPinned++;
       } else {
-        pinned++;
+          pinned++;
       }
-    }
+  }
 
     const numberOfDependencies = Object.keys(dependencies).length;
 
