@@ -51,10 +51,10 @@ async function extractFromZip(zip: JSZip): Promise<ExtractedMetadata> {
     //Can only match file in the root directory
 
     const readme_match = [ //Regex for several possible names for a readme
-        /^[^/]*\readme\.md$/i,
-        /^[^/]*\readme\.txt$/i,
-        /^[^/]*\readme$/i,
-        /^[^/]*\readme_[a-z]{2}\.md$/i 
+        /^[^/]*\/readme\.md$/i,
+        /^[^/]*\/readme\.txt$/i,
+        /^[^/]*\/readme$/i,
+        /^[^/]*\/readme_[a-z]{2}\.md$/i 
     ]
     const license_match = [ //Regex for several possible names of a license
         /^[^/]*\/license$/i,
@@ -83,17 +83,20 @@ async function extractFromZip(zip: JSZip): Promise<ExtractedMetadata> {
             logger.debug(`Successfully retrieved package.json file called ${filename} from zip`);
         }
         else {
-            for (const pattern of license_match) {
-                if (pattern.test(filename) && !retrieved_files.hasOwnProperty("LICENSE")) {
-                  const fileData = await file.async('nodebuffer');
-                  retrieved_files["LICENSE"] = fileData;
-                  logger.debug("Successfully retrieved LICENSE file from zip");
-                  break;
+            if(!retrieved_files.hasOwnProperty("LICENSE")) {
+                for (const pattern of license_match) {
+                    if (pattern.test(filename)) {
+                      const fileData = await file.async('nodebuffer');
+                      retrieved_files["LICENSE"] = fileData;
+                      logger.debug("Successfully retrieved LICENSE file from zip");
+                      break;
+                    }
                 }
             }
-            if(!retrieved_files.hasOwnProperty(filename)) { //If we haven't matched the file to either of the previous 2 patterns
+
+            if(!retrieved_files.hasOwnProperty("README")) { //If we haven't matched the file to either of the previous 2 patterns
                 for (const pattern of readme_match) {
-                    if (pattern.test(filename) && !retrieved_files.hasOwnProperty("package.json")) {
+                    if (pattern.test(filename)) {
                       const fileData = await file.async('nodebuffer');
                       retrieved_files["README"] = fileData;
                       logger.debug("Successfully retrieved README file from zip");
