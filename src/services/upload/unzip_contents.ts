@@ -8,7 +8,7 @@ import logger from "../../utils/logger";
  * @param contents - Base64-encoded string of the zip file contents
  * @returns A dictionary containing the contents of package.json, README.md, and LICENSE.md as Buffers in an object called metadata and the entire package contents as buffer
  */
-export async function uploadBase64Contents(contents: string): Promise<ExtractedPackage> {
+export async function decodeB64ContentsToZip(contents: string): Promise<ExtractedPackage> {
 
     // Decode the base64 encoded zip content into a binary string
     const zipData = atob(contents);
