@@ -1,26 +1,22 @@
+import { injectable } from "tsyringe";
 import { graphql } from "@octokit/graphql";
 import * as dotenv from 'dotenv';
+import { ExtractedMetadata } from "../../../models/other_schemas";
 dotenv.config();
 
-interface RepositoryObject {
-  text: string;
-}
+@injectable()
+export class RepositoryProcessor {
+  private octokit;
 
-interface RepositoryResponse {
-  repository: {
-    object: RepositoryObject;
-  };
-}
+  constructor() {
+    this.octokit = graphql.defaults({
+      headers: {
+        authorization: `token ${process.env.GITHUB_TOKEN}`,
+      },
+    });
+  }
 
-const octokit = graphql.defaults({
-  headers: {
-    authorization: `token ${process.env.GITHUB_TOKEN}`,
-  },
-});
-
-async function processDependencies(owner: string, repo: string, filename: string): Promise<number> {
-  try {
-    //fetching content of the github repo 
+  private async fetchData(owner: string, repo: string, filename: string): Promise<string> {
     const query = `
       query($owner: String!, $repo: String!, $filename: String!) {
         repository(owner: $owner, name: $repo) {
@@ -32,48 +28,55 @@ async function processDependencies(owner: string, repo: string, filename: string
         }
       }
     `;
-    
-    //holding data from query 
-    const response = await octokit<RepositoryResponse>(query, {
+
+    const response = await this.octokit<{ repository: { object: { text: string } } }>(query, {
       owner,
       repo,
       filename,
     });
 
-    const content = response.repository.object.text;
-    const packageJson = JSON.parse(content);
-    const dependencies = packageJson.dependencies;
-
-    let notPinned = 0;
-    let pinned = 0;
-    //iterating dependencies 
-    for (const [dependencyName, version] of Object.entries(dependencies)) {
-      const versionJSON = JSON.parse(JSON.stringify(version));
-      const versionString = versionJSON.toString();
-      const isExactVersion = /^\d+\.\d+\.\d+$/.test(versionString);
-  
-      // Check if version is not an exact version (not following good pinning practice)
-      if (!isExactVersion) {
-          notPinned++;
-      } else {
-          pinned++;
-      }
+    return response.repository.object.text;
   }
 
-    const numberOfDependencies = Object.keys(dependencies).length;
+  public async processDependencies(owner: string, repo: string, metadata_files: ExtractedMetadata): Promise<number> {
+    try {
+      const pkgjson_data = JSON.parse(metadata_files["package.json"].toString());
+    
+      //const content = await this.fetchData(owner, repo, filename);
+      //const packageJson = JSON.parse(content);
+      const dependencies = pkgjson_data.dependencies;
 
-    if (numberOfDependencies === 0) {
-      return filename === "package.json" ? 1.0 : 0.0;
+      let notPinned = 0;
+      let pinned = 0;
+
+      for (const [dependencyName, version] of Object.entries(dependencies)) {
+        const versionJSON = JSON.parse(JSON.stringify(version));
+        const versionString = versionJSON.toString();
+        const isExactVersion = /^\d+\.\d+\.\d+$/.test(versionString);
+
+        if (!isExactVersion) {
+          notPinned++;
+        } else {
+          pinned++;
+        }
+      }
+
+      const dependencyNum = Object.keys(dependencies).length;
+
+      if (dependencyNum === 0) {
+        return 1;
+        //return filename === "package.json" ? 1.0 : 0.0;
+      }
+
+      return pinned / dependencyNum;
+    } catch (error) {
+      console.error(`Error processing dependencies`);
+      return -1;
     }
-
-    return pinned / numberOfDependencies;
-  } catch (error) {
-    // Log or handle the error appropriately
-    console.error(`Error processing ${filename}`);
-    return -1;
   }
 }
 
+/*
 //wraps for exporting, probably need to structure this another way with phase 1
 export async function dependency(owner: string, repo: string): Promise<number> {
   const jsonResult = await processDependencies(owner, repo, "package.json");
@@ -83,4 +86,4 @@ export async function dependency(owner: string, repo: string): Promise<number> {
 
   // If package.json processing failed, try package-lock.json
   return processDependencies(owner, repo, "package-lock.json");
-}
+} */
