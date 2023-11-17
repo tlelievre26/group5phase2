@@ -34,27 +34,30 @@ const controller = container.resolve(MetricsController); //Basically gets an ins
 export class PackageUploader {
 
     public async updatePkgById (req: Request, res: Response) {
-        //Need to figure out the whole batch update thing????
+
         //The name, version, and ID must match.
         //The package contents (from PackageData) will replace the previous contents.
-
 
         //They have to submit ID as a part of the request body anyways so do we even want to use the one in the URL?
     
         const req_body: schemas.Package = req.body;
         const id = req.params.id;
-    
+        const pkg_data = req_body.data;
         /*
                 NEED TO CHECK REQUEST BODY IS PROPERLY FORMATTED WITH METADATA AND STUFF
         */
-        
+
+        if(id != req_body.metadata.ID) {    
+            return res.status(400).send("Inconsistant package ID between request metadata and URL");
+        }
+
         const curr_path = await checkMetadataExists(req_body.metadata)
 
         if(curr_path == null) {
-            res.status(404).send("Could not find existing package with matching name, ID, and version");
+            return res.status(404).send("Could not find existing package with matching metadata");
         }
         else {
-            const pkg_data = req_body.data;
+
             if(pkg_data.hasOwnProperty("URL") && !pkg_data.hasOwnProperty("Content")) {
 
                 logger.debug("Recieved GitHub URL in request body")
@@ -92,13 +95,13 @@ export class PackageUploader {
                 //The reason we get the zipball before doing the score check is we would've had to clone the repo anyways, which probably takes a similar amount of memory and time
                 //Doing this makes it easier to integrate with the other input formats
                 
-                const extractedContents = await uploadBase64Contents(contents); //We know it'll exist
+                const extractedContents = await decodeB64ContentsToZip(contents); //We know it'll exist
                 const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
                 const new_version = pkg_json.version;
 
                 const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
                 
-                await uploadToS3(extractedContents) //Basically want to fully replace the contents
+                await uploadToS3(extractedContents, repo_ID) //Basically want to fully replace the contents
                 //AWS overwrites existing files with the same key by default
 
                 //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
@@ -109,7 +112,7 @@ export class PackageUploader {
                 logger.debug("Recieved encoded package contents in request body")
     
                 
-                const extractedContents = await uploadBase64Contents(pkg_data.Content!); //We know it'll exist
+                const extractedContents = await decodeB64ContentsToZip(pkg_data.Content!); //We know it'll exist
     
                 const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
                 const new_version = pkg_json.version;
@@ -121,7 +124,7 @@ export class PackageUploader {
 
                 const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
 
-                await uploadToS3(extractedContents)
+                await uploadToS3(extractedContents, repo_ID)
                 //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
                 
                 await updatePackageVersionInDB(new_version, metric_scores, repo_ID);
@@ -130,13 +133,12 @@ export class PackageUploader {
                 return res.status(400).send("Invalid or malformed PackageData in request body");
             }
 
-            res.send(`Update package with ID: ${id}`);
+            return res.status(200).send(`Updated package with ID: ${id}`);
         }
 
     }
 
 
-    
     public async deletePkgByID (req: Request, res: Response) {
     
         const id = req.params.id;
@@ -148,7 +150,7 @@ export class PackageUploader {
             res.status(404).send("Could not find existing package with matching ID");
         }
         else {
-            const pkg_name = await genericPkgDataGet("NAME", id)
+            const pkg_name = await genericPkgDataGet("NAME", id) //Need the name to create the key for the deleted object in S3
             //Delete package from S3 bucket
             await deleteFromS3(id, pkg_name)
             //Delete all package data from DB
@@ -159,8 +161,6 @@ export class PackageUploader {
         
     }
     
-    
-
 
     public async createPkg (req: Request, res: Response) {
 
@@ -219,45 +219,11 @@ export class PackageUploader {
             base64contents = req_body.Content; //Do this so we can not have as much in seperate if statements
             extractedContents = await decodeB64ContentsToZip(req_body.Content!); //We know it'll exist
 
-            // const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
-            // const repo_url = pkg_json.repository.url;
-            // const {owner, repo} = extractGitHubInfo(repo_url);
-            // const repo_ID = owner + "_" + repo
-            // if(await checkPkgIDInDB(repo_ID)) {
-            //     return res.status(409).send("Uploaded package already exists in registry");
-            // }
+            /*
 
+                NEED TO FIGURE OUT HOW TO DEAL WITH A REPO URL TO A UNIQUE VERSION OF THE PACKAGE
 
-            // //Check DB if package id already exists in database
-
-            // /*
-            // if(package already exists) {
-            //     res.status(404).send("Uploaded package already exists in registry");
-            // }
-            // */
-
-            // response_obj = {
-            //     metadata: {
-            //         Name: pkg_json.name,
-            //         Version: pkg_json.version,
-            //         ID: repo_ID
-            //         //metrics: metric_scores
-            //     },
-            //     data: {
-            //         Content: req_body.Content
-            //     }
-            // }
-
-            // //We decode the package.json several times which is technically inefficient but whatever
-
-
-            // const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
-
-            // const contentsPath = await uploadToS3(extractedContents, repo_ID)
-            // //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
-            // await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
-
-            // //Write scores to db
+            */
         }
         else {
             return res.status(400).send("Invalid or malformed PackageData in request body");
@@ -271,14 +237,11 @@ export class PackageUploader {
 
         const repo_ID = repoInfo.owner + "_" + repoInfo.repo + "_" + pkg_json.version
 
+        //Check DB if package id already exists in database
         if(await checkPkgIDInDB(repo_ID)) {
+            logger.error("Detected package with matching ID already exists in database")
             return res.status(409).send("Uploaded package already exists in registry");
         }
-
-
-        //Check DB if package id already exists in database
-
-
 
         const response_obj: schemas.Package = {
             metadata: {
