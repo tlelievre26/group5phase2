@@ -2,7 +2,7 @@
 import { inject, injectable } from "tsyringe";
 import { LicenseVerifier } from "./license-verifier";
 import { PackageRating } from "../../../models/api_schemas";
-
+import {RepositoryProcessor} from "./dependency";
 import logger from "../../../utils/logger";
 import { ExtractedMetadata } from "../../../models/other_schemas";
 
@@ -10,7 +10,8 @@ import { ExtractedMetadata } from "../../../models/other_schemas";
 @injectable()
 export class MetricsCalculator {
     constructor(
-        @inject("LicenseVerifier") private licenseVerifier: LicenseVerifier
+        @inject("LicenseVerifier") private licenseVerifier: LicenseVerifier,
+        @inject("RepositoryProcessor") private repositoryProcessor: RepositoryProcessor
     ) {
     }
 
@@ -47,7 +48,7 @@ export class MetricsCalculator {
 
             //*********** TO DO: Implement scoring method for pinning practice ***********
             //Similar to license, pinning practice will require a local clone of the repo
-            const pinningPractice = 0
+            const pinningPractice = await this.repositoryProcessor.processDependencies(owner, repo, pkg_metadata);
 
             //Net score does NOT factor in the 2 new metrics
             const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license);
