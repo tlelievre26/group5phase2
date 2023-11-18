@@ -45,14 +45,6 @@ api_router.get('/package/:id/rate', pkgDataManager.ratePkgById);
 api_router.put('/authenticate', utilsCtrl.getAuthToken);
 
 
-// Endpoint to get the history of a package by name
-api_router.get('/package/byName/:name', pkgDataManager.getPkgHistoryByName);
-
-
-// Endpoint to delete all versions of a package by name
-api_router.delete('/package/byName/:name', pkgUploader.deletePkgByName);
-
-
 // Endpoint to get packages based on a regular expression
 api_router.post('/package/byRegEx', pkgDataManager.getPkgByRegex);
 

@@ -115,34 +115,6 @@ export class PkgDataManager {
         res.send(`Get rating for package with ID: ${id}`);
     }
     
-    getPkgHistoryByName(req: Request, res: Response) {
-        const name = req.params.name;
-        const auth_token = req.params.auth_token;
-        var response_obj: schemas.PackageHistoryEntry[];
-    
-    
-    
-        var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
-    
-        if(response_code == 200) {
-            res.status(200).send("Successfully retrieved package history");
-        }
-        else if(response_code == 400) {
-            if(auth_token) { //If its invalid
-                //VALIDATION CHECK UNIMPLEMENTED
-                res.status(400).send("Invalid auth token");
-            }
-            else {
-                res.status(400).send("Invalid package name");
-            }
-        }
-        else if(response_code == 404) {
-            res.status(404).send("Could not find existing package with matching name");
-        }
-        res.send(`Get history for package with name: ${name}`);
-    }
-    
-    
     
     getPkgByRegex(req: Request, res: Response) {
         //Search for a package using regular expression over package names and READMEs. This is similar to search by name.
