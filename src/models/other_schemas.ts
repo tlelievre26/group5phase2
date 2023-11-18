@@ -17,3 +17,9 @@ export interface DbQuery {
     sql: string;
     values: (number | string | boolean)[];
 }
+
+export interface UserPermissions {
+    canUpload: boolean;
+    canSearch: boolean;
+    canDownload: boolean;
+}

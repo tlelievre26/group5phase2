@@ -56,5 +56,11 @@ api_router.delete('/package/byName/:name', pkgUploader.deletePkgByName);
 // Endpoint to get packages based on a regular expression
 api_router.post('/package/byRegEx', pkgDataManager.getPkgByRegex);
 
+//Endpoint to create a new user in our system
+api_router.post('/user', utilsCtrl.registerUser)
+
+//Endpoint to delete an existing user in our system
+api_router.delete('/user', utilsCtrl.deleteUser)
+
 
 export default api_router;

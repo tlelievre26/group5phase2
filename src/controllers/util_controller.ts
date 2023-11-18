@@ -2,6 +2,10 @@ import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
 import { wipeS3packages } from '../services/aws/s3delete';
 import { wipeDBpackages } from '../services/database/delete_queries';
+import { findUserInDB } from '../services/database/auth_queries';
+import { verifyPassword } from '../services/user_auth/password_hashing';
+import logger from "../utils/logger"
+import { generateAuthToken } from '../services/user_auth/generate_auth_token';
 
 //This is our controller for all of our non-package related endpoints
 
@@ -33,28 +37,46 @@ export class UtilsController{
         // }
     }
     
-    public getAuthToken (req: Request, res: Response) {
+    public async getAuthToken (req: Request, res: Response) {
         //Create an access token.
         const req_body: schemas.AuthenticationRequest = req.body;
-    
-    
-    
-    
-        var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
-    
-        if(response_code == 200) {
-            res.status(200).send("Successfully created new auth token");
+        
+        const user_data = await findUserInDB(req_body.User.name, req_body.User.isAdmin);
+        //Query returns users hashed password and whether or not they have a token
+
+        if(user_data == undefined) { //If query to find users doesnt match anything
+            logger.error("Invalid username did not match any existing users")
+            return res.status(401).send("Invalid username did not match any existing users");
         }
-        else if(response_code == 400) {
-            res.status(400).send("Invalid or malformed AuthenticationRequest in request body");
+
+        if(user_data.HAS_TOKEN == 1) { //If user already has a token
+            //NOT SURE IF THIS SHOULD ACTUALLY BE AN ERROR
+            logger.error("This user already has a token")
+            return res.send("This user already has a token")
         }
-        else if(response_code == 401) {
-            res.status(401).send("Invalid username/password");
+
+        if(await verifyPassword(req_body.Secret.password, user_data.PASSWORD) == false) { //Checks if the input password matches the hashed password in the DB
+            //I think the comparison function basically does the check "automatically", so it sees if the input password would hash to the same thing as the password in the DB
+            logger.error("Invalid password")
+            return res.status(401).send("Invalid password");
         }
-        else if(response_code == 501) {
-            res.status(501).send("This system does not support authentication");
+
+        //Define the permissions object inside the function call bc Im lazy lol
+        return res.status(200).send(generateAuthToken(req_body.User.name, req_body.User.isAdmin, {
+            canUpload: user_data.CAN_UPLOAD,
+            canSearch: user_data.CAN_SEARCH,
+            canDownload: user_data.CAN_DOWNLOAD
         }
-    
-        res.send('Access token is obtained');
+        ));
+
     }
+
+    public async registerUser(req: Request, res: Response) {
+        const req_body: schemas.UserRegistrationInfo = req.body;
+    }
+
+    public async deleteUser(req: Request, res: Response) {
+        const req_body: schemas.AuthenticationRequest = req.body; //I think we only need the same fields as the auth request
+    }
+
 }

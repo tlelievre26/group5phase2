@@ -1,3 +1,4 @@
+import { UserPermissions } from "./other_schemas";
 //Wrote this entire thing with 1 GPT command, its kinda insane
 
 /**
@@ -123,4 +124,10 @@ export type EnumerateOffset = string;
  */
 export interface PackageRegEx {
     RegEx: string; // A regular expression over package names and READMEs used for searching for a package
+}
+
+export interface UserRegistrationInfo {
+    User: User;
+    Secret: UserAuthenticationInfo;
+    Permissions: UserPermissions;
 }
