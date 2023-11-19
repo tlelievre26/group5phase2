@@ -15,11 +15,8 @@ export class PkgDataManager {
     
         //The response is paginated; the response header includes the offset to use in the next query.
     
-        //QUESTION
-        //So how do we match packages to the query? The example in the spec just says "string" and gets matches based off version
-        //It's an array input, can we assume each entry in the array is something we should try to match?
-        //Also, should we match either the version or the name or should we only return packages that match both?
-    
+        //Proposed design to protect from DDOS: only allow an auth token to call the * endpoint 3 times
+
         //Post requests have a "request body" that is the data being posted
         const req_body: schemas.PackageQuery[] = req.body;
         const offset = req.params.offset;

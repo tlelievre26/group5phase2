@@ -234,40 +234,7 @@ export class PackageUploader {
         else {
             return res.status(400).send("Invalid or malformed PackageData in request body");
         }
-
-        
-
-
     
-        res.status(201).json(response_obj);
-    }
-
-    public deletePkgByName (req: Request, res: Response) {
-        const name = req.params.name;
-        const auth_token = req.params.auth_token;
-    
-        //******* IMPLEMENTATION HERE ********* 
-        
-        //************************************** 
-    
-    
-        var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
-    
-        if(response_code == 200) {
-            res.status(200).send("Successfully deleted all versions of package with name {packageName}");
-        }
-        else if(response_code == 400) {
-            if(auth_token) { //If its invalid
-                //VALIDATION CHECK UNIMPLEMENTED
-                res.status(400).send("Invalid auth token");
-            }
-            else {
-                res.status(400).send("Invalid package name");
-            }
-        }
-        else if(response_code == 404) {
-            res.status(404).send("Could not find existing package with matching name");
-        }
-        res.send(`Deleted all versions of package with name: ${name}`);
+        return res.status(201).json(response_obj);
     }
 }

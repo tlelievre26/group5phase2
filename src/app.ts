@@ -5,7 +5,7 @@ dotenv.config();
 import "reflect-metadata"; //Something that prevents errors with tsyringe
 import express from 'express';
 import api_router from './routes/api_routes';
-import verifyAuthToken from './middleware/token_auth';
+import checkForAuthToken from './middleware/token_auth';
 import logger from "./utils/logger"; //Get logger in this main file
 
 //MAIN FILE
@@ -13,10 +13,10 @@ import logger from "./utils/logger"; //Get logger in this main file
 
 
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3001;
 
 app.use(express.json({ limit: '20mb'}));
-app.use(verifyAuthToken); //Tells it to check the token auth function before passing the request to the endpoint
+app.use(checkForAuthToken); //Tells it to check the token auth function before passing the request to the endpoint
 app.use(api_router); //Tells it to use the routes defined in the router in our api_routes.ts file
 
 app.listen(PORT, () => {
