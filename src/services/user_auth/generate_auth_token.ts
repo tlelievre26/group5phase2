@@ -41,8 +41,9 @@ export async function generateAuthToken(user_id: number, isAdmin: boolean, perms
 export async function verifyAuthToken(auth_token: string, permissions: string[]) {
 
     auth_token = auth_token.split(" ")[1] //Remove the "Bearer " part of the auth token
-    console.log(auth_token)
+
     let decoded;
+    
     try {
         decoded = jwt.verify(auth_token, secret_key) as { sub: string, roles: string[], iat: number, exp: number }; //Need to do the "as" thing or typescript yells at me
     }
@@ -51,21 +52,22 @@ export async function verifyAuthToken(auth_token: string, permissions: string[])
         throw new Error("Invalid auth token")
     }
 
+    if(permissions.includes("self")) { //Special condition for if an endpoint allows a user to only act on their own profile, which is just the delete user endpoint
+        //We handle it elsewhere so ignore it for now
+        console.log("Ignoring self check")
+        return decoded
+    }
     
     if (Date.now() / 1000 > decoded.exp) { //If the current time is past the expiry time of the token
         logger.error("Token has exceeded 10 hour time limit, please recall the authentication endpoint")
         throw new JsonWebTokenError("Token has exceeded 10 hour time limit, please recall the authentication endpoint")
     }
 
-    if(!("admin" in decoded.roles || decoded.roles.some(r=> permissions.includes(r)))) { //Invert condition where user must either have admin or have one of their permissions matching the required permissions
+    if(!(decoded.roles.includes("admin") || decoded.roles.some(r=> permissions.includes(r)))) { //Invert condition where user must either have admin or have one of their permissions matching the required permissions
         logger.error("User does not have the required permissions to access this endpoint")
         throw new JsonWebTokenError("User does not have the required permissions to access this endpoint")
     }
-    else if("self" in permissions) { //Special condition for if an endpoint allows a user to only act on their own profile, which is just the delete user endpoint
-        //We handle it elsewhere so ignore it for now
-        return decoded
-    }
-
+    
     //Feels inefficient to make 2 sql calls per API token check but whatever
     const use_count = await checkTokenUseCount(decoded.sub)
     if(use_count > 1000) {

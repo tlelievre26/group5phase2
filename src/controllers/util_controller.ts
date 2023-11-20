@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
 import { wipeS3packages } from '../services/aws/s3delete';
@@ -6,6 +7,7 @@ import { checkForExistingToken, createNewUserProfile, findUserInDB, deleteUserFr
 import { verifyPassword } from '../services/user_auth/password_hashing';
 import logger from "../utils/logger"
 import { generateAuthToken, verifyAuthToken } from '../services/user_auth/generate_auth_token';
+import { JsonWebTokenError } from 'jsonwebtoken';
 
 //This is our controller for all of our non-package related endpoints
 
@@ -14,13 +16,20 @@ export class UtilsController{
         //Reset the registry to a system default state.
         const auth_token = req.headers.authorization!;
 
-        // try {
-        //     await verifyAuthToken(auth_token, ["admin"]) //Can ensure auth exists bc we check for it in middleware
-        // }
-        // catch (err) {
-        //     logger.error(`Error validating auth token ${auth_token}`)
-        //     return res.status(401).send("You don't have permission to reset the registry");
-        // }
+        try {
+            await verifyAuthToken(auth_token, ["admin"]) //Can ensure auth exists bc we check for it in middleware
+        }
+        catch (err: any) {
+            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
+                logger.error(`Error validating auth token ${auth_token}`)
+                return res.status(401).send("Error validating auth token: " + err.message);
+            }
+            else {
+                logger.error(`Error: Invalid/malformed auth token`)
+                return res.status(400).send("Error validating auth token: " + err.message);
+            }
+
+        }
 
         //Clear all data stores
         await wipeDBpackages();
@@ -60,7 +69,7 @@ export class UtilsController{
 
             //Just repeat the existing token rather than generating a new one
             logger.error("This user already has a token")
-            return res.status(200).send(existing_token)
+            return res.status(200).send('"\\"bearer ' + existing_token + '\\""')
         }
 
         if(await verifyPassword(req_body.Secret.password, user_data.PASSWORD) == false) { //Checks if the input password matches the hashed password in the DB
@@ -75,7 +84,7 @@ export class UtilsController{
         })
 
         //Define the permissions object inside the function call bc Im lazy lol
-        return res.status(200).send(new_token);
+        return res.status(200).send('"\\"bearer ' + new_token + '\\""');
 
     }
 
@@ -86,9 +95,15 @@ export class UtilsController{
         try {
             await verifyAuthToken(auth_token, ["admin"]) //Can ensure auth exists bc we check for it in middleware
         }
-        catch (err) {
-            logger.error(`Error validating auth token ${auth_token}`)
-            return res.status(401).send("You don't have permission to create a new user: " + err);
+        catch (err: any) {
+            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
+                logger.error(`Error validating auth token ${auth_token}`)
+                return res.status(401).send("Error validating auth token: " + err.message);
+            }
+            else {
+                logger.error(`Error: Invalid/malformed auth token`)
+                return res.status(400).send("Error validating auth token: " + err.message);
+            }
         }
 
         //First check if user already exists
@@ -114,7 +129,7 @@ export class UtilsController{
             const user_from_token = await verifyAuthToken(auth_token, ["admin", "self"])
             user_data = await findUserInDB(req_body.User.name, req_body.User.isAdmin); //Defining user data here so we dont have to re-query for password later
 
-            if(!("admin" in user_from_token.roles)) { //If the user is not an admin, we need to check if the token matches the identity of the user they are trying to delete   
+            if(!(user_from_token.roles.includes("admin"))) { //If the user is not an admin, we need to check if the token matches the identity of the user they are trying to delete   
 
                 if(user_data.USER_ID != user_from_token.sub) { //If the user ID of the token doesnt match the user ID of the user they are trying to delete
                     logger.error("You do not have permission to delete this user")
@@ -124,10 +139,17 @@ export class UtilsController{
                 //No need to do anything else here if the previous 2 pass, just move on now that we've confirmed permission
             }
         }
-        catch (err) {
-            logger.error(`Error validating auth token ${auth_token}`)
-            return res.status(401).send("You don't have permission to delete a user: " + err);
+        catch (err: any) {
+            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
+                logger.error(`Error validating auth token ${auth_token}`)
+                return res.status(401).send("Error validating auth token: " + err.message);
+            }
+            else {
+                logger.error(`Error: Invalid/malformed auth token`)
+                return res.status(400).send("Error validating auth token: " + err.message);
+            }
         }
+
         if(user_data == undefined) { //If query to find users doesnt match anything
             logger.error("Invalid username did not match any existing users")
             return res.status(401).send("Invalid username did not match any existing users");
