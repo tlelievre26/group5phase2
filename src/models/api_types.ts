@@ -91,3 +91,15 @@ export const PackageQuery = t.type({
 export const PackageRegEx = t.type({
     RegEx: t.string // A regular expression over package names and READMEs used for searching for a package
 })
+
+export const UserPermissions = t.type({
+    canUpload: t.boolean,
+    canSearch: t.boolean,
+    canDownload: t.boolean
+})
+
+export const UserRegistrationInfo = t.type({
+    User: User,
+    Secret: UserAuthenticationInfo,
+    Permissions: UserPermissions
+})

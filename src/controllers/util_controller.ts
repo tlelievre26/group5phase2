@@ -57,8 +57,9 @@ export class UtilsController{
 
         const req_body: schemas.AuthenticationRequest = req.body;
 
+        //Check request body has proper shape
         if(!(types.AuthenticationRequest.is(req_body))) {
-            logger.debug("Invalid or malformed Package in request body to endpoint POST /packages")
+            logger.debug("Invalid or malformed Package in request body to endpoint PUT /authenticate")
             return res.status(400).send("Invalid or malformed Package in request body");
         }
         
@@ -97,6 +98,12 @@ export class UtilsController{
     public async registerUser(req: Request, res: Response) {
         const req_body: schemas.UserRegistrationInfo = req.body;
         const auth_token = req.headers.authorization!;
+        
+        //Check request body has proper shape
+        if(!(types.UserRegistrationInfo.is(req_body))) {
+            logger.debug("Invalid or malformed Package in request body to endpoint POST /user")
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
 
         try {
             await verifyAuthToken(auth_token, ["admin"]) //Can ensure auth exists bc we check for it in middleware
@@ -130,6 +137,12 @@ export class UtilsController{
         const req_body: schemas.AuthenticationRequest = req.body; //I think we only need the same fields as the auth request
         const auth_token = req.headers.authorization!;
         let user_data;
+
+        //Check request body has proper shape
+        if(!(types.AuthenticationRequest.is(req_body))) {
+            logger.debug("Invalid or malformed Package in request body to endpoint DELETE /user")
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
 
         try {
             const user_from_token = await verifyAuthToken(auth_token, ["admin", "self"])
