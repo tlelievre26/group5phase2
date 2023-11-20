@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
+import * as types from "../models/api_types"
 import { wipeS3packages } from '../services/aws/s3delete';
 import { wipeDBpackages, wipeUsers } from '../services/database/delete_queries';
 import { checkForExistingToken, createNewUserProfile, findUserInDB, deleteUserFromDB } from '../services/database/auth_queries';
@@ -55,6 +56,11 @@ export class UtilsController{
 
 
         const req_body: schemas.AuthenticationRequest = req.body;
+
+        if(!(types.AuthenticationRequest.is(req_body))) {
+            logger.debug("Invalid or malformed Package in request body to endpoint POST /packages")
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
         
         const user_data = await findUserInDB(req_body.User.name, req_body.User.isAdmin);
         //Query returns users hashed password and whether or not they have a token

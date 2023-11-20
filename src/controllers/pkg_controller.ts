@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
+import * as types from "../models/api_types"
 import { uploadBase64Contents } from '../services/upload/unzip_contents';
 import logger from "../utils/logger";
 import { MetricsController } from '../services/scoring/controllers/metrics-controller';
@@ -40,6 +41,10 @@ export class PackageUploader {
         const id = req.params.id;
         const auth_token = req.params.auth_token;
     
+        if(!(types.Package.is(req_body))) {
+            logger.debug("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
         //******* IMPLEMENTATION HERE ********* 
         
        //************************************** 
@@ -72,10 +77,10 @@ export class PackageUploader {
         const id = req.params.id;
     
         if(!id) {
-            res.status(400).send("Invalid/missing package ID in header");
+            return res.status(400).send("Invalid/missing package ID in header");
         }
         else if(!await checkPkgIDInDB(id)) {
-            res.status(404).send("Could not find existing package with matching ID");
+            return res.status(404).send("Could not find existing package with matching ID");
         }
         else {
             const pkg_name = await genericPkgDataGet("NAME", id)
@@ -99,10 +104,11 @@ export class PackageUploader {
         const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
         let response_obj: schemas.Package;
         let extractedContents
-        
-        //Would the GitHub URL be the "ingestion of npm package" in the spec?
-    
-        //Need to add: check that package doesn't already exist
+
+        if(!(types.PackageData.is(req_body))) {
+            logger.debug("Invalid or malformed Package in request body to endpoint POST /package")
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
 
         if(req_body.hasOwnProperty("URL") && !req_body.hasOwnProperty("Content")) {
 
