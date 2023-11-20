@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
+import * as types from "../models/api_types"
 import { wipeS3packages } from '../services/aws/s3delete';
 import { wipeDBpackages } from '../services/database/delete_queries';
+import logger from "../utils/logger";
 
 //This is our controller for all of our non-package related endpoints
 
@@ -36,8 +38,11 @@ export class UtilsController{
     public getAuthToken (req: Request, res: Response) {
         //Create an access token.
         const req_body: schemas.AuthenticationRequest = req.body;
-    
-    
+
+        if(!(types.AuthenticationRequest.is(req_body))) {
+            logger.debug("Invalid or malformed Package in request body to endpoint POST /packages")
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
     
     
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder

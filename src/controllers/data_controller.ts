@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
+import * as types from "../models/api_types"
 import logger from "../utils/logger";
 //import { inject, injectable } from "tsyringe";
 
@@ -21,13 +22,17 @@ export class PkgDataManager {
         //Also, should we match either the version or the name or should we only return packages that match both?
     
         //Post requests have a "request body" that is the data being posted
-        const req_body: schemas.PackageQuery[] = req.body;
+        const req_body: schemas.PackageQuery = req.body;
         const offset = req.params.offset;
         const auth_token = req.params.auth_token;
         var response_obj: schemas.PackageMetadata[];
         var response_code; //Probably wont implement it like this, just using it as a placeholder
     
-    
+        if(!(types.PackageQuery.is(req_body))) {
+            logger.debug("Invalid or malformed Package in request body to endpoint POST /packages")
+            res.status(400).send("Invalid or malformed Package in request body");
+        }
+
         response_code = 200;
     
         if(response_code == 200) {
@@ -56,7 +61,10 @@ export class PkgDataManager {
         const auth_token = req.params.auth_token;
         var response_obj: schemas.Package;
     
-    
+        if(!id) {
+            logger.debug("Malformed/missing PackageID in request body to endpoint GET /package/{id}")
+            return res.status(400).send("Missing PackageID in params");
+        }
     
     
     
@@ -89,7 +97,10 @@ export class PkgDataManager {
         const auth_token = req.params.auth_token;
         var response_obj: schemas.PackageRating;
     
-    
+        if(!id) {
+            logger.debug("Malformed/missing PackageID in request body to endpoint GET /package/{id}/rate")
+            return res.status(400).send("Invalid or malformed PackageID in params");
+        }
     
     
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
@@ -151,7 +162,11 @@ export class PkgDataManager {
         const regex: schemas.PackageRegEx = req.body;
         var response_obj: schemas.PackageMetadata[];
     
-    
+        if(!(types.PackageRegEx.is(regex))) {
+            logger.debug("Invalid or malformed Package in request body to endpoint POST /packages")
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
+
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
     
         if(response_code == 200) {
