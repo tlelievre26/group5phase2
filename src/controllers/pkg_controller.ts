@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, response } from 'express';
 import * as schemas from "../models/api_schemas"
 import { decodeB64ContentsToZip } from '../services/upload/unzip_contents';
 import logger from "../utils/logger";
@@ -6,7 +6,7 @@ import { MetricsController } from '../services/scoring/controllers/metrics-contr
 
 import { container } from '../services/scoring/container';
 import graphqlWithAuth from '../utils/graphql_query_setup';
-import { extractGitHubInfo } from '../services/scoring/services/parseURL';
+import { extractGitHubInfo, isGitHubUrl, resolveNpmToGitHub } from '../services/scoring/services/parseURL';
 import uploadToS3 from '../services/aws/s3upload';
 
 import { extractBase64ContentsFromUrl } from '../services/upload/convert_zipball';
@@ -14,6 +14,7 @@ import { checkMetadataExists, checkPkgIDInDB, genericPkgDataGet, insertPackageIn
 import { deleteFromS3 } from '../services/aws/s3delete';
 import { deletePackageDataByID } from '../services/database/delete_queries';
 import { RepoIdentifier } from '../models/other_schemas';
+import { is } from '@babel/types';
 
 //Controllers are basically a way to organize the functions called by your API
 //Obviously most of our functions will be too complex to have within the API endpoint declaration
@@ -42,7 +43,7 @@ export class PackageUploader {
     
         const req_body: schemas.Package = req.body;
         const id = req.params.id;
-        const pkg_data = req_body.data;
+
         /*
                 NEED TO CHECK REQUEST BODY IS PROPERLY FORMATTED WITH METADATA AND STUFF
         */
@@ -57,19 +58,34 @@ export class PackageUploader {
             return res.status(404).send("Could not find existing package with matching metadata");
         }
         else {
+            let extractedContents;
+            let base64contents;
+            let repoInfo: RepoIdentifier | undefined; //Need to have this defined here to seperate if statements
+            let repoURL: string;
+            
+            if(req_body.data.hasOwnProperty("URL") && !req_body.data.hasOwnProperty("Content")) {
 
-            if(pkg_data.hasOwnProperty("URL") && !pkg_data.hasOwnProperty("Content")) {
-
-                logger.debug("Recieved GitHub URL in request body")
-                const github_URL = pkg_data.URL!
+                logger.debug("Recieved URL in request body")
+                repoURL = req_body.data.URL!
+    
+                //Handle 
+                if(!isGitHubUrl(repoURL)) {
+                    console.log("Identified as non-github URL")
+                    const githubFromNPM = await resolveNpmToGitHub(repoURL);
+                    if(githubFromNPM == "") {
+                        return res.status(400).send("Invalid URL in request body");
+                    }
+                    else {
+                        repoURL = githubFromNPM;
+                    }
+                }
                 //Get the owner and repo name from the URL
-                const {owner, repo} = extractGitHubInfo(github_URL);
-                const repo_ID = owner + "_" + repo
+                repoInfo = extractGitHubInfo(repoURL);
     
                 //Get the zipped version of the file from the GitHub API
     
                 const zipball_query = `{
-                    repository(owner: "${owner}", name: "${repo}") {
+                    repository(owner: "${repoInfo.owner}", name: "${repoInfo.repo}") {
                   
                       defaultBranchRef {
                         target {
@@ -82,56 +98,87 @@ export class PackageUploader {
                   }`
     
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const response: any = await graphqlWithAuth(zipball_query);
+                let response: any;
+                try {
+    
+                    response = await graphqlWithAuth(zipball_query);
+                }
+                catch (err) {
+                    logger.error(`Error while querying GitHub API for zipball URL: ${err}`)
+                    return res.status(400).send("Invalid URL in request body");
+                } 
     
                 const zipballUrl = response.repository.defaultBranchRef.target.zipballUrl;
                 //Query returns a URL that downloads the repo when GET requested
                 logger.debug(`Retrieved zipball URL ${zipballUrl} from GitHub API`)
                 
-                const contents = await extractBase64ContentsFromUrl(zipballUrl);
+                base64contents = await extractBase64ContentsFromUrl(zipballUrl);
     
                 //And now we can proceed the same way
     
                 //The reason we get the zipball before doing the score check is we would've had to clone the repo anyways, which probably takes a similar amount of memory and time
                 //Doing this makes it easier to integrate with the other input formats
                 
-                const extractedContents = await decodeB64ContentsToZip(contents); //We know it'll exist
-                const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
-                const new_version = pkg_json.version;
-
-                const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
-                
-                await uploadToS3(extractedContents, repo_ID) //Basically want to fully replace the contents
-                //AWS overwrites existing files with the same key by default
-
-                //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
-                await updatePackageVersionInDB(new_version, metric_scores, repo_ID);
+                extractedContents = await decodeB64ContentsToZip(base64contents); //We know it'll exist
     
             }
-            else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
+            else if(req_body.data.hasOwnProperty("Content") && !req_body.data.hasOwnProperty("URL")) {
                 logger.debug("Recieved encoded package contents in request body")
     
-                
-                const extractedContents = await decodeB64ContentsToZip(pkg_data.Content!); //We know it'll exist
+                base64contents = req_body.data.Content; //Do this so we can not have as much in seperate if statements
+                extractedContents = await decodeB64ContentsToZip(req_body.data.Content!); //We know it'll exist
     
-                const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
-                const new_version = pkg_json.version;
-                const repo_url = pkg_json.repository.url;
-                const {owner, repo} = extractGitHubInfo(repo_url);
-                const repo_ID = owner + "_" + repo
-
-                //We decode the package.json several times which is technically inefficient but whatever
-
-                const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
-
-                await uploadToS3(extractedContents, repo_ID)
-                //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
-                
-                await updatePackageVersionInDB(new_version, metric_scores, repo_ID);
+                /*
+    
+                    NEED TO FIGURE OUT HOW TO DEAL WITH A REPO URL TO A UNIQUE VERSION OF THE PACKAGE
+    
+                */
             }
             else {
                 return res.status(400).send("Invalid or malformed PackageData in request body");
             }
+            const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
+    
+            if(typeof(repoInfo) === "undefined") { //If we didn't get the repo info yet (it only gets assigned by now if the URL was uploaded)
+                repoURL = pkg_json.repository.url; //Assign from the pkg json (URL should already be defined from a URL upload)
+                repoInfo = extractGitHubInfo(repoURL);
+            }
+    
+            const repo_ID = repoInfo.owner + "_" + repoInfo.repo + "_" + pkg_json.version
+    
+            const response_obj: schemas.PackageMetadata = {
+                    Name: pkg_json.name,
+                    Version: pkg_json.version,
+                    ID: repo_ID
+            }
+    
+            if(response_obj.ID != req_body.metadata.ID || response_obj.Name != req_body.metadata.Name || response_obj.Version != req_body.metadata.Version) {
+                //Check if the package metadata matches the metadata in the request body
+                return res.status(400).send("Inconsistant package metadata between request body and contents extracted from package data");
+            }
+
+            const metric_scores = await controller.generateMetrics(repoInfo.owner, repoInfo.repo, extractedContents.metadata);
+            
+            //Ensure it passes the metric checks
+    
+    
+            //********************************************************************* */
+            //***** NOT CHECKING THIS FOR NOW BECAUSE THE PHASE 1 SCORING KINDA SUCKS */
+            //********************************************************************* */
+    
+            //Apperently we're supposed to do this no matter what
+    
+            // if(metric_scores["BusFactor"] < 0.5 || metric_scores["RampUp"] < 0.5 || metric_scores["Correctness"] < 0.5 || metric_scores["ResponsiveMaintainer"] < 0.5 || metric_scores["LicenseScore"] < 0.5) {
+                //return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
+            // }
+            // else {
+                const contentsPath = await uploadToS3(extractedContents, repo_ID)
+                //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
+                //Probably have to redo this function so it updates scores instead of overwriting them
+                // await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
+            // }
+    
+    
 
             return res.status(200).send(`Updated package with ID: ${id}`);
         }
@@ -176,8 +223,20 @@ export class PackageUploader {
 
         if(req_body.hasOwnProperty("URL") && !req_body.hasOwnProperty("Content")) {
 
-            logger.debug("Recieved GitHub URL in request body")
+            logger.debug("Recieved URL in request body")
             repoURL = req_body.URL!
+
+            //Handle 
+            if(!isGitHubUrl(repoURL)) {
+                console.log("Identified as non-github URL")
+                const githubFromNPM = await resolveNpmToGitHub(repoURL);
+                if(githubFromNPM == "") {
+                    return res.status(400).send("Invalid URL in request body");
+                }
+                else {
+                    repoURL = githubFromNPM;
+                }
+            }
             //Get the owner and repo name from the URL
             repoInfo = extractGitHubInfo(repoURL);
 
@@ -197,13 +256,21 @@ export class PackageUploader {
               }`
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const response: any = await graphqlWithAuth(zipball_query);
+            let response: any;
+            try {
+
+                response = await graphqlWithAuth(zipball_query);
+            }
+            catch (err) {
+                logger.error(`Error while querying GitHub API for zipball URL: ${err}`)
+                return res.status(400).send("Invalid URL in request body");
+            } 
 
             const zipballUrl = response.repository.defaultBranchRef.target.zipballUrl;
             //Query returns a URL that downloads the repo when GET requested
             logger.debug(`Retrieved zipball URL ${zipballUrl} from GitHub API`)
             
-            const base64contents = await extractBase64ContentsFromUrl(zipballUrl);
+            base64contents = await extractBase64ContentsFromUrl(zipballUrl);
 
             //And now we can proceed the same way
 
@@ -277,7 +344,7 @@ export class PackageUploader {
 
 
     
-        res.status(201).json(response_obj);
+        return res.status(201).json(response_obj);
     }
 
     public deletePkgByName (req: Request, res: Response) {
