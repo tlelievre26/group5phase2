@@ -63,6 +63,7 @@ export async function verifyAuthToken(auth_token: string, permissions: string[])
         throw new JsonWebTokenError("Token has exceeded 10 hour time limit, please recall the authentication endpoint")
     }
 
+    //If the user has an admin role they automatically pass this
     if(!(decoded.roles.includes("admin") || decoded.roles.some(r=> permissions.includes(r)))) { //Invert condition where user must either have admin or have one of their permissions matching the required permissions
         logger.error("User does not have the required permissions to access this endpoint")
         throw new JsonWebTokenError("User does not have the required permissions to access this endpoint")

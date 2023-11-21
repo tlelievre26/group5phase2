@@ -2,13 +2,15 @@ import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
 import * as types from "../models/api_types"
 import logger from "../utils/logger";
+import { verifyAuthToken } from '../services/user_auth/generate_auth_token';
+import { JsonWebTokenError } from 'jsonwebtoken';
 //import { inject, injectable } from "tsyringe";
 
 //This file contains a class that acts a controller for everything relating to getting data about a package
 
 export class PkgDataManager {
 
-    getPackageQuery(req: Request, res: Response) {
+    public async getPackageQuery(req: Request, res: Response) {
         logger.debug("Got a package query request");
         //Get any packages fitting the query. Search for packages satisfying the indicated query.
     
@@ -25,9 +27,26 @@ export class PkgDataManager {
         var response_obj: schemas.PackageMetadata[];
         var response_code; //Probably wont implement it like this, just using it as a placeholder
     
+        //Validate request body
         if(!(types.PackageQuery.is(req_body))) {
             logger.debug("Invalid or malformed Package in request body to endpoint POST /packages")
             res.status(400).send("Invalid or malformed Package in request body");
+        }
+
+        //Verify user permissions
+        try {
+            await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catch (err: any) {
+            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
+                logger.error(`Error validating auth token ${auth_token}`)
+                return res.status(401).send("Error validating auth token: " + err.message);
+            }
+            else {
+                logger.error(`Error: Invalid/malformed auth token`)
+                return res.status(400).send("Error validating auth token: " + err.message);
+            }
         }
 
         response_code = 200;
@@ -51,7 +70,7 @@ export class PkgDataManager {
         res.send('List of packages');
     }
     
-    getPkgById (req: Request, res: Response) {
+    public async getPkgById (req: Request, res: Response) {
         //Retrieves a package by its ID
         //Return this package
         const id = req.params.id;
@@ -63,6 +82,21 @@ export class PkgDataManager {
             return res.status(400).send("Missing PackageID in params");
         }
     
+        //Verify user permissions
+        try {
+            await verifyAuthToken(auth_token, ["download"]) //Can ensure auth exists bc we check for it in middleware
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catch (err: any) {
+            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
+                logger.error(`Error validating auth token ${auth_token}`)
+                return res.status(401).send("Error validating auth token: " + err.message);
+            }
+            else {
+                logger.error(`Error: Invalid/malformed auth token`)
+                return res.status(400).send("Error validating auth token: " + err.message);
+            }
+        }
     
     
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
@@ -88,7 +122,7 @@ export class PkgDataManager {
     
     
     
-    ratePkgById(req: Request, res: Response) {
+    public async ratePkgById(req: Request, res: Response) {
         //Gets scores for the specified package
         const id = req.params.id;
         const auth_token = req.params.auth_token;
@@ -98,6 +132,22 @@ export class PkgDataManager {
             logger.debug("Malformed/missing PackageID in request body to endpoint GET /package/{id}/rate")
             return res.status(400).send("Invalid or malformed PackageID in params");
         }
+
+        //Verify user permissions
+        try {
+            await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catch (err: any) {
+            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
+                logger.error(`Error validating auth token ${auth_token}`)
+                return res.status(401).send("Error validating auth token: " + err.message);
+            }
+            else {
+                logger.error(`Error: Invalid/malformed auth token`)
+                return res.status(400).send("Error validating auth token: " + err.message);
+            }
+        }   
     
     
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
@@ -152,7 +202,7 @@ export class PkgDataManager {
     
     
     
-    getPkgByRegex(req: Request, res: Response) {
+    public async getPkgByRegex(req: Request, res: Response) {
         //Search for a package using regular expression over package names and READMEs. This is similar to search by name.
     
         const auth_token = req.params.auth_token;
@@ -163,6 +213,22 @@ export class PkgDataManager {
             logger.debug("Invalid or malformed Package in request body to endpoint POST /packages")
             return res.status(400).send("Invalid or malformed Package in request body");
         }
+
+        //Verify user permissions
+        try {
+            await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catch (err: any) {
+            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
+                logger.error(`Error validating auth token ${auth_token}`)
+                return res.status(401).send("Error validating auth token: " + err.message);
+            }
+            else {
+                logger.error(`Error: Invalid/malformed auth token`)
+                return res.status(400).send("Error validating auth token: " + err.message);
+            }
+        }  
 
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
     
