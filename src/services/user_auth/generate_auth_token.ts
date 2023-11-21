@@ -1,7 +1,7 @@
 import jwt, { JsonWebTokenError } from 'jsonwebtoken';
 import logger from '../../utils/logger';
 import { UserPermissions } from '../../models/other_schemas';
-import { writeTokenToDB, checkTokenUseCount, updateTokenUseCount } from '../database/auth_queries';
+import { writeTokenToDB, checkTokenUseCount, updateTokenUseCount, getLastFetchallQueryTime, updateLastFetchallTime } from '../database/auth_queries';
 
 const secret_key: string = process.env.SECRET_KEY!;
 
@@ -80,4 +80,17 @@ export async function verifyAuthToken(auth_token: string, permissions: string[])
     }
 
     return decoded
+}
+
+export async function fetchallLimitChecker(user_perms: jwt.JwtPayload) {
+    //Want to check if the user is an admin or if the user has called this endpoint within the last hour
+    if(!user_perms.roles.includes("admin")) {
+        const last_fetchall_time = await getLastFetchallQueryTime(user_perms.sub!)
+        if(last_fetchall_time === undefined || (Date.now() / 1000) - last_fetchall_time > 3600) { //If the user has never called this endpoint before or if the last time they called it was more than an hour ago
+            await updateLastFetchallTime(user_perms.sub!)
+        }
+        else {
+            throw Error("This endpoint can only be called once per hour")
+        }
+    }
 }

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
 import * as types from "../models/api_types"
 import logger from "../utils/logger";
-import { verifyAuthToken } from '../services/user_auth/generate_auth_token';
+import { fetchallLimitChecker, verifyAuthToken } from '../services/user_auth/generate_auth_token';
 import { JsonWebTokenError } from 'jsonwebtoken';
 //import { inject, injectable } from "tsyringe";
 
@@ -23,19 +23,32 @@ export class PkgDataManager {
         //Post requests have a "request body" that is the data being posted
         const req_body: schemas.PackageQuery = req.body;
         const offset = req.params.offset;
-        const auth_token = req.params.auth_token;
+        const auth_token = req.headers.authorization!;
         var response_obj: schemas.PackageMetadata[];
         var response_code; //Probably wont implement it like this, just using it as a placeholder
     
         //Validate request body
         if(!(types.PackageQuery.is(req_body))) {
             logger.debug("Invalid or malformed Package in request body to endpoint POST /packages")
-            res.status(400).send("Invalid or malformed Package in request body");
+            return res.status(400).send("Invalid or malformed Package in request body");
         }
 
         //Verify user permissions
         try {
-            await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
+            const user_perms = await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
+
+            //For this endpoint specifically we want to check that people can't run fetchall queries more than once per hour
+            if(req_body.Name == "*") {
+                try {
+                    await fetchallLimitChecker(user_perms)
+                }
+                catch {
+                    logger.error("Auth token has exceeded fetchall limit of once per hour")
+                    return res.status(401).send("Auth token has exceeded fetchall limit of once per hour")
+                }
+
+            }
+
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         catch (err: any) {
@@ -44,7 +57,7 @@ export class PkgDataManager {
                 return res.status(401).send("Error validating auth token: " + err.message);
             }
             else {
-                logger.error(`Error: Invalid/malformed auth token`)
+                logger.error(`Error: Invalid/malformed auth token ${auth_token}`)
                 return res.status(400).send("Error validating auth token: " + err.message);
             }
         }
@@ -67,14 +80,14 @@ export class PkgDataManager {
             res.status(413).send("Too many packages returned");
         }
     
-        res.send('List of packages');
+        // return res.send('List of packages');
     }
     
     public async getPkgById (req: Request, res: Response) {
         //Retrieves a package by its ID
         //Return this package
         const id = req.params.id;
-        const auth_token = req.params.auth_token;
+        const auth_token = req.headers.authorization!;
         var response_obj: schemas.Package;
     
         if(!id) {
@@ -125,7 +138,7 @@ export class PkgDataManager {
     public async ratePkgById(req: Request, res: Response) {
         //Gets scores for the specified package
         const id = req.params.id;
-        const auth_token = req.params.auth_token;
+        const auth_token = req.headers.authorization!;
         var response_obj: schemas.PackageRating;
     
         if(!id) {
@@ -205,7 +218,7 @@ export class PkgDataManager {
     public async getPkgByRegex(req: Request, res: Response) {
         //Search for a package using regular expression over package names and READMEs. This is similar to search by name.
     
-        const auth_token = req.params.auth_token;
+        const auth_token = req.headers.authorization!;
         const regex: schemas.PackageRegEx = req.body;
         var response_obj: schemas.PackageMetadata[];
     

@@ -128,3 +128,34 @@ export async function deleteUserFromDB(user_id: number) {
         throw err
     }
 }
+
+export async function getLastFetchallQueryTime(user_id: string) {
+    const last_searchall_timestamp_query: DbQuery = {
+        sql: `SELECT LAST_SEARCHALL FROM user_token_uses WHERE user_id = ?`,
+        values: [parseInt(user_id)] //Need to do this bc the user_id automatically decodes from the webtoken as a string not an int
+    }
+    try {
+        const response = await queryDatabase("users", last_searchall_timestamp_query)
+        logger.debug(`Queried DB for last searchall time for user id ${user_id}`);
+        return response[0][0].LAST_SEARCHALL
+    }
+    catch (err) {
+        logger.error("Error querying database for last searchall time: ", err)
+        throw err
+    }
+}
+
+export async function updateLastFetchallTime(user_id: string) {
+    const update_last_searchall_query: DbQuery = {
+        sql: `UPDATE user_token_uses SET LAST_SEARCHALL = ? WHERE USER_ID = ?`,
+        values: [Date.now() / 1000, parseInt(user_id)]
+    }
+    try {
+        await queryDatabase("users", update_last_searchall_query)
+        logger.debug(`Updated last searchall time for user id ${user_id}`);
+    }
+    catch (err) {
+        logger.error('Error updating last searchall time in DB:', err);
+        throw err
+    }
+}

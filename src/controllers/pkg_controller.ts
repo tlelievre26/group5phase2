@@ -41,7 +41,7 @@ export class PackageUploader {
     
         const req_body: schemas.Package = req.body;
         const id = req.params.id;
-        const auth_token = req.params.auth_token;
+        const auth_token = req.headers.authorization!;
     
         //Validate package body
         if(!(types.Package.is(req_body))) {
@@ -95,7 +95,7 @@ export class PackageUploader {
     public async deletePkgByID (req: Request, res: Response) {
     
         const id = req.params.id;
-        const auth_token = req.params.auth_token;
+        const auth_token = req.headers.authorization!;
     
 
         //Check user has permissions for this operation
