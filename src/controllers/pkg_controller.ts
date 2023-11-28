@@ -47,12 +47,6 @@ export class PackageUploader {
         const id = req.params.id;
         const auth_token = req.headers.authorization!;
     
-        //Validate package body
-        if(!(types.Package.is(req_body))) {
-            logger.debug("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
-            return res.status(400).send("Invalid or malformed Package in request body");
-        }
-
         //Check user has permissions for this operation
         try {
             await verifyAuthToken(auth_token, ["upload"]) //Can ensure auth exists bc we check for it in middleware
@@ -68,7 +62,13 @@ export class PackageUploader {
                 return res.status(400).send("Error validating auth token: " + err.message);
             }
         }
-    
+
+        //Validate package body NEED TO FIX
+        if(!(types.Package.is(req_body))) {
+            logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
+
         if(id != req_body.metadata.ID) {    
             return res.status(400).send("Inconsistant package ID between request metadata and URL");
         }
@@ -178,7 +178,13 @@ export class PackageUploader {
                 return res.status(400).send("Inconsistant package metadata between request body and contents extracted from package data");
             }
 
-            const metric_scores = await controller.generateMetrics(repoInfo.owner, repoInfo.repo, extractedContents.metadata);
+            let metric_scores;
+            try {
+                metric_scores = await controller.generateMetrics(repoInfo.owner, repoInfo.repo, extractedContents.metadata);
+            }
+            catch (err) {
+                return res.status(500).send("Failed to calculate ratings for package");
+            }
             
             //Ensure it passes the metric checks
     
@@ -197,7 +203,7 @@ export class PackageUploader {
                 await updatePackageInDB(metric_scores, repo_ID);
                 //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
                 //Probably have to redo this function so it updates scores instead of overwriting them
-                // await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
+                
             // }
     
     
@@ -245,7 +251,7 @@ export class PackageUploader {
             //Delete all package data from DB
             await deletePackageDataByID(id);
 
-            res.status(200).send(`Successfully deleted ${id} from the registry`);
+            return res.status(200).send(`Successfully deleted ${id} from the registry`);
         }
         
     }
@@ -263,10 +269,10 @@ export class PackageUploader {
         let repoInfo: RepoIdentifier | undefined; //Need to have this defined here to seperate if statements
         let repoURL: string;
         
-        // if(!(types.PackageData.is(req_body))) {
-        //     logger.debug("Invalid or malformed Package in request body to endpoint POST /package")
-        //     return res.status(400).send("Invalid or malformed Package in request body");
-        // }
+        if(!(types.PackageData.is(req_body))) {
+            logger.debug("Invalid or malformed Package in request body to endpoint POST /package")
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
 
         try {
             await verifyAuthToken(auth_token, ["upload"]) //Can ensure auth exists bc we check for it in middleware
@@ -290,7 +296,7 @@ export class PackageUploader {
 
             //Handle 
             if(!isGitHubUrl(repoURL)) {
-                console.log("Identified as non-github URL")
+                logger.debug("Identified as non-github URL")
                 const githubFromNPM = await resolveNpmToGitHub(repoURL);
                 if(githubFromNPM == "") {
                     return res.status(400).send("Invalid URL in request body");
@@ -384,7 +390,14 @@ export class PackageUploader {
             }
         }
 
-        const metric_scores = await controller.generateMetrics(repoInfo.owner, repoInfo.repo, extractedContents.metadata);
+        let metric_scores;
+        try {
+            metric_scores = await controller.generateMetrics(repoInfo.owner, repoInfo.repo, extractedContents.metadata);
+        }
+        catch (err) {
+            return res.status(500).send("Failed to calculate ratings for package");
+        }
+
         
         //Ensure it passes the metric checks
 
@@ -403,7 +416,6 @@ export class PackageUploader {
             //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
             await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
         // }
-
 
     
         return res.status(201).json(response_obj);

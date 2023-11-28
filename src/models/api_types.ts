@@ -9,11 +9,12 @@ import * as t from 'io-ts';
  * - On package update, exactly one field should be set.
  * - On download, the Content field should be set.
  */
-export const PackageData = t.type( {
-    Content: t.union([t.string, t.undefined]), // Package contents
-    URL:   t.union([t.string, t.undefined]), // Package URL (for use in public ingest)
-    JSProgram: t.union([t.string, t.undefined]) // A JavaScript program (for use with sensitive modules)
+export const PackageData = t.partial( {
+    Content: t.string, // Package contents
+    URL:   t.string, // Package URL (for use in public ingest)
+    JSProgram: t.string // A JavaScript program (for use with sensitive modules)
 })
+//NEED to use partial to have optional fields
 
 /**
  * PackageMetadata schema.
@@ -77,13 +78,22 @@ export const AuthenticationRequest = t.type({
     Secret: UserAuthenticationInfo
 })
 
+
+
+const PackageQueryVersion = t.partial({
+    Version: t.string
+})
+
+const PackageQueryName = t.type({
+    Name: t.string
+})
+
 /**
  * PackageQuery schema.
  */
-export const PackageQuery = t.type({
-    Version:  t.union([t.string, t.undefined]),
-    Name: t.string
-})
+export const PackageQuery = t.intersection([PackageQueryVersion, PackageQueryName])
+
+//Have to do this with the seperate definitions in order to get only 1 field to be optional
 
 /**
  * PackageRegEx schema.

@@ -91,6 +91,9 @@ export async function checkTokenUseCount(user_id: string) {
     try {
         const response = await queryDatabase("users", token_uses_query)
         logger.debug(`Queried DB for token uses for user id ${user_id}`);
+        if(response[0][0] == undefined) {
+            throw new Error("Token not found in database")
+        }
         return response[0][0].TOKEN_USES
     }
     catch (err) {

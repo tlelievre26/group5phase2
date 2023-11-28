@@ -59,7 +59,7 @@ export class UtilsController{
 
         //Check request body has proper shape
         if(!(types.AuthenticationRequest.is(req_body))) {
-            logger.debug("Invalid or malformed Package in request body to endpoint PUT /authenticate")
+            logger.error("Invalid or malformed Package in request body to endpoint PUT /authenticate")
             return res.status(400).send("Invalid or malformed Package in request body");
         }
         
@@ -101,7 +101,7 @@ export class UtilsController{
         
         //Check request body has proper shape
         if(!(types.UserRegistrationInfo.is(req_body))) {
-            logger.debug("Invalid or malformed Package in request body to endpoint POST /user")
+            logger.error("Invalid or malformed Package in request body to endpoint POST /user")
             return res.status(400).send("Invalid or malformed Package in request body");
         }
 
@@ -140,7 +140,7 @@ export class UtilsController{
 
         //Check request body has proper shape
         if(!(types.AuthenticationRequest.is(req_body))) {
-            logger.debug("Invalid or malformed Package in request body to endpoint DELETE /user")
+            logger.error("Invalid or malformed AuthenticationRequest in request body to endpoint DELETE /user")
             return res.status(400).send("Invalid or malformed Package in request body");
         }
 

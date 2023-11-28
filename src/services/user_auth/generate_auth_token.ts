@@ -52,34 +52,48 @@ export async function verifyAuthToken(auth_token: string, permissions: string[])
         throw new Error("Invalid auth token")
     }
 
-    
+    //Makes the most sense to check in the order of:
+    //1. Do they have permissions for this endpoint
+    //2. Is the token expired
+    //3. The special "self check" for the delete user endpoint
+    //We need the self check last so that if the user's token is expired they still get denied
+
+    //If the user has an admin role they automatically pass this, and ignore it if we're doing the self-check endpoint
+    if(!(decoded.roles.includes("admin") || decoded.roles.some(r=> permissions.includes(r)) && !permissions.includes("self"))) { //Invert condition where user must either have admin or have one of their permissions matching the required permissions
+        logger.error("User does not have the required permissions to access this endpoint")
+        throw new JsonWebTokenError("User does not have the required permissions to access this endpoint")
+    }
+
+
     if (Date.now() / 1000 > decoded.exp) { //If the current time is past the expiry time of the token
         logger.error("Token has exceeded 10 hour time limit, please recall the authentication endpoint")
         throw new JsonWebTokenError("Token has exceeded 10 hour time limit, please recall the authentication endpoint")
     }
 
     //Feels inefficient to make 2 sql calls per API token check but whatever
-    const use_count = await checkTokenUseCount(decoded.sub)
-    if(use_count > 1000) {
-        logger.error("Token has reached its usage limit of 1000 requests")
-        throw new JsonWebTokenError("Token has reached its usage limit of 1000 requests")
+    try {
+        const use_count = await checkTokenUseCount(decoded.sub)
+        if(use_count > 1000) {
+            logger.error("Token has reached its usage limit of 1000 requests")
+            throw new JsonWebTokenError("Token has reached its usage limit of 1000 requests")
+        }
+        else {
+            await updateTokenUseCount(decoded.sub, use_count + 1)
+        }
     }
-    else {
-        await updateTokenUseCount(decoded.sub, use_count + 1)
+    catch {
+        logger.error("Failed to find valid token associated with user in database")
+        throw new JsonWebTokenError("Failed to find token associated with user in database")
     }
-    
 
+    
     if(permissions.includes("self")) { //Special condition for if an endpoint allows a user to only act on their own profile, which is just the delete user endpoint
         //We handle it elsewhere so ignore it for now
         logger.debug("Performing self check")
         return decoded
     }
 
-    //If the user has an admin role they automatically pass this
-    if(!(decoded.roles.includes("admin") || decoded.roles.some(r=> permissions.includes(r)))) { //Invert condition where user must either have admin or have one of their permissions matching the required permissions
-        logger.error("User does not have the required permissions to access this endpoint")
-        throw new JsonWebTokenError("User does not have the required permissions to access this endpoint")
-    }
+
     
 
     return decoded
