@@ -26,8 +26,10 @@ if (!fs.existsSync(logFilePath)) {
 const log: Logger<ILogObj> = new Logger({
     name: "ModuleMetricsCLI",
     minLevel: 0, // default verbosity is 0
-    type: "pretty"
+    type: "pretty",
+    stylePrettyLogs: false //Need this because otherwise AWS logs are impossible to read
 });
+
 
 switch (logLevel) {
     case 0:
