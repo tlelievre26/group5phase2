@@ -7,10 +7,6 @@ export async function deletePackageDataByID(pkg_ID: string) {
         sql: `DELETE FROM pkg_data WHERE ID = ?`, 
         values: [pkg_ID]
     };
-    // const delete_scores_query: DbQuery = {
-    //     sql: `DELETE FROM scores WHERE ID = ?`,
-    //     values: [pkg_ID]
-    // }
 
     //NOTE: WE DONT NEED TO DELETE SCORES BC I SET UP A TRIGGER TO DO IT AUTOMATICALLY
 
@@ -37,6 +33,21 @@ export async function wipeDBpackages() {
     }
     catch (err) {
         logger.error('Error deleting package info from database:', err);
+        throw err
+    }
+}
+
+export async function wipeUsers() {
+    const delete_all_users_query: DbQuery = {
+        sql: `DELETE FROM user_profiles`, 
+        values: []
+    };
+    try {
+        await queryDatabase("users", delete_all_users_query)
+        logger.debug("Deleted all users and tokens in DB");
+    }
+    catch(err) {
+        logger.error("Error deleting all users from DB:", err)
         throw err
     }
 }

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
+import * as types from "../models/api_types"
 import { uploadBase64Contents } from '../services/upload/unzip_contents';
 import logger from "../utils/logger";
 import { MetricsController } from '../services/scoring/controllers/metrics-controller';
@@ -13,6 +14,8 @@ import { extractBase64ContentsFromUrl } from '../services/upload/convert_zipball
 import { checkPkgIDInDB, genericPkgDataGet, insertPackageIntoDB } from '../services/database/operation_queries';
 import { deleteFromS3 } from '../services/aws/s3delete';
 import { deletePackageDataByID } from '../services/database/delete_queries';
+import { verifyAuthToken } from '../services/user_auth/generate_auth_token';
+import { JsonWebTokenError } from 'jsonwebtoken';
 
 //Controllers are basically a way to organize the functions called by your API
 //Obviously most of our functions will be too complex to have within the API endpoint declaration
@@ -32,14 +35,36 @@ const controller = container.resolve(MetricsController); //Basically gets an ins
 //This controller contains a class that handles everything related to creating, deleting, and updating packages
 export class PackageUploader {
 
-    public updatePkgById (req: Request, res: Response) {
+    public async updatePkgById (req: Request, res: Response) {
         //The name, version, and ID must match.
         //The package contents (from PackageData) will replace the previous contents.
     
         const req_body: schemas.Package = req.body;
         const id = req.params.id;
-        const auth_token = req.params.auth_token;
+        const auth_token = req.headers.authorization!;
     
+        //Validate package body
+        if(!(types.Package.is(req_body))) {
+            logger.debug("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
+
+        //Check user has permissions for this operation
+        try {
+            await verifyAuthToken(auth_token, ["upload"]) //Can ensure auth exists bc we check for it in middleware
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catch (err: any) {
+            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
+                logger.error(`Error validating auth token ${auth_token}`)
+                return res.status(401).send("Error validating auth token: " + err.message);
+            }
+            else {
+                logger.error(`Error: Invalid/malformed auth token`)
+                return res.status(400).send("Error validating auth token: " + err.message);
+            }
+        }
+
         //******* IMPLEMENTATION HERE ********* 
         
        //************************************** 
@@ -70,12 +95,32 @@ export class PackageUploader {
     public async deletePkgByID (req: Request, res: Response) {
     
         const id = req.params.id;
+        const auth_token = req.headers.authorization!;
     
+
+        //Check user has permissions for this operation
+        //Assuming that the only role that should be allowed to delete packages is admins
+        try {
+            await verifyAuthToken(auth_token, ["admin"]) //Can ensure auth exists bc we check for it in middleware
+            //Note that other endpoints exclude admin from the permissions list because its allowed to do everything by default
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catch (err: any) {
+            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
+                logger.error(`Error validating auth token ${auth_token}`)
+                return res.status(401).send("Error validating auth token: " + err.message);
+            }
+            else {
+                logger.error(`Error: Invalid/malformed auth token`)
+                return res.status(400).send("Error validating auth token: " + err.message);
+            }
+        }
+
         if(!id) {
-            res.status(400).send("Invalid/missing package ID in header");
+            return res.status(400).send("Invalid/missing package ID in header");
         }
         else if(!await checkPkgIDInDB(id)) {
-            res.status(404).send("Could not find existing package with matching ID");
+            return res.status(404).send("Could not find existing package with matching ID");
         }
         else {
             const pkg_name = await genericPkgDataGet("NAME", id)
@@ -97,12 +142,29 @@ export class PackageUploader {
         logger.debug("Successfully routed to endpoint for uploading a new package")
 
         const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
+        const auth_token = req.headers.authorization!;
         let response_obj: schemas.Package;
         let extractedContents
-        
-        //Would the GitHub URL be the "ingestion of npm package" in the spec?
-    
-        //Need to add: check that package doesn't already exist
+
+        // if(!(types.PackageData.is(req_body))) {
+        //     logger.debug("Invalid or malformed Package in request body to endpoint POST /package")
+        //     return res.status(400).send("Invalid or malformed Package in request body");
+        // }
+
+        try {
+            await verifyAuthToken(auth_token, ["upload"]) //Can ensure auth exists bc we check for it in middleware
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catch (err: any) {
+            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
+                logger.error(`Error validating auth token ${auth_token}`)
+                return res.status(401).send("Error validating auth token: " + err.message);
+            }
+            else {
+                logger.error(`Error: Invalid/malformed auth token`)
+                return res.status(400).send("Error validating auth token: " + err.message);
+            }
+        }
 
         if(req_body.hasOwnProperty("URL") && !req_body.hasOwnProperty("Content")) {
 
@@ -234,40 +296,7 @@ export class PackageUploader {
         else {
             return res.status(400).send("Invalid or malformed PackageData in request body");
         }
-
-        
-
-
     
-        res.status(201).json(response_obj);
-    }
-
-    public deletePkgByName (req: Request, res: Response) {
-        const name = req.params.name;
-        const auth_token = req.params.auth_token;
-    
-        //******* IMPLEMENTATION HERE ********* 
-        
-        //************************************** 
-    
-    
-        var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
-    
-        if(response_code == 200) {
-            res.status(200).send("Successfully deleted all versions of package with name {packageName}");
-        }
-        else if(response_code == 400) {
-            if(auth_token) { //If its invalid
-                //VALIDATION CHECK UNIMPLEMENTED
-                res.status(400).send("Invalid auth token");
-            }
-            else {
-                res.status(400).send("Invalid package name");
-            }
-        }
-        else if(response_code == 404) {
-            res.status(404).send("Could not find existing package with matching name");
-        }
-        res.send(`Deleted all versions of package with name: ${name}`);
+        return res.status(201).json(response_obj);
     }
 }
