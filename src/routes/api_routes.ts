@@ -46,10 +46,6 @@ api_router.get('/package/:id/rate', checkForAuthToken, pkgDataManager.ratePkgByI
 api_router.put('/authenticate', utilsCtrl.getAuthToken);
 //ONLY ROUTE THAT DOESNT USE MIDDLEWARE
 
-// Endpoint to get the history of a package by name
-api_router.get('/package/byName/:name', checkForAuthToken, pkgDataManager.getPkgHistoryByName);
-
-
 // Endpoint to get packages based on a regular expression
 api_router.post('/package/byRegEx', checkForAuthToken, pkgDataManager.getPkgByRegex);
 
