@@ -1,4 +1,4 @@
-import { Request, Response, response } from 'express';
+import { Request, Response} from 'express';
 import * as schemas from "../models/api_schemas"
 import { decodeB64ContentsToZip } from '../services/upload/unzip_contents';
 import logger from "../utils/logger";
@@ -10,11 +10,10 @@ import { extractGitHubInfo, isGitHubUrl, resolveNpmToGitHub } from '../services/
 import uploadToS3 from '../services/aws/s3upload';
 
 import { extractBase64ContentsFromUrl } from '../services/upload/convert_zipball';
-import { checkMetadataExists, checkPkgIDInDB, genericPkgDataGet, insertPackageIntoDB, updatePackageVersionInDB } from '../services/database/operation_queries';
+import { checkMetadataExists, checkPkgIDInDB, genericPkgDataGet, insertPackageIntoDB, updatePackageInDB } from '../services/database/operation_queries';
 import { deleteFromS3 } from '../services/aws/s3delete';
 import { deletePackageDataByID } from '../services/database/delete_queries';
 import { RepoIdentifier } from '../models/other_schemas';
-import { is } from '@babel/types';
 
 //Controllers are basically a way to organize the functions called by your API
 //Obviously most of our functions will be too complex to have within the API endpoint declaration
@@ -172,7 +171,8 @@ export class PackageUploader {
                 //return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
             // }
             // else {
-                const contentsPath = await uploadToS3(extractedContents, repo_ID)
+                await uploadToS3(extractedContents, repo_ID)
+                await updatePackageInDB(metric_scores, repo_ID);
                 //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
                 //Probably have to redo this function so it updates scores instead of overwriting them
                 // await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);

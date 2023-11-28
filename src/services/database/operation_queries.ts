@@ -29,17 +29,13 @@ export async function insertPackageIntoDB(metric_scores: PackageRating, pkg_meta
 
 }
 
-export async function updatePackageVersionInDB(new_version: string, new_scores: PackageRating, pkg_id: string) {
-    const update_pkgdata_query: DbQuery = { 
-        sql: `UPDATE pkg_data SET LATEST_VERSION = ? WHERE ID = ?`, 
-        values: [new_version, pkg_id]
-    };
+export async function updatePackageInDB(new_scores: PackageRating, pkg_id: string) {
     const update_scores_query: DbQuery = {
         sql: `UPDATE scores SET BusFactor = ?, Correctness = ?, RampUp = ?, ResponsiveMaintainer = ?, LicenseScore = ?, GoodPinningPractice = ?, PullRequest = ? WHERE ID = ?`, 
         values: [new_scores.BusFactor, new_scores.Correctness, new_scores.RampUp, new_scores.ResponsiveMaintainer, new_scores.LicenseScore, new_scores.GoodPinningPractice, new_scores.PullRequest, pkg_id]
     };
     try {
-        await queryDatabase("packages", [update_pkgdata_query, update_scores_query])
+        await queryDatabase("packages", [update_scores_query])
         logger.debug("Updated package data and scores in RDS DB");
     }
     catch (err) {
