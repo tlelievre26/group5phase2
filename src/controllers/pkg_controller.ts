@@ -146,10 +146,10 @@ export class PackageUploader {
         let response_obj: schemas.Package;
         let extractedContents
 
-        if(!(types.PackageData.is(req_body))) {
-            logger.debug("Invalid or malformed Package in request body to endpoint POST /package")
-            return res.status(400).send("Invalid or malformed Package in request body");
-        }
+        // if(!(types.PackageData.is(req_body))) {
+        //     logger.debug("Invalid or malformed Package in request body to endpoint POST /package")
+        //     return res.status(400).send("Invalid or malformed Package in request body");
+        // }
 
         try {
             await verifyAuthToken(auth_token, ["upload"]) //Can ensure auth exists bc we check for it in middleware
