@@ -2,6 +2,7 @@ import logger from "../../utils/logger";
 import { PackageMetadata, PackageRating } from "../../models/api_schemas";
 import queryDatabase from "./db_query";
 import { DbQuery } from "../../models/other_schemas";
+import e from "express";
 
 /**
  * Inserts package data and scores into the RDS DB atomically
@@ -47,29 +48,108 @@ export async function checkPkgIDInDB(pkg_ID: string): Promise<boolean> {
         return false
     }
 }
+export async function PostgetPackage(serverRange: string, package_Name: string) {
+    let ranges: string[] = [];
+    let sql: string;
+    let values: string[];
+    sql = 'SELECT * from pkg_data';
+    if (serverRange == undefined) {
+        if (package_Name != '*') {
+            sql += `WHERE NAME = ?`;
+            values = [package_Name];
+        } else {
+            values = [];
+        }
+    } else {
 
+        if (serverRange.includes("-")) {
+            ranges = serverRange.split("-");
+            sql += ` WHERE LATEST_VERSION >= ? AND LATEST_VERSION <= ?`;
+            values = ranges.length > 0 ? [ranges[0], ranges[1]] : [serverRange];
+        } else if (serverRange.includes("~")) {
+            sql += `WHERE LATEST_VERSION REGEXP '?\\.[0-9]+$'`;
+            values = [serverRange];
+        } else if (serverRange.includes("^")) {
+            sql += `WHERE LATEST_VERSION REGEXP '^((?)|[1-9]\\.[0-9]\\.[0-9])$'`;
+            values = [serverRange];
+        } else {
+            sql = `WHERE LATEST_VERSION = ?`;
+            values = [serverRange];
+        }
+        if (package_Name != '*') {
+            sql += ` AND NAME = ?`;
+            values.push(package_Name);
+        } else {
+            sql += `;`;
+        }
+    }
 
-export function searchPackage(databaseName: string, packageNameOrId: string): Promise<any> {
-    const query = `SELECT * FROM pkg_data WHERE name = ? OR id = ?`;
-    const values = [packageNameOrId, packageNameOrId];
-    const dbQuery = { sql: query, values };
-    return queryDatabase(databaseName, dbQuery);
+    const get_pkgdata_query: DbQuery = { sql, values };
+    try {
+        const response = await queryDatabase("packages", get_pkgdata_query);
+        console.log("here in POSTGET", response);
+        return response[0];
+    } catch (err) {
+        console.error('Error querying database:', err);
+        throw err;
+    }
 }
 
-export function getScores(databaseName: string, packageNameOrId: string): Promise<any> {
-    const query = `SELECT * FROM scores WHERE name = ? OR id = ?`;
-    const values = [packageNameOrId, packageNameOrId];
-    const dbQuery = { sql: query, values };
-    return queryDatabase(databaseName, dbQuery);
+
+// export function searchPackage(databaseName: string, packageNameOrId: string): Promise<any> {
+//     const query = `SELECT * FROM pkg_data WHERE name = ? OR id = ?`;
+//     const values = [packageNameOrId, packageNameOrId];
+//     const dbQuery = { sql: query, values };
+//     return queryDatabase(databaseName, dbQuery);
+// }
+
+// export function getScores(databaseName: string, packageNameOrId: string): Promise<any> {
+//     const query = `SELECT * FROM scores WHERE name = ? OR id = ?`;
+//     const values = [packageNameOrId, packageNameOrId];
+//     const dbQuery = { sql: query, values };
+//     return queryDatabase(databaseName, dbQuery);
+// }
+
+// export function searchPackageWithRegex(databaseName: string, regex: string): Promise<any> {
+//     const query = `SELECT * FROM pkg_data WHERE name REGEXP ? OR id REGEXP ?`;
+//     const values = [regex, regex];
+//     const dbQuery = { sql: query, values };
+//     return queryDatabase(databaseName, dbQuery);
+// }
+
+
+
+
+export async function genericPkgDataGet(db_field: string, pkg_ID: string) {
+    const get_pkgdata_query: DbQuery = {
+        sql: `SELECT ${db_field} FROM pkg_data WHERE ID = ?;`,
+        values: [pkg_ID]
+    }
+    try {
+        const response = await queryDatabase("packages", get_pkgdata_query)
+        console.log(response);
+        return response[0][0][db_field]
+    } catch (err) {
+        console.error('Error querying database: last', err);
+        throw err
+    }
 }
-
-export function searchPackageWithRegex(databaseName: string, regex: string): Promise<any> {
-    const query = `SELECT * FROM pkg_data WHERE name REGEXP ? OR id REGEXP ?`;
-    const values = [regex, regex];
-    const dbQuery = { sql: query, values };
-    return queryDatabase(databaseName, dbQuery);
+export async function PkgScoresGet(db_field: string, pkg_ID: string) {
+    const get_pkgdata_query: DbQuery = {
+        sql: `SELECT ${db_field} FROM scores WHERE ID = ?;`,
+        values: [pkg_ID]
+    }
+    console.log(get_pkgdata_query);
+    const response = await queryDatabase("packages", get_pkgdata_query)
+    console.log(response);
+    return response
 }
-
-
-
-
+export async function RegexPkgDataGet(db_field: string, pkg_ID: string) {
+    const get_pkgdata_query: DbQuery = {
+        sql: `SELECT ${db_field} FROM pkg_data WHERE ID REGEXP ?;`,
+        values: [pkg_ID]
+    }
+    const response = await queryDatabase("packages", get_pkgdata_query)
+    console.log(response);
+    return response[0][0][db_field]
+}

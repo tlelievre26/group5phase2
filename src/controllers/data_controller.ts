@@ -1,14 +1,17 @@
 import { Request, Response } from 'express';
 import { searchPackage, getScores, searchPackageWithRegex } from '../services/database/operation_queries';
 import * as schemas from "../models/api_schemas"
+import logger from "../utils/logger";
+import { genericPkgDataGet, PkgScoresGet, PostgetPackage } from "../services/database/operation_queries";
+import { version } from 'os';
 //import { inject, injectable } from "tsyringe";
 
 //This file contains a class that acts a controller for everything relating to getting data about a package
 
 export class PkgDataManager {
 
-    getPackageQuery(req: Request, res: Response) {
-        console.log("Got a package query request");
+    public async getPackageQuery(req: Request, res: Response) {
+        logger.debug("Got a package query request");
         //Get any packages fitting the query. Search for packages satisfying the indicated query.
     
         //If you want to enumerate all packages, provide an array with a single PackageQuery whose name is "*".
@@ -21,7 +24,8 @@ export class PkgDataManager {
         //Also, should we match either the version or the name or should we only return packages that match both?
     
         //Post requests have a "request body" that is the data being posted
-        const req_body: schemas.PackageQuery[] = req.body;
+        // logger.info("***************************** new ", req.body);
+        const req_body: schemas.PackageQuery = req.body;
         const offset = req.params.offset;
         const auth_token = req.params.auth_token;
         var response_obj: schemas.PackageMetadata[];
@@ -30,8 +34,10 @@ export class PkgDataManager {
     
         response_code = 200;
     
-        if(response_code == 200) {
-            res.status(200).send("Successfully queried for X packages");
+        if (response_code == 200) {
+            const result = await PostgetPackage(req_body.Version, req_body.Name);
+            logger.info("here bro for results", result);
+            res.status(200).send(result);
         }
         else if(response_code == 400) {
             if(auth_token) { //If its invalid
@@ -50,21 +56,14 @@ export class PkgDataManager {
     }
     
     public async getPkgById(req: Request, res: Response) {
-        //Retrieves a package by its ID
-        //Return this package
+
         const { databaseName, packageNameOrId } = req.query;
         const id = req.params.id;
         const auth_token = req.params.auth_token;
         var response_obj: schemas.Package;
-    
-    
-    
-    
-    
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
     
-        if(response_code == 200) {
-            // res.status(200).send(`Successfully returned {packageName} with ID = ${id}`);
+        if (response_code == 200) {
             try {
                 const result = await searchPackage(databaseName as string, packageNameOrId as string);
                 res.status(200).send(result);
@@ -72,31 +71,35 @@ export class PkgDataManager {
                 res.status(500).send({ error: 'Error querying the database' });
             }
         }
-        else if(response_code == 400) {
-            if(auth_token) { //If its invalid
-                //VALIDATION CHECK UNIMPLEMENTED
-                res.status(400).send("Invalid auth token");
+
+        try {
+            const result = await genericPkgDataGet("ID,NAME, LATEST_VERSION", id);
+            if (result.length > 0) {
+                res.status(200).send(result);
+            } else {
+                res.status(404).send({ error: 'Package not found' });
             }
-            else {
-                res.status(400).send("Invalid package ID");
-            }
+        } catch (error) {
+            res.status(500).send({ error: 'Error querying the database' });
         }
-        else if(response_code == 401) {
-            res.status(401).send("You do not have permission to reset the registry");
-        }
-    
-        //res.send(`Retrieve package with ID: ${id}`);
+    }
+    public async postPackages(req: Request, res: Response) {
+
     }
     
     
     
     public async ratePkgById(req: Request, res: Response) {
         //Gets scores for the specified package
-        const id = req.params.id;
+        const packageName = req.params.id;
         const auth_token = req.params.auth_token;
         var response_obj: schemas.PackageRating;
         const { databaseName, packageNameOrId } = req.query;
     
+        if (!packageName) {
+            res.status(400).send({ error: 'Missing package name in the URL' });
+            return;
+        }
     
     
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
@@ -109,6 +112,11 @@ export class PkgDataManager {
                 res.status(500).send({ error: 'Error querying the database' });
             }
         // res.status(200).send("Successfully rated {packageName}");
+            // const result = await PkgScoresGet("BusFactor,Correctness, RampUp, ResponsiveMaintainer,LicenseScore,GoodPinningPractice,PullRequest", packageName);
+            const result = await PkgScoresGet("*", packageName);
+
+            logger.info(result);
+            res.status(200).send(result);
         }
         else if(response_code == 400) {
             if(auth_token) { //If its invalid
@@ -125,7 +133,7 @@ export class PkgDataManager {
         else if(response_code == 500) {
             res.status(500).send("Fatal error during rating calculations");
         }
-        res.send(`Get rating for package with ID: ${id}`);
+        res.send(`Get rating for package with ID: ${packageName}`);
     }
     
     getPkgHistoryByName(req: Request, res: Response) {
