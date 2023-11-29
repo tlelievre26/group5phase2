@@ -9,10 +9,10 @@ import { DbQuery } from "../../models/other_schemas";
  * @param pkg_metadata - The package metadata.
  * @param contentsPath - The path to the package contents.
  */
-export async function insertPackageIntoDB(metric_scores: PackageRating, pkg_metadata: PackageMetadata, contentsPath: string) {
+export async function insertPackageIntoDB(metric_scores: PackageRating, pkg_metadata: PackageMetadata, contentsPath: string, debloating: boolean) {
     const insert_pkgdata_query: DbQuery = { 
-        sql: `INSERT INTO pkg_data (ID, NAME, LATEST_VERSION, CONTENTS_PATH, IS_SECRET) VALUES (?, ?, ?, ?, ?)`, 
-        values: [pkg_metadata.ID, pkg_metadata.Name, pkg_metadata.Version, contentsPath, false]
+        sql: `INSERT INTO pkg_data (ID, NAME, LATEST_VERSION, CONTENTS_PATH, DEBLOATED) VALUES (?, ?, ?, ?, ?)`, 
+        values: [pkg_metadata.ID, pkg_metadata.Name, pkg_metadata.Version, contentsPath, debloating]
     };
     const insert_scores_query: DbQuery = {
         sql: `INSERT INTO scores (ID, BusFactor, Correctness, RampUp, ResponsiveMaintainer, LicenseScore, GoodPinningPractice, PullRequest) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, 
@@ -80,7 +80,7 @@ export async function genericPkgDataGet(db_field: string, pkg_ID: string) {
  */
 export async function checkMetadataExists(metadata: PackageMetadata) {
     const check_metadata_matches: DbQuery = {
-        sql: `SELECT CONTENTS_PATH FROM pkg_data WHERE NAME = ? AND LATEST_VERSION = ? AND ID = ?;`,
+        sql: `SELECT DEBLOATED FROM pkg_data WHERE NAME = ? AND LATEST_VERSION = ? AND ID = ?;`,
         values: [metadata.Name, metadata.Version, metadata.ID]
     }
     const matching_pkg = await queryDatabase("packages", check_metadata_matches)
@@ -89,7 +89,7 @@ export async function checkMetadataExists(metadata: PackageMetadata) {
         return null
     }
     else {
-        return matching_pkg[0][0].CONTENTS_PATH
+        return matching_pkg[0][0].DEB
     }
 
 
