@@ -73,9 +73,10 @@ export class PackageUploader {
             return res.status(400).send("Inconsistant package ID between request metadata and URL");
         }
 
-        const curr_path = await checkMetadataExists(req_body.metadata)
+        const debloated = await checkMetadataExists(req_body.metadata)
+        //Kill 2 birds with 1 stone here, if the is matching metadata we get the debloating setting that we need, and if there's no match it just returns null and we exit
 
-        if(curr_path == null) {
+        if(debloated == null) {
             return res.status(404).send("Could not find existing package with matching metadata");
         }
         else {
@@ -140,14 +141,14 @@ export class PackageUploader {
                 //The reason we get the zipball before doing the score check is we would've had to clone the repo anyways, which probably takes a similar amount of memory and time
                 //Doing this makes it easier to integrate with the other input formats
                 
-                extractedContents = await decodeB64ContentsToZip(base64contents); //We know it'll exist
+                extractedContents = await decodeB64ContentsToZip(base64contents, debloated); //We know it'll exist
     
             }
             else if(req_body.data.hasOwnProperty("Content") && !req_body.data.hasOwnProperty("URL")) {
                 logger.debug("Recieved encoded package contents in request body")
     
                 base64contents = req_body.data.Content; //Do this so we can not have as much in seperate if statements
-                extractedContents = await decodeB64ContentsToZip(req_body.data.Content!); //We know it'll exist
+                extractedContents = await decodeB64ContentsToZip(req_body.data.Content!, debloated); //We know it'll exist
     
                 /*
     
@@ -258,17 +259,25 @@ export class PackageUploader {
     
 
     public async createPkg (req: Request, res: Response) {
-
         logger.debug("Successfully routed to endpoint for uploading a new package")
 
-        const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
+        //ADDING A PARAMETER DEBLOAT
+        //If true, run the debloating code
 
+        const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
         const auth_token = req.headers.authorization!;
         let extractedContents;
         let base64contents;
         let repoInfo: RepoIdentifier | undefined; //Need to have this defined here to seperate if statements
         let repoURL: string;
-        
+        let debloating;
+        if(req.params.debloating) { //If debloat exists set it to the value, otherwise default to false
+            debloating = (req.params.debloating === "true")
+        }
+        else {
+            debloating = false
+        }
+
         if(!(types.PackageData.is(req_body))) {
             logger.debug("Invalid or malformed Package in request body to endpoint POST /package")
             return res.status(400).send("Invalid or malformed Package in request body");
@@ -345,14 +354,14 @@ export class PackageUploader {
             //The reason we get the zipball before doing the score check is we would've had to clone the repo anyways, which probably takes a similar amount of memory and time
             //Doing this makes it easier to integrate with the other input formats
             
-            extractedContents = await decodeB64ContentsToZip(base64contents); //We know it'll exist
+            extractedContents = await decodeB64ContentsToZip(base64contents, debloating); //We know it'll exist
 
         }
         else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
             logger.debug("Recieved encoded package contents in request body")
 
             base64contents = req_body.Content; //Do this so we can not have as much in seperate if statements
-            extractedContents = await decodeB64ContentsToZip(req_body.Content!); //We know it'll exist
+            extractedContents = await decodeB64ContentsToZip(req_body.Content!, debloating); //We know it'll exist
 
             /*
 
@@ -414,7 +423,7 @@ export class PackageUploader {
         // else {
             const contentsPath = await uploadToS3(extractedContents, repo_ID)
             //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
-            await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
+            await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath, debloating);
         // }
 
     
