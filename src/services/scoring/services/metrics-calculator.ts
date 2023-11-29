@@ -51,7 +51,7 @@ export class MetricsCalculator {
             const pinningPractice = await this.repositoryProcessor.processDependencies(owner, repo, pkg_metadata);
 
             //Net score does NOT factor in the 2 new metrics
-            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license);
+            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license, pinningPractice);
 
             return {
                 BusFactor: busFactor,
@@ -274,14 +274,15 @@ export class MetricsCalculator {
      * @param rampUp
      * @param responsiveMaintainer
      * @param license
+     * @param pinningPractice
      */
     async calculateNetScore(busFactor: number, correctness: number, rampUp: number,
-                            responsiveMaintainer: number, license: number): Promise<number> {
+                            responsiveMaintainer: number, license: number, pinningPractice: number): Promise<number> {
 
         //Note that the net score DOES NOT factor in the 2 new metrics
 
         // Formulae for the Net Score                        
-        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license);
+        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license) * (pinningPractice);
 
         return NetScore;
     }
