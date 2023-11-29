@@ -54,7 +54,7 @@ export class MetricsCalculator {
             const pinningPractice = 0
 
             //Net score does NOT factor in the 2 new metrics
-            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license);
+            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license, pullRequest);
 
             return {
                 BusFactor: busFactor,
@@ -301,14 +301,16 @@ export class MetricsCalculator {
      * @param rampUp
      * @param responsiveMaintainer
      * @param license
+     * @param pullRequest
      */
     async calculateNetScore(busFactor: number, correctness: number, rampUp: number,
-                            responsiveMaintainer: number, license: number): Promise<number> {
+                            responsiveMaintainer: number, license: number, pullRequest: number): Promise<number> {
 
         //Note that the net score DOES NOT factor in the 2 new metrics
 
-        // Formulae for the Net Score                        
-        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license);
+        // Formulae for the Net Score    
+        //idk what to make for the formula, just guessing                     
+        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22) + (pullRequest * 0.22)) * (license);
 
         return NetScore;
     }
