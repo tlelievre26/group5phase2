@@ -109,7 +109,7 @@ export type SemverRange = string;
  * PackageQuery schema.
  */
 export interface PackageQuery {
-    Version?: SemverRange;
+    Version: SemverRange;
     Name: PackageName;
 }
 

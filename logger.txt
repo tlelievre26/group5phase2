@@ -1,0 +1,1984 @@
+{
+  "0": "Log file path is set to: /home/shay/a/dramiya/ECE 461/group5phase2/logger.txt",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:16:37.719Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/utils/logger.js:85:5",
+      "fileName": "logger.js",
+      "fileNameWithLine": "logger.js:85",
+      "fileColumn": "5",
+      "fileLine": "85",
+      "filePath": "/dist/utils/logger.js",
+      "filePathWithLine": "/dist/utils/logger.js:85",
+      "method": "Object.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Logger configured with minLevel=2, type=pretty",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:16:37.720Z",
+    "logLevelId": 3,
+    "logLevelName": "INFO",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/utils/logger.js:86:5",
+      "fileName": "logger.js",
+      "fileNameWithLine": "logger.js:86",
+      "fileColumn": "5",
+      "fileLine": "86",
+      "filePath": "/dist/utils/logger.js",
+      "filePathWithLine": "/dist/utils/logger.js:86",
+      "method": "Object.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Server is running on port 3001",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:16:38.214Z",
+    "logLevelId": 3,
+    "logLevelName": "INFO",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/app.js:21:22",
+      "fileName": "app.js",
+      "fileNameWithLine": "app.js:21",
+      "fileColumn": "22",
+      "fileLine": "21",
+      "filePath": "/dist/app.js",
+      "filePathWithLine": "/dist/app.js:21",
+      "method": "Server.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Successfully routed to endpoint for uploading a new package",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:30.439Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/controllers/pkg_controller.js:88:30",
+      "fileName": "pkg_controller.js",
+      "fileNameWithLine": "pkg_controller.js:88",
+      "fileColumn": "30",
+      "fileLine": "88",
+      "filePath": "/dist/controllers/pkg_controller.js",
+      "filePathWithLine": "/dist/controllers/pkg_controller.js:88"
+    }
+  }
+}
+{
+  "0": "Recieved GitHub URL in request body",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:30.440Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/controllers/pkg_controller.js:96:34",
+      "fileName": "pkg_controller.js",
+      "fileNameWithLine": "pkg_controller.js:96",
+      "fileColumn": "34",
+      "fileLine": "96",
+      "filePath": "/dist/controllers/pkg_controller.js",
+      "filePathWithLine": "/dist/controllers/pkg_controller.js:96"
+    }
+  }
+}
+{
+  "0": "Extracted owner expressjs and repo express from URL https://github.com/expressjs/express",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:30.440Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/scoring/services/parseURL.js:20:22",
+      "fileName": "parseURL.js",
+      "fileNameWithLine": "parseURL.js:20",
+      "fileColumn": "22",
+      "fileLine": "20",
+      "filePath": "/dist/services/scoring/services/parseURL.js",
+      "filePathWithLine": "/dist/services/scoring/services/parseURL.js:20",
+      "method": "extractGitHubInfo"
+    }
+  }
+}
+{
+  "0": "**********************************************************************DATABASE packages",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:30.441Z",
+    "logLevelId": 3,
+    "logLevelName": "INFO",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:18:22",
+      "fileName": "db_query.js",
+      "fileNameWithLine": "db_query.js:18",
+      "fileColumn": "22",
+      "fileLine": "18",
+      "filePath": "/dist/services/database/db_query.js",
+      "filePathWithLine": "/dist/services/database/db_query.js:18",
+      "method": "queryDatabase"
+    }
+  }
+}
+{
+  "0": "Retrieved zipball URL https://codeload.github.com/expressjs/express/legacy.zip/2a00da2067b7017f769c9100205a2a5f267a884b from GitHub API",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:31.136Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/controllers/pkg_controller.js:121:34",
+      "fileName": "pkg_controller.js",
+      "fileNameWithLine": "pkg_controller.js:121",
+      "fileColumn": "34",
+      "fileLine": "121",
+      "filePath": "/dist/controllers/pkg_controller.js",
+      "filePathWithLine": "/dist/controllers/pkg_controller.js:121"
+    }
+  }
+}
+{
+  "0": "Decoded zip data successfully",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:31.410Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/unzip_contents.js:28:26",
+      "fileName": "unzip_contents.js",
+      "fileNameWithLine": "unzip_contents.js:28",
+      "fileColumn": "26",
+      "fileLine": "28",
+      "filePath": "/dist/services/upload/unzip_contents.js",
+      "filePathWithLine": "/dist/services/upload/unzip_contents.js:28"
+    }
+  }
+}
+{
+  "0": "Loaded data into JSZip object successfully",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:31.426Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/unzip_contents.js:32:26",
+      "fileName": "unzip_contents.js",
+      "fileNameWithLine": "unzip_contents.js:32",
+      "fileColumn": "26",
+      "fileLine": "32",
+      "filePath": "/dist/services/upload/unzip_contents.js",
+      "filePathWithLine": "/dist/services/upload/unzip_contents.js:32"
+    }
+  }
+}
+{
+  "0": "Successfully retrieved LICENSE file from zip",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:31.432Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/unzip_contents.js:87:42",
+      "fileName": "unzip_contents.js",
+      "fileNameWithLine": "unzip_contents.js:87",
+      "fileColumn": "42",
+      "fileLine": "87",
+      "filePath": "/dist/services/upload/unzip_contents.js",
+      "filePathWithLine": "/dist/services/upload/unzip_contents.js:87"
+    }
+  }
+}
+{
+  "0": "Successfully retrieved README file from zip",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:31.435Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/unzip_contents.js:96:46",
+      "fileName": "unzip_contents.js",
+      "fileNameWithLine": "unzip_contents.js:96",
+      "fileColumn": "46",
+      "fileLine": "96",
+      "filePath": "/dist/services/upload/unzip_contents.js",
+      "filePathWithLine": "/dist/services/upload/unzip_contents.js:96"
+    }
+  }
+}
+{
+  "0": "Successfully retrieved README file from zip",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:31.440Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/unzip_contents.js:96:46",
+      "fileName": "unzip_contents.js",
+      "fileNameWithLine": "unzip_contents.js:96",
+      "fileColumn": "46",
+      "fileLine": "96",
+      "filePath": "/dist/services/upload/unzip_contents.js",
+      "filePathWithLine": "/dist/services/upload/unzip_contents.js:96"
+    }
+  }
+}
+{
+  "0": "Successfully retrieved package.json file from zip",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:31.442Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/unzip_contents.js:80:34",
+      "fileName": "unzip_contents.js",
+      "fileNameWithLine": "unzip_contents.js:80",
+      "fileColumn": "34",
+      "fileLine": "80",
+      "filePath": "/dist/services/upload/unzip_contents.js",
+      "filePathWithLine": "/dist/services/upload/unzip_contents.js:80"
+    }
+  }
+}
+{
+  "0": "Retrieving metrics data...",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:31.443Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/scoring/controllers/metrics-controller.js:59:30",
+      "fileName": "metrics-controller.js",
+      "fileNameWithLine": "metrics-controller.js:59",
+      "fileColumn": "30",
+      "fileLine": "59",
+      "filePath": "/dist/services/scoring/controllers/metrics-controller.js",
+      "filePathWithLine": "/dist/services/scoring/controllers/metrics-controller.js:59",
+      "method": "MetricsController.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Calculating metrics scores...",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:31.445Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/scoring/controllers/metrics-controller.js:62:30",
+      "fileName": "metrics-controller.js",
+      "fileNameWithLine": "metrics-controller.js:62",
+      "fileColumn": "30",
+      "fileLine": "62",
+      "filePath": "/dist/services/scoring/controllers/metrics-controller.js",
+      "filePathWithLine": "/dist/services/scoring/controllers/metrics-controller.js:62",
+      "method": "MetricsController.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Calculating metrics for express...",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.636Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/scoring/services/metrics-calculator.js:46:34",
+      "fileName": "metrics-calculator.js",
+      "fileNameWithLine": "metrics-calculator.js:46",
+      "fileColumn": "34",
+      "fileLine": "46",
+      "filePath": "/dist/services/scoring/services/metrics-calculator.js",
+      "filePathWithLine": "/dist/services/scoring/services/metrics-calculator.js:46",
+      "method": "MetricsCalculator.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Outputting metrics...",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.637Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/scoring/controllers/metrics-controller.js:64:30",
+      "fileName": "metrics-controller.js",
+      "fileNameWithLine": "metrics-controller.js:64",
+      "fileColumn": "30",
+      "fileLine": "64",
+      "filePath": "/dist/services/scoring/controllers/metrics-controller.js",
+      "filePathWithLine": "/dist/services/scoring/controllers/metrics-controller.js:64",
+      "method": "MetricsController.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Successfully parsed package.json file into JSON object",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.637Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:21:26",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:21",
+      "fileColumn": "26",
+      "fileLine": "21",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:21"
+    }
+  }
+}
+{
+  "0": "Successfully uploaded package.json to S3 under key express/metadata/package.json",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.648Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:36:30",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:36",
+      "fileColumn": "30",
+      "fileLine": "36",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:36"
+    }
+  }
+}
+{
+  "0": "Successfully uploaded README to S3 under key express/metadata/README",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.653Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:36:30",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:36",
+      "fileColumn": "30",
+      "fileLine": "36",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:36"
+    }
+  }
+}
+{
+  "0": "Successfully uploaded LICENSE to S3 under key express/metadata/LICENSE",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.650Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:36:30",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:36",
+      "fileColumn": "30",
+      "fileLine": "36",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:36"
+    }
+  }
+}
+{
+  "0": "Successfully uploaded contents to S3 under key express/express.zip",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.655Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:51:26",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:51",
+      "fileColumn": "26",
+      "fileLine": "51",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:51"
+    }
+  }
+}
+{
+  "0": "**********************************************************************DATABASE packages",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.655Z",
+    "logLevelId": 3,
+    "logLevelName": "INFO",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:18:22",
+      "fileName": "db_query.js",
+      "fileNameWithLine": "db_query.js:18",
+      "fileColumn": "22",
+      "fileLine": "18",
+      "filePath": "/dist/services/database/db_query.js",
+      "filePathWithLine": "/dist/services/database/db_query.js:18",
+      "method": "queryDatabase"
+    }
+  }
+}
+{
+  "0": "File uploaded successfully. S3 Location:",
+  "1": "https://group5phase2packages.s3.us-east-2.amazonaws.com/express/metadata/LICENSE",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.824Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:33:38",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:33",
+      "fileColumn": "38",
+      "fileLine": "33",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:33",
+      "method": "ManagedUpload.callback"
+    }
+  }
+}
+{
+  "0": "Error running main query",
+  "1": {
+    "nativeError": {
+      "code": "ER_BAD_FIELD_ERROR",
+      "errno": 1054,
+      "sqlMessage": "Unknown column 'IS_SECRET' in 'field list'",
+      "sqlState": "42S22",
+      "index": 0,
+      "sql": "INSERT INTO pkg_data (ID, NAME, LATEST_VERSION, CONTENTS_PATH, IS_SECRET) VALUES ('expressjs_express', 'express', '4.18.2', 'express/express.zip', false)"
+    },
+    "name": "Error",
+    "message": "ER_BAD_FIELD_ERROR: Unknown column 'IS_SECRET' in 'field list'",
+    "stack": [
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/sequences/Sequence.js:47:14",
+        "fileName": "Sequence.js",
+        "fileNameWithLine": "Sequence.js:47",
+        "fileColumn": "14",
+        "fileLine": "47",
+        "filePath": "/node_modules/mysql/lib/protocol/sequences/Sequence.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/sequences/Sequence.js:47",
+        "method": "Sequence._packetToError"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/sequences/Query.js:79:18",
+        "fileName": "Query.js",
+        "fileNameWithLine": "Query.js:79",
+        "fileColumn": "18",
+        "fileLine": "79",
+        "filePath": "/node_modules/mysql/lib/protocol/sequences/Query.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/sequences/Query.js:79",
+        "method": "Query.ErrorPacket"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Protocol.js:291:23",
+        "fileName": "Protocol.js",
+        "fileNameWithLine": "Protocol.js:291",
+        "fileColumn": "23",
+        "fileLine": "291",
+        "filePath": "/node_modules/mysql/lib/protocol/Protocol.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Protocol.js:291",
+        "method": "Protocol._parsePacket"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Parser.js:433:10",
+        "fileName": "Parser.js",
+        "fileNameWithLine": "Parser.js:433",
+        "fileColumn": "10",
+        "fileLine": "433",
+        "filePath": "/node_modules/mysql/lib/protocol/Parser.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Parser.js:433",
+        "method": "Parser._parsePacket"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Parser.js:43:10",
+        "fileName": "Parser.js",
+        "fileNameWithLine": "Parser.js:43",
+        "fileColumn": "10",
+        "fileLine": "43",
+        "filePath": "/node_modules/mysql/lib/protocol/Parser.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Parser.js:43",
+        "method": "Parser.write"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Protocol.js:38:16",
+        "fileName": "Protocol.js",
+        "fileNameWithLine": "Protocol.js:38",
+        "fileColumn": "16",
+        "fileLine": "38",
+        "filePath": "/node_modules/mysql/lib/protocol/Protocol.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Protocol.js:38",
+        "method": "Protocol.write"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:88:28",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:88",
+        "fileColumn": "28",
+        "fileLine": "88",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:88",
+        "method": "Socket.<anonymous>"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:526:10",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:526",
+        "fileColumn": "10",
+        "fileLine": "526",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:526",
+        "method": "Socket.<anonymous>"
+      },
+      {
+        "fullFilePath": "node:events:514:28",
+        "fileName": "events",
+        "fileNameWithLine": "events:514",
+        "fileColumn": "28",
+        "fileLine": "514",
+        "filePath": "events",
+        "filePathWithLine": "events:514",
+        "method": "Socket.emit"
+      },
+      {
+        "fullFilePath": "node:domain:489:12",
+        "fileName": "domain",
+        "fileNameWithLine": "domain:489",
+        "fileColumn": "12",
+        "fileLine": "489",
+        "filePath": "domain",
+        "filePathWithLine": "domain:489",
+        "method": "Socket.emit"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Protocol.js:144:48",
+        "fileName": "Protocol.js",
+        "fileNameWithLine": "Protocol.js:144",
+        "fileColumn": "48",
+        "fileLine": "144",
+        "filePath": "/node_modules/mysql/lib/protocol/Protocol.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Protocol.js:144",
+        "method": "Protocol._enqueue"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:198:25",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:198",
+        "fileColumn": "25",
+        "fileLine": "198",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:198",
+        "method": "PoolConnection.query"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:48:40",
+        "fileName": "db_query.js",
+        "fileNameWithLine": "db_query.js:48",
+        "fileColumn": "40",
+        "fileLine": "48",
+        "filePath": "/dist/services/database/db_query.js",
+        "filePathWithLine": "/dist/services/database/db_query.js:48"
+      },
+      {},
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:47:32",
+        "fileName": "db_query.js",
+        "fileNameWithLine": "db_query.js:47",
+        "fileColumn": "32",
+        "fileLine": "47",
+        "filePath": "/dist/services/database/db_query.js",
+        "filePathWithLine": "/dist/services/database/db_query.js:47"
+      },
+      {},
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:46:48",
+        "fileName": "db_query.js",
+        "fileNameWithLine": "db_query.js:46",
+        "fileColumn": "48",
+        "fileLine": "46",
+        "filePath": "/dist/services/database/db_query.js",
+        "filePathWithLine": "/dist/services/database/db_query.js:46",
+        "method": "Query.<anonymous>"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:526:10",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:526",
+        "fileColumn": "10",
+        "fileLine": "526",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:526",
+        "method": "Query.<anonymous>"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:488:16",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:488",
+        "fileColumn": "16",
+        "fileLine": "488",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:488",
+        "method": "Query._callback"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/sequences/Sequence.js:83:24",
+        "fileName": "Sequence.js",
+        "fileNameWithLine": "Sequence.js:83",
+        "fileColumn": "24",
+        "fileLine": "83",
+        "filePath": "/node_modules/mysql/lib/protocol/sequences/Sequence.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/sequences/Sequence.js:83",
+        "method": "Sequence.end"
+      }
+    ]
+  },
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.841Z",
+    "logLevelId": 5,
+    "logLevelName": "ERROR",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:50:54",
+      "fileName": "db_query.js",
+      "fileNameWithLine": "db_query.js:50",
+      "fileColumn": "54",
+      "fileLine": "50",
+      "filePath": "/dist/services/database/db_query.js",
+      "filePathWithLine": "/dist/services/database/db_query.js:50",
+      "method": "Query.<anonymous>"
+    }
+  }
+}
+{
+  "0": "File uploaded successfully. S3 Location:",
+  "1": "https://group5phase2packages.s3.us-east-2.amazonaws.com/express/metadata/README",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.848Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:33:38",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:33",
+      "fileColumn": "38",
+      "fileLine": "33",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:33",
+      "method": "ManagedUpload.callback"
+    }
+  }
+}
+{
+  "0": "File uploaded successfully. S3 Location:",
+  "1": "https://group5phase2packages.s3.us-east-2.amazonaws.com/express/metadata/package.json",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.862Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:33:38",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:33",
+      "fileColumn": "38",
+      "fileLine": "33",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:33",
+      "method": "ManagedUpload.callback"
+    }
+  }
+}
+{
+  "0": "Error running main query",
+  "1": {
+    "nativeError": {
+      "code": "ER_NO_REFERENCED_ROW_2",
+      "errno": 1452,
+      "sqlMessage": "Cannot add or update a child row: a foreign key constraint fails (`packages`.`scores`, CONSTRAINT `ID` FOREIGN KEY (`ID`) REFERENCES `pkg_data` (`ID`))",
+      "sqlState": "23000",
+      "index": 0,
+      "sql": "INSERT INTO scores (ID, BusFactor, Correctness, RampUp, ResponsiveMaintainer, LicenseScore, GoodPinningPractice, PullRequest) VALUES ('expressjs_express', 0.25, 1, 0, 0.11813190710065728, 1, 0, 0)"
+    },
+    "name": "Error",
+    "message": "ER_NO_REFERENCED_ROW_2: Cannot add or update a child row: a foreign key constraint fails (`packages`.`scores`, CONSTRAINT `ID` FOREIGN KEY (`ID`) REFERENCES `pkg_data` (`ID`))",
+    "stack": [
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/sequences/Sequence.js:47:14",
+        "fileName": "Sequence.js",
+        "fileNameWithLine": "Sequence.js:47",
+        "fileColumn": "14",
+        "fileLine": "47",
+        "filePath": "/node_modules/mysql/lib/protocol/sequences/Sequence.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/sequences/Sequence.js:47",
+        "method": "Sequence._packetToError"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/sequences/Query.js:79:18",
+        "fileName": "Query.js",
+        "fileNameWithLine": "Query.js:79",
+        "fileColumn": "18",
+        "fileLine": "79",
+        "filePath": "/node_modules/mysql/lib/protocol/sequences/Query.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/sequences/Query.js:79",
+        "method": "Query.ErrorPacket"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Protocol.js:291:23",
+        "fileName": "Protocol.js",
+        "fileNameWithLine": "Protocol.js:291",
+        "fileColumn": "23",
+        "fileLine": "291",
+        "filePath": "/node_modules/mysql/lib/protocol/Protocol.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Protocol.js:291",
+        "method": "Protocol._parsePacket"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Parser.js:433:10",
+        "fileName": "Parser.js",
+        "fileNameWithLine": "Parser.js:433",
+        "fileColumn": "10",
+        "fileLine": "433",
+        "filePath": "/node_modules/mysql/lib/protocol/Parser.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Parser.js:433",
+        "method": "Parser._parsePacket"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Parser.js:43:10",
+        "fileName": "Parser.js",
+        "fileNameWithLine": "Parser.js:43",
+        "fileColumn": "10",
+        "fileLine": "43",
+        "filePath": "/node_modules/mysql/lib/protocol/Parser.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Parser.js:43",
+        "method": "Parser.write"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Protocol.js:38:16",
+        "fileName": "Protocol.js",
+        "fileNameWithLine": "Protocol.js:38",
+        "fileColumn": "16",
+        "fileLine": "38",
+        "filePath": "/node_modules/mysql/lib/protocol/Protocol.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Protocol.js:38",
+        "method": "Protocol.write"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:88:28",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:88",
+        "fileColumn": "28",
+        "fileLine": "88",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:88",
+        "method": "Socket.<anonymous>"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:526:10",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:526",
+        "fileColumn": "10",
+        "fileLine": "526",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:526",
+        "method": "Socket.<anonymous>"
+      },
+      {
+        "fullFilePath": "node:events:514:28",
+        "fileName": "events",
+        "fileNameWithLine": "events:514",
+        "fileColumn": "28",
+        "fileLine": "514",
+        "filePath": "events",
+        "filePathWithLine": "events:514",
+        "method": "Socket.emit"
+      },
+      {
+        "fullFilePath": "node:domain:489:12",
+        "fileName": "domain",
+        "fileNameWithLine": "domain:489",
+        "fileColumn": "12",
+        "fileLine": "489",
+        "filePath": "domain",
+        "filePathWithLine": "domain:489",
+        "method": "Socket.emit"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Protocol.js:144:48",
+        "fileName": "Protocol.js",
+        "fileNameWithLine": "Protocol.js:144",
+        "fileColumn": "48",
+        "fileLine": "144",
+        "filePath": "/node_modules/mysql/lib/protocol/Protocol.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Protocol.js:144",
+        "method": "Protocol._enqueue"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:198:25",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:198",
+        "fileColumn": "25",
+        "fileLine": "198",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:198",
+        "method": "PoolConnection.query"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:48:40",
+        "fileName": "db_query.js",
+        "fileNameWithLine": "db_query.js:48",
+        "fileColumn": "40",
+        "fileLine": "48",
+        "filePath": "/dist/services/database/db_query.js",
+        "filePathWithLine": "/dist/services/database/db_query.js:48"
+      },
+      {},
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:47:32",
+        "fileName": "db_query.js",
+        "fileNameWithLine": "db_query.js:47",
+        "fileColumn": "32",
+        "fileLine": "47",
+        "filePath": "/dist/services/database/db_query.js",
+        "filePathWithLine": "/dist/services/database/db_query.js:47"
+      },
+      {},
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:46:48",
+        "fileName": "db_query.js",
+        "fileNameWithLine": "db_query.js:46",
+        "fileColumn": "48",
+        "fileLine": "46",
+        "filePath": "/dist/services/database/db_query.js",
+        "filePathWithLine": "/dist/services/database/db_query.js:46",
+        "method": "Query.<anonymous>"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:526:10",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:526",
+        "fileColumn": "10",
+        "fileLine": "526",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:526",
+        "method": "Query.<anonymous>"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:488:16",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:488",
+        "fileColumn": "16",
+        "fileLine": "488",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:488",
+        "method": "Query._callback"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/sequences/Sequence.js:83:24",
+        "fileName": "Sequence.js",
+        "fileNameWithLine": "Sequence.js:83",
+        "fileColumn": "24",
+        "fileLine": "83",
+        "filePath": "/node_modules/mysql/lib/protocol/sequences/Sequence.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/sequences/Sequence.js:83",
+        "method": "Sequence.end"
+      }
+    ]
+  },
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:32.904Z",
+    "logLevelId": 5,
+    "logLevelName": "ERROR",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:50:54",
+      "fileName": "db_query.js",
+      "fileNameWithLine": "db_query.js:50",
+      "fileColumn": "54",
+      "fileLine": "50",
+      "filePath": "/dist/services/database/db_query.js",
+      "filePathWithLine": "/dist/services/database/db_query.js:50",
+      "method": "Query.<anonymous>"
+    }
+  }
+}
+{
+  "0": "File uploaded successfully. S3 Location:",
+  "1": "https://group5phase2packages.s3.us-east-2.amazonaws.com/express/express.zip",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:19:33.003Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:48:34",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:48",
+      "fileColumn": "34",
+      "fileLine": "48",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:48",
+      "method": "ManagedUpload.callback"
+    }
+  }
+}
+{
+  "0": "Log file path is set to: /home/shay/a/dramiya/ECE 461/group5phase2/logger.txt",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:20:42.837Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/utils/logger.js:85:5",
+      "fileName": "logger.js",
+      "fileNameWithLine": "logger.js:85",
+      "fileColumn": "5",
+      "fileLine": "85",
+      "filePath": "/dist/utils/logger.js",
+      "filePathWithLine": "/dist/utils/logger.js:85",
+      "method": "Object.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Server is running on port 3001",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:20:43.283Z",
+    "logLevelId": 3,
+    "logLevelName": "INFO",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/app.js:21:22",
+      "fileName": "app.js",
+      "fileNameWithLine": "app.js:21",
+      "fileColumn": "22",
+      "fileLine": "21",
+      "filePath": "/dist/app.js",
+      "filePathWithLine": "/dist/app.js:21",
+      "method": "Server.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Logger configured with minLevel=2, type=pretty",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:20:42.838Z",
+    "logLevelId": 3,
+    "logLevelName": "INFO",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/utils/logger.js:86:5",
+      "fileName": "logger.js",
+      "fileNameWithLine": "logger.js:86",
+      "fileColumn": "5",
+      "fileLine": "86",
+      "filePath": "/dist/utils/logger.js",
+      "filePathWithLine": "/dist/utils/logger.js:86",
+      "method": "Object.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Successfully routed to endpoint for uploading a new package",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:51.479Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/controllers/pkg_controller.js:88:30",
+      "fileName": "pkg_controller.js",
+      "fileNameWithLine": "pkg_controller.js:88",
+      "fileColumn": "30",
+      "fileLine": "88",
+      "filePath": "/dist/controllers/pkg_controller.js",
+      "filePathWithLine": "/dist/controllers/pkg_controller.js:88"
+    }
+  }
+}
+{
+  "0": "Recieved GitHub URL in request body",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:51.479Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/controllers/pkg_controller.js:96:34",
+      "fileName": "pkg_controller.js",
+      "fileNameWithLine": "pkg_controller.js:96",
+      "fileColumn": "34",
+      "fileLine": "96",
+      "filePath": "/dist/controllers/pkg_controller.js",
+      "filePathWithLine": "/dist/controllers/pkg_controller.js:96"
+    }
+  }
+}
+{
+  "0": "Extracted owner expressjs and repo express from URL https://github.com/expressjs/express",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:51.479Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/scoring/services/parseURL.js:20:22",
+      "fileName": "parseURL.js",
+      "fileNameWithLine": "parseURL.js:20",
+      "fileColumn": "22",
+      "fileLine": "20",
+      "filePath": "/dist/services/scoring/services/parseURL.js",
+      "filePathWithLine": "/dist/services/scoring/services/parseURL.js:20",
+      "method": "extractGitHubInfo"
+    }
+  }
+}
+{
+  "0": "**********************************************************************DATABASE packages",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:51.480Z",
+    "logLevelId": 3,
+    "logLevelName": "INFO",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:18:22",
+      "fileName": "db_query.js",
+      "fileNameWithLine": "db_query.js:18",
+      "fileColumn": "22",
+      "fileLine": "18",
+      "filePath": "/dist/services/database/db_query.js",
+      "filePathWithLine": "/dist/services/database/db_query.js:18",
+      "method": "queryDatabase"
+    }
+  }
+}
+{
+  "0": "Retrieved zipball URL https://codeload.github.com/expressjs/express/legacy.zip/2a00da2067b7017f769c9100205a2a5f267a884b from GitHub API",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:51.871Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/controllers/pkg_controller.js:121:34",
+      "fileName": "pkg_controller.js",
+      "fileNameWithLine": "pkg_controller.js:121",
+      "fileColumn": "34",
+      "fileLine": "121",
+      "filePath": "/dist/controllers/pkg_controller.js",
+      "filePathWithLine": "/dist/controllers/pkg_controller.js:121"
+    }
+  }
+}
+{
+  "0": "Decoded zip data successfully",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:52.125Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/unzip_contents.js:28:26",
+      "fileName": "unzip_contents.js",
+      "fileNameWithLine": "unzip_contents.js:28",
+      "fileColumn": "26",
+      "fileLine": "28",
+      "filePath": "/dist/services/upload/unzip_contents.js",
+      "filePathWithLine": "/dist/services/upload/unzip_contents.js:28"
+    }
+  }
+}
+{
+  "0": "Loaded data into JSZip object successfully",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:52.139Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/unzip_contents.js:32:26",
+      "fileName": "unzip_contents.js",
+      "fileNameWithLine": "unzip_contents.js:32",
+      "fileColumn": "26",
+      "fileLine": "32",
+      "filePath": "/dist/services/upload/unzip_contents.js",
+      "filePathWithLine": "/dist/services/upload/unzip_contents.js:32"
+    }
+  }
+}
+{
+  "0": "Successfully retrieved LICENSE file from zip",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:52.144Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/unzip_contents.js:87:42",
+      "fileName": "unzip_contents.js",
+      "fileNameWithLine": "unzip_contents.js:87",
+      "fileColumn": "42",
+      "fileLine": "87",
+      "filePath": "/dist/services/upload/unzip_contents.js",
+      "filePathWithLine": "/dist/services/upload/unzip_contents.js:87"
+    }
+  }
+}
+{
+  "0": "Successfully retrieved README file from zip",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:52.145Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/unzip_contents.js:96:46",
+      "fileName": "unzip_contents.js",
+      "fileNameWithLine": "unzip_contents.js:96",
+      "fileColumn": "46",
+      "fileLine": "96",
+      "filePath": "/dist/services/upload/unzip_contents.js",
+      "filePathWithLine": "/dist/services/upload/unzip_contents.js:96"
+    }
+  }
+}
+{
+  "0": "Successfully retrieved README file from zip",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:52.146Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/unzip_contents.js:96:46",
+      "fileName": "unzip_contents.js",
+      "fileNameWithLine": "unzip_contents.js:96",
+      "fileColumn": "46",
+      "fileLine": "96",
+      "filePath": "/dist/services/upload/unzip_contents.js",
+      "filePathWithLine": "/dist/services/upload/unzip_contents.js:96"
+    }
+  }
+}
+{
+  "0": "Successfully retrieved package.json file from zip",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:52.147Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/unzip_contents.js:80:34",
+      "fileName": "unzip_contents.js",
+      "fileNameWithLine": "unzip_contents.js:80",
+      "fileColumn": "34",
+      "fileLine": "80",
+      "filePath": "/dist/services/upload/unzip_contents.js",
+      "filePathWithLine": "/dist/services/upload/unzip_contents.js:80"
+    }
+  }
+}
+{
+  "0": "Retrieving metrics data...",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:52.148Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/scoring/controllers/metrics-controller.js:59:30",
+      "fileName": "metrics-controller.js",
+      "fileNameWithLine": "metrics-controller.js:59",
+      "fileColumn": "30",
+      "fileLine": "59",
+      "filePath": "/dist/services/scoring/controllers/metrics-controller.js",
+      "filePathWithLine": "/dist/services/scoring/controllers/metrics-controller.js:59",
+      "method": "MetricsController.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Calculating metrics scores...",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:52.149Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/scoring/controllers/metrics-controller.js:62:30",
+      "fileName": "metrics-controller.js",
+      "fileNameWithLine": "metrics-controller.js:62",
+      "fileColumn": "30",
+      "fileLine": "62",
+      "filePath": "/dist/services/scoring/controllers/metrics-controller.js",
+      "filePathWithLine": "/dist/services/scoring/controllers/metrics-controller.js:62",
+      "method": "MetricsController.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Calculating metrics for express...",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:53.297Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/scoring/services/metrics-calculator.js:46:34",
+      "fileName": "metrics-calculator.js",
+      "fileNameWithLine": "metrics-calculator.js:46",
+      "fileColumn": "34",
+      "fileLine": "46",
+      "filePath": "/dist/services/scoring/services/metrics-calculator.js",
+      "filePathWithLine": "/dist/services/scoring/services/metrics-calculator.js:46",
+      "method": "MetricsCalculator.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Outputting metrics...",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:53.298Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/scoring/controllers/metrics-controller.js:64:30",
+      "fileName": "metrics-controller.js",
+      "fileNameWithLine": "metrics-controller.js:64",
+      "fileColumn": "30",
+      "fileLine": "64",
+      "filePath": "/dist/services/scoring/controllers/metrics-controller.js",
+      "filePathWithLine": "/dist/services/scoring/controllers/metrics-controller.js:64",
+      "method": "MetricsController.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Successfully parsed package.json file into JSON object",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:53.299Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:21:26",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:21",
+      "fileColumn": "26",
+      "fileLine": "21",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:21"
+    }
+  }
+}
+{
+  "0": "Successfully uploaded package.json to S3 under key express/metadata/package.json",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:53.308Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:36:30",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:36",
+      "fileColumn": "30",
+      "fileLine": "36",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:36"
+    }
+  }
+}
+{
+  "0": "Successfully uploaded LICENSE to S3 under key express/metadata/LICENSE",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:53.310Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:36:30",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:36",
+      "fileColumn": "30",
+      "fileLine": "36",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:36"
+    }
+  }
+}
+{
+  "0": "Successfully uploaded README to S3 under key express/metadata/README",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:53.312Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:36:30",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:36",
+      "fileColumn": "30",
+      "fileLine": "36",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:36"
+    }
+  }
+}
+{
+  "0": "Successfully uploaded contents to S3 under key express/express.zip",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:53.314Z",
+    "logLevelId": 2,
+    "logLevelName": "DEBUG",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/upload/s3upload.js:51:26",
+      "fileName": "s3upload.js",
+      "fileNameWithLine": "s3upload.js:51",
+      "fileColumn": "26",
+      "fileLine": "51",
+      "filePath": "/dist/services/upload/s3upload.js",
+      "filePathWithLine": "/dist/services/upload/s3upload.js:51"
+    }
+  }
+}
+{
+  "0": "**********************************************************************DATABASE packages",
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:53.315Z",
+    "logLevelId": 3,
+    "logLevelName": "INFO",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:18:22",
+      "fileName": "db_query.js",
+      "fileNameWithLine": "db_query.js:18",
+      "fileColumn": "22",
+      "fileLine": "18",
+      "filePath": "/dist/services/database/db_query.js",
+      "filePathWithLine": "/dist/services/database/db_query.js:18",
+      "method": "queryDatabase"
+    }
+  }
+}
+{
+  "0": "Error running main query",
+  "1": {
+    "nativeError": {
+      "code": "ER_BAD_FIELD_ERROR",
+      "errno": 1054,
+      "sqlMessage": "Unknown column 'IS_SECRET' in 'field list'",
+      "sqlState": "42S22",
+      "index": 0,
+      "sql": "INSERT INTO pkg_data (ID, NAME, LATEST_VERSION, CONTENTS_PATH, IS_SECRET) VALUES ('expressjs_express', 'express', '4.18.2', 'express/express.zip', false)"
+    },
+    "name": "Error",
+    "message": "ER_BAD_FIELD_ERROR: Unknown column 'IS_SECRET' in 'field list'",
+    "stack": [
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/sequences/Sequence.js:47:14",
+        "fileName": "Sequence.js",
+        "fileNameWithLine": "Sequence.js:47",
+        "fileColumn": "14",
+        "fileLine": "47",
+        "filePath": "/node_modules/mysql/lib/protocol/sequences/Sequence.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/sequences/Sequence.js:47",
+        "method": "Sequence._packetToError"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/sequences/Query.js:79:18",
+        "fileName": "Query.js",
+        "fileNameWithLine": "Query.js:79",
+        "fileColumn": "18",
+        "fileLine": "79",
+        "filePath": "/node_modules/mysql/lib/protocol/sequences/Query.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/sequences/Query.js:79",
+        "method": "Query.ErrorPacket"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Protocol.js:291:23",
+        "fileName": "Protocol.js",
+        "fileNameWithLine": "Protocol.js:291",
+        "fileColumn": "23",
+        "fileLine": "291",
+        "filePath": "/node_modules/mysql/lib/protocol/Protocol.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Protocol.js:291",
+        "method": "Protocol._parsePacket"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Parser.js:433:10",
+        "fileName": "Parser.js",
+        "fileNameWithLine": "Parser.js:433",
+        "fileColumn": "10",
+        "fileLine": "433",
+        "filePath": "/node_modules/mysql/lib/protocol/Parser.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Parser.js:433",
+        "method": "Parser._parsePacket"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Parser.js:43:10",
+        "fileName": "Parser.js",
+        "fileNameWithLine": "Parser.js:43",
+        "fileColumn": "10",
+        "fileLine": "43",
+        "filePath": "/node_modules/mysql/lib/protocol/Parser.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Parser.js:43",
+        "method": "Parser.write"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Protocol.js:38:16",
+        "fileName": "Protocol.js",
+        "fileNameWithLine": "Protocol.js:38",
+        "fileColumn": "16",
+        "fileLine": "38",
+        "filePath": "/node_modules/mysql/lib/protocol/Protocol.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Protocol.js:38",
+        "method": "Protocol.write"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:88:28",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:88",
+        "fileColumn": "28",
+        "fileLine": "88",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:88",
+        "method": "Socket.<anonymous>"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:526:10",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:526",
+        "fileColumn": "10",
+        "fileLine": "526",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:526",
+        "method": "Socket.<anonymous>"
+      },
+      {
+        "fullFilePath": "node:events:514:28",
+        "fileName": "events",
+        "fileNameWithLine": "events:514",
+        "fileColumn": "28",
+        "fileLine": "514",
+        "filePath": "events",
+        "filePathWithLine": "events:514",
+        "method": "Socket.emit"
+      },
+      {
+        "fullFilePath": "node:domain:489:12",
+        "fileName": "domain",
+        "fileNameWithLine": "domain:489",
+        "fileColumn": "12",
+        "fileLine": "489",
+        "filePath": "domain",
+        "filePathWithLine": "domain:489",
+        "method": "Socket.emit"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Protocol.js:144:48",
+        "fileName": "Protocol.js",
+        "fileNameWithLine": "Protocol.js:144",
+        "fileColumn": "48",
+        "fileLine": "144",
+        "filePath": "/node_modules/mysql/lib/protocol/Protocol.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Protocol.js:144",
+        "method": "Protocol._enqueue"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:198:25",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:198",
+        "fileColumn": "25",
+        "fileLine": "198",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:198",
+        "method": "PoolConnection.query"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:48:40",
+        "fileName": "db_query.js",
+        "fileNameWithLine": "db_query.js:48",
+        "fileColumn": "40",
+        "fileLine": "48",
+        "filePath": "/dist/services/database/db_query.js",
+        "filePathWithLine": "/dist/services/database/db_query.js:48"
+      },
+      {},
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:47:32",
+        "fileName": "db_query.js",
+        "fileNameWithLine": "db_query.js:47",
+        "fileColumn": "32",
+        "fileLine": "47",
+        "filePath": "/dist/services/database/db_query.js",
+        "filePathWithLine": "/dist/services/database/db_query.js:47"
+      },
+      {},
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:46:48",
+        "fileName": "db_query.js",
+        "fileNameWithLine": "db_query.js:46",
+        "fileColumn": "48",
+        "fileLine": "46",
+        "filePath": "/dist/services/database/db_query.js",
+        "filePathWithLine": "/dist/services/database/db_query.js:46",
+        "method": "Query.<anonymous>"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:526:10",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:526",
+        "fileColumn": "10",
+        "fileLine": "526",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:526",
+        "method": "Query.<anonymous>"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:488:16",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:488",
+        "fileColumn": "16",
+        "fileLine": "488",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:488",
+        "method": "Query._callback"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/sequences/Sequence.js:83:24",
+        "fileName": "Sequence.js",
+        "fileNameWithLine": "Sequence.js:83",
+        "fileColumn": "24",
+        "fileLine": "83",
+        "filePath": "/node_modules/mysql/lib/protocol/sequences/Sequence.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/sequences/Sequence.js:83",
+        "method": "Sequence.end"
+      }
+    ]
+  },
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:53.408Z",
+    "logLevelId": 5,
+    "logLevelName": "ERROR",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:50:54",
+      "fileName": "db_query.js",
+      "fileNameWithLine": "db_query.js:50",
+      "fileColumn": "54",
+      "fileLine": "50",
+      "filePath": "/dist/services/database/db_query.js",
+      "filePathWithLine": "/dist/services/database/db_query.js:50",
+      "method": "Query.<anonymous>"
+    }
+  }
+}
+{
+  "0": "Error running main query",
+  "1": {
+    "nativeError": {
+      "code": "ER_NO_REFERENCED_ROW_2",
+      "errno": 1452,
+      "sqlMessage": "Cannot add or update a child row: a foreign key constraint fails (`packages`.`scores`, CONSTRAINT `ID` FOREIGN KEY (`ID`) REFERENCES `pkg_data` (`ID`))",
+      "sqlState": "23000",
+      "index": 0,
+      "sql": "INSERT INTO scores (ID, BusFactor, Correctness, RampUp, ResponsiveMaintainer, LicenseScore, GoodPinningPractice, PullRequest) VALUES ('expressjs_express', 0.25, 1, 0, 0.11813190710065728, 1, 0, 0)"
+    },
+    "name": "Error",
+    "message": "ER_NO_REFERENCED_ROW_2: Cannot add or update a child row: a foreign key constraint fails (`packages`.`scores`, CONSTRAINT `ID` FOREIGN KEY (`ID`) REFERENCES `pkg_data` (`ID`))",
+    "stack": [
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/sequences/Sequence.js:47:14",
+        "fileName": "Sequence.js",
+        "fileNameWithLine": "Sequence.js:47",
+        "fileColumn": "14",
+        "fileLine": "47",
+        "filePath": "/node_modules/mysql/lib/protocol/sequences/Sequence.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/sequences/Sequence.js:47",
+        "method": "Sequence._packetToError"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/sequences/Query.js:79:18",
+        "fileName": "Query.js",
+        "fileNameWithLine": "Query.js:79",
+        "fileColumn": "18",
+        "fileLine": "79",
+        "filePath": "/node_modules/mysql/lib/protocol/sequences/Query.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/sequences/Query.js:79",
+        "method": "Query.ErrorPacket"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Protocol.js:291:23",
+        "fileName": "Protocol.js",
+        "fileNameWithLine": "Protocol.js:291",
+        "fileColumn": "23",
+        "fileLine": "291",
+        "filePath": "/node_modules/mysql/lib/protocol/Protocol.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Protocol.js:291",
+        "method": "Protocol._parsePacket"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Parser.js:433:10",
+        "fileName": "Parser.js",
+        "fileNameWithLine": "Parser.js:433",
+        "fileColumn": "10",
+        "fileLine": "433",
+        "filePath": "/node_modules/mysql/lib/protocol/Parser.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Parser.js:433",
+        "method": "Parser._parsePacket"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Parser.js:43:10",
+        "fileName": "Parser.js",
+        "fileNameWithLine": "Parser.js:43",
+        "fileColumn": "10",
+        "fileLine": "43",
+        "filePath": "/node_modules/mysql/lib/protocol/Parser.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Parser.js:43",
+        "method": "Parser.write"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Protocol.js:38:16",
+        "fileName": "Protocol.js",
+        "fileNameWithLine": "Protocol.js:38",
+        "fileColumn": "16",
+        "fileLine": "38",
+        "filePath": "/node_modules/mysql/lib/protocol/Protocol.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Protocol.js:38",
+        "method": "Protocol.write"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:88:28",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:88",
+        "fileColumn": "28",
+        "fileLine": "88",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:88",
+        "method": "Socket.<anonymous>"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:526:10",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:526",
+        "fileColumn": "10",
+        "fileLine": "526",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:526",
+        "method": "Socket.<anonymous>"
+      },
+      {
+        "fullFilePath": "node:events:514:28",
+        "fileName": "events",
+        "fileNameWithLine": "events:514",
+        "fileColumn": "28",
+        "fileLine": "514",
+        "filePath": "events",
+        "filePathWithLine": "events:514",
+        "method": "Socket.emit"
+      },
+      {
+        "fullFilePath": "node:domain:489:12",
+        "fileName": "domain",
+        "fileNameWithLine": "domain:489",
+        "fileColumn": "12",
+        "fileLine": "489",
+        "filePath": "domain",
+        "filePathWithLine": "domain:489",
+        "method": "Socket.emit"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/Protocol.js:144:48",
+        "fileName": "Protocol.js",
+        "fileNameWithLine": "Protocol.js:144",
+        "fileColumn": "48",
+        "fileLine": "144",
+        "filePath": "/node_modules/mysql/lib/protocol/Protocol.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/Protocol.js:144",
+        "method": "Protocol._enqueue"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:198:25",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:198",
+        "fileColumn": "25",
+        "fileLine": "198",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:198",
+        "method": "PoolConnection.query"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:48:40",
+        "fileName": "db_query.js",
+        "fileNameWithLine": "db_query.js:48",
+        "fileColumn": "40",
+        "fileLine": "48",
+        "filePath": "/dist/services/database/db_query.js",
+        "filePathWithLine": "/dist/services/database/db_query.js:48"
+      },
+      {},
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:47:32",
+        "fileName": "db_query.js",
+        "fileNameWithLine": "db_query.js:47",
+        "fileColumn": "32",
+        "fileLine": "47",
+        "filePath": "/dist/services/database/db_query.js",
+        "filePathWithLine": "/dist/services/database/db_query.js:47"
+      },
+      {},
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:46:48",
+        "fileName": "db_query.js",
+        "fileNameWithLine": "db_query.js:46",
+        "fileColumn": "48",
+        "fileLine": "46",
+        "filePath": "/dist/services/database/db_query.js",
+        "filePathWithLine": "/dist/services/database/db_query.js:46",
+        "method": "Query.<anonymous>"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:526:10",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:526",
+        "fileColumn": "10",
+        "fileLine": "526",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:526",
+        "method": "Query.<anonymous>"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/Connection.js:488:16",
+        "fileName": "Connection.js",
+        "fileNameWithLine": "Connection.js:488",
+        "fileColumn": "16",
+        "fileLine": "488",
+        "filePath": "/node_modules/mysql/lib/Connection.js",
+        "filePathWithLine": "/node_modules/mysql/lib/Connection.js:488",
+        "method": "Query._callback"
+      },
+      {
+        "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/node_modules/mysql/lib/protocol/sequences/Sequence.js:83:24",
+        "fileName": "Sequence.js",
+        "fileNameWithLine": "Sequence.js:83",
+        "fileColumn": "24",
+        "fileLine": "83",
+        "filePath": "/node_modules/mysql/lib/protocol/sequences/Sequence.js",
+        "filePathWithLine": "/node_modules/mysql/lib/protocol/sequences/Sequence.js:83",
+        "method": "Sequence.end"
+      }
+    ]
+  },
+  "_meta": {
+    "runtime": "Nodejs",
+    "runtimeVersion": "v18.17.1",
+    "hostname": "eceprog3.ecn.purdue.edu",
+    "name": "ModuleMetricsCLI",
+    "date": "2023-11-29T20:21:53.435Z",
+    "logLevelId": 5,
+    "logLevelName": "ERROR",
+    "path": {
+      "fullFilePath": "/home/shay/a/dramiya/ECE 461/group5phase2/dist/services/database/db_query.js:50:54",
+      "fileName": "db_query.js",
+      "fileNameWithLine": "db_query.js:50",
+      "fileColumn": "54",
+      "fileLine": "50",
+      "filePath": "/dist/services/database/db_query.js",
+      "filePathWithLine": "/dist/services/database/db_query.js:50",
+      "method": "Query.<anonymous>"
+    }
+  }
+}

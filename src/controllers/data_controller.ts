@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
+import { searchPackage, getScores, searchPackageWithRegex } from '../services/database/operation_queries';
 import * as schemas from "../models/api_schemas"
-import * as types from "../models/api_types"
 import logger from "../utils/logger";
+import { genericPkgDataGet, PkgScoresGet, PostgetPackage } from "../services/database/operation_queries";
+import { version } from 'os';
+import * as types from "../models/api_types"
 import { fetchallLimitChecker, verifyAuthToken } from '../services/user_auth/generate_auth_token';
 import { JsonWebTokenError } from 'jsonwebtoken';
 //import { inject, injectable } from "tsyringe";
@@ -21,7 +24,7 @@ export class PkgDataManager {
         //Proposed design to protect from DDOS: only allow an auth token to call the * endpoint 3 times
 
         //Post requests have a "request body" that is the data being posted
-        const req_body: schemas.PackageQuery = req.body;
+        const req_body: schemas.PackageQuery[] = req.body;
         const offset = req.params.offset;
         const auth_token = req.headers.authorization!;
         var response_obj: schemas.PackageMetadata[];
@@ -64,8 +67,10 @@ export class PkgDataManager {
 
         response_code = 200;
     
-        if(response_code == 200) {
-            res.status(200).send("Successfully queried for X packages");
+        if (response_code == 200) {
+            const result = await PostgetPackage(req_body.Version!, req_body.Name);
+            logger.info("here bro for results", result);
+            res.status(200).send(result);
         }
         else if(response_code == 400) {
             if(auth_token) { //If its invalid
@@ -83,9 +88,9 @@ export class PkgDataManager {
         // return res.send('List of packages');
     }
     
-    public async getPkgById (req: Request, res: Response) {
-        //Retrieves a package by its ID
-        //Return this package
+    public async getPkgById(req: Request, res: Response) {
+
+        const { databaseName, packageNameOrId } = req.query;
         const id = req.params.id;
         const auth_token = req.headers.authorization!;
         var response_obj: schemas.Package;
@@ -114,23 +119,28 @@ export class PkgDataManager {
     
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
     
-        if(response_code == 200) {
-            res.status(200).send(`Successfully returned {packageName} with ID = ${id}`);
-        }
-        else if(response_code == 400) {
-            if(auth_token) { //If its invalid
-                //VALIDATION CHECK UNIMPLEMENTED
-                res.status(400).send("Invalid auth token");
-            }
-            else {
-                res.status(400).send("Invalid package ID");
+        if (response_code == 200) {
+            try {
+                const result = await searchPackage(databaseName as string, packageNameOrId as string);
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: 'Error querying the database' });
             }
         }
-        else if(response_code == 401) {
-            res.status(401).send("You do not have permission to reset the registry");
+
+        try {
+            const result = await genericPkgDataGet("ID,NAME, LATEST_VERSION", id);
+            if (result.length > 0) {
+                res.status(200).send(result);
+            } else {
+                res.status(404).send({ error: 'Package not found' });
+            }
+        } catch (error) {
+            res.status(500).send({ error: 'Error querying the database' });
         }
-    
-        //res.send(`Retrieve package with ID: ${id}`);
+    }
+    public async postPackages(req: Request, res: Response) {
+
     }
     
     
@@ -138,35 +148,28 @@ export class PkgDataManager {
     public async ratePkgById(req: Request, res: Response) {
         //Gets scores for the specified package
         const id = req.params.id;
-        const auth_token = req.headers.authorization!;
+        const auth_token = req.params.auth_token;
         var response_obj: schemas.PackageRating;
+        const { databaseName, packageNameOrId } = req.query;
     
-        if(!id) {
-            logger.debug("Malformed/missing PackageID in request body to endpoint GET /package/{id}/rate")
-            return res.status(400).send("Invalid or malformed PackageID in params");
-        }
-
-        //Verify user permissions
-        try {
-            await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        catch (err: any) {
-            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
-                logger.error(`Error validating auth token ${auth_token}`)
-                return res.status(401).send("Error validating auth token: " + err.message);
-            }
-            else {
-                logger.error(`Error: Invalid/malformed auth token`)
-                return res.status(400).send("Error validating auth token: " + err.message);
-            }
-        }   
+    
     
     
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
     
-        if(response_code == 200) {
-            res.status(200).send("Successfully rated {packageName}");
+        if (response_code == 200) {
+            try {
+                const result = await getScores(databaseName as string, packageNameOrId as string);
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: 'Error querying the database' });
+            }
+        // res.status(200).send("Successfully rated {packageName}");
+            // const result = await PkgScoresGet("BusFactor,Correctness, RampUp, ResponsiveMaintainer,LicenseScore,GoodPinningPractice,PullRequest", packageName);
+            const result = await PkgScoresGet("*", id);
+
+            logger.info(result);
+            res.status(200).send(result);
         }
         else if(response_code == 400) {
             if(auth_token) { //If its invalid
@@ -193,7 +196,7 @@ export class PkgDataManager {
         const auth_token = req.headers.authorization!;
         const regex: schemas.PackageRegEx = req.body;
         var response_obj: schemas.PackageMetadata[];
-    
+        const { databaseName, packageNameOrId } = req.query;
         if(!(types.PackageRegEx.is(regex))) {
             logger.debug("Invalid or malformed Package in request body to endpoint POST /packages")
             return res.status(400).send("Invalid or malformed Package in request body");
@@ -217,8 +220,15 @@ export class PkgDataManager {
 
         var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
     
-        if(response_code == 200) {
-            res.status(200).send("Successfully retrieved package history");
+        if (response_code == 200) {
+            try {
+                const result = await searchPackageWithRegex(databaseName as string, packageNameOrId as string);
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: 'Error querying the database' });
+            }
+
+        // res.status(200).send("Successfully retrieved package history");
         }
         else if(response_code == 400) {
             if(auth_token) { //If its invalid
