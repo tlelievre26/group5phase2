@@ -80,30 +80,35 @@ export class MetricsCalculator {
         if (!busFactorData || !busFactorData.contributorCommits) {
             throw new Error("busFactorData or contributorCommits is undefined");
         }
-
+    
         // Convert the busFactorData Map to an array and sort by number of commits in descending order
         const contributorArray = Array.from(busFactorData.contributorCommits.entries() as [string, number][]);
         contributorArray.sort((a, b) => b[1] - a[1]);
-
+    
         // Calculate the overall total number of commits for the main branch
-        const overallTotalCommits = contributorArray.reduce((acc, curr) => acc + curr[1], 0);
+        const overallTotalCommits = contributorArray.reduce((acc, [, commitCount]) => acc + commitCount, 0);
         const threshold = overallTotalCommits * 0.5; // Threshold is 50% of the total number of commits
-
+    
         // Calculate the number of contributors needed to surpass the threshold
         let accumulatedCommits = 0;
         let count = 0;
-        for (const [_, commitCount] of contributorArray) {
+    
+        for (const [, commitCount] of contributorArray) {
             accumulatedCommits += commitCount;
             count++;
-
+    
             if (accumulatedCommits >= threshold) {
                 break;
             }
         }
-
-        // Normalize the count to a score between 0 and 1
-        return count === 0 ? 0 : count / contributorArray.length
+    
+        // Normalize the count to a score between 0 and 1, with lower scores for fewer maintainers
+        const normalizedScore = Math.max(Math.min(1 - count / contributorArray.length,0),1);
+        
+        // Ensure the score is between 0 and 1
+        return Math.max(0, Math.min(1, normalizedScore));
     }
+    
 
 
     /**
@@ -192,6 +197,12 @@ export class MetricsCalculator {
         const score = 1 - (responsiveMaintainerData.averageTimeInMillis / maxBenchmark);
     
         return Math.max(0, Math.min(1, score));  // Ensuring the score is within [0, 1]
+    }
+    
+    async calculatePercentPullRequest(pullRequestData: any): Promise<number> {
+        //TO IMPLEMENT:
+        //Equations calculating the pull request score
+        return 0
     }
 
 
