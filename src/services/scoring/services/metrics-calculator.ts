@@ -14,7 +14,7 @@ import { ExtractedMetadata } from "../../../models/other_schemas";
 export class MetricsCalculator {
     constructor(
         @inject("LicenseVerifier") private licenseVerifier: LicenseVerifier,
-        @inject(MetricsDataRetriever) private metricsDataRetriever: MetricsDataRetriever
+        @inject("MetricsDataRetrieverToken") private metricsDataRetriever: MetricsDataRetriever
     ) {
     }
 
