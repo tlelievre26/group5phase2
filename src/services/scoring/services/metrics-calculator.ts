@@ -2,7 +2,7 @@
 import { inject, injectable } from "tsyringe";
 import { LicenseVerifier } from "./license-verifier";
 import { PackageRating } from "../../../models/api_schemas";
-import {RepositoryProcessor} from "./dependency";
+import {PinningPractice} from "./pinning";
 import logger from "../../../utils/logger";
 import { ExtractedMetadata } from "../../../models/other_schemas";
 
@@ -11,7 +11,7 @@ import { ExtractedMetadata } from "../../../models/other_schemas";
 export class MetricsCalculator {
     constructor(
         @inject("LicenseVerifier") private licenseVerifier: LicenseVerifier,
-        @inject("RepositoryProcessor") private repositoryProcessor: RepositoryProcessor
+        @inject("PinningPractice") private pinningPractice: PinningPractice
     ) {
     }
 
@@ -48,10 +48,10 @@ export class MetricsCalculator {
 
             //*********** TO DO: Implement scoring method for pinning practice ***********
             //Similar to license, pinning practice will require a local clone of the repo
-            const pinningPractice = await this.repositoryProcessor.processDependencies(owner, repo, pkg_metadata);
+            const pinning = await this.pinningPractice.pinningDependencies(pkg_metadata);
 
             //Net score does NOT factor in the 2 new metrics
-            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license, pinningPractice);
+            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license, pinning);
 
             return {
                 BusFactor: busFactor,
@@ -59,7 +59,7 @@ export class MetricsCalculator {
                 RampUp: rampUp,
                 ResponsiveMaintainer: responsiveMaintainer,
                 LicenseScore: license,
-                GoodPinningPractice: pinningPractice,
+                GoodPinningPractice: pinning,
                 PullRequest: pullRequest,
                 NetScore: netScore
             }
@@ -274,15 +274,15 @@ export class MetricsCalculator {
      * @param rampUp
      * @param responsiveMaintainer
      * @param license
-     * @param pinningPractice
+     * @param pinning
      */
     async calculateNetScore(busFactor: number, correctness: number, rampUp: number,
-                            responsiveMaintainer: number, license: number, pinningPractice: number): Promise<number> {
+                            responsiveMaintainer: number, license: number, pinning: number): Promise<number> {
 
         //Note that the net score DOES NOT factor in the 2 new metrics
 
         // Formulae for the Net Score                        
-        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license) * (pinningPractice);
+        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license) * (pinning);
 
         return NetScore;
     }
