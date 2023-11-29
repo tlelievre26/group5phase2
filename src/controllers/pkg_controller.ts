@@ -271,8 +271,10 @@ export class PackageUploader {
         let repoInfo: RepoIdentifier | undefined; //Need to have this defined here to seperate if statements
         let repoURL: string;
         let debloating;
-        if(req.params.debloating) { //If debloat exists set it to the value, otherwise default to false
-            debloating = (req.params.debloating === "true")
+
+        if(req.query.debloat) { //If debloat exists set it to the value, otherwise default to false
+            console.log("Debloating enabled")
+            debloating = (req.query.debloat === "true")
         }
         else {
             debloating = false

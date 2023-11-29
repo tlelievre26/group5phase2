@@ -89,7 +89,7 @@ export async function checkMetadataExists(metadata: PackageMetadata) {
         return null
     }
     else {
-        return matching_pkg[0][0].DEB
+        return matching_pkg[0][0].DEBLOATED
     }
 
 
