@@ -116,85 +116,30 @@ export class MetricsCalculator {
         if (!correctnessData) {
             throw new Error("correctnessData is undefined");
         }
-
+    
         // Initialize correctness score
-        let correctnessScore = 0;
-
-        // Create constants
-        const openIssues = correctnessData.openIssues;
-        const closedIssues = correctnessData.closedIssues;
-        const openRequests = correctnessData.openRequests;
-        const closedRequests = correctnessData.closedRequests;
-        const mergedRequests = correctnessData.mergedRequests;
-        const mergedAndClosed = closedRequests + mergedRequests;
-
-        // Find total issues and pull requests
-        const totalIssues = openIssues + closedIssues;
-        const totalRequests = openRequests + closedRequests + mergedRequests;
-
-
-        // If correctnessData is null, no need to calculate score
-        if (correctnessData == null) {
-            return correctnessScore;
-        }
-
-        // Calculate based on number of open and closed issues
-        if ((closedIssues + openIssues) === 0) {
-            correctnessScore += 0.5;
-        } else if (closedIssues > openIssues) {
-            if (closedIssues >= (totalIssues * 0.9)) {
-                correctnessScore += 0.5;
-            } else if (closedIssues >= (totalIssues * 0.75)) {
-                correctnessScore += 0.45;
-            } else if (closedIssues >= (totalIssues * 0.6)) {
-                correctnessScore += 0.4;
-            } else {
-                correctnessScore += 0.38;
-            }
-        } else if (closedIssues < openIssues) {
-            if (openIssues >= (totalIssues * 0.9)) {
-                correctnessScore += 0.1;
-            } else if (openIssues >= (totalIssues * 0.75)) {
-                correctnessScore += 0.15;
-            } else if (openIssues >= (totalIssues * 0.6)) {
-                correctnessScore += 0.2;
-            } else {
-                correctnessScore += 0.25;
-            }
+        const correctnessScore = 0;
+    
+        // Find the ratio of open to merged issues
+        const openToMergedRatio = correctnessData.openIssues / (correctnessData.mergedRequests + correctnessData.closedRequests);
+    
+        // Score based on the ratio
+        if (isNaN(openToMergedRatio) || !isFinite(openToMergedRatio)) {
+            return 0;
         } else {
-            correctnessScore += 0.35;
-        }
-
-        // Calculate based on number of open, closed, and merged pull requests
-        if ((mergedAndClosed + openRequests) === 0) {
-            correctnessScore += 0.5;
-        } else if (mergedAndClosed > openRequests) {
-            if (mergedAndClosed >= (totalRequests * 0.9)) {
-                correctnessScore += 0.5;
-            } else if (mergedAndClosed >= (totalRequests * 0.75)) {
-                correctnessScore += 0.45;
-            } else if (mergedAndClosed >= (totalRequests * 0.6)) {
-                correctnessScore += 0.4;
-            } else {
-                correctnessScore += 0.38;
+            if (openToMergedRatio >= 0.9) {
+                return 1;
+            } else if (openToMergedRatio >= 0.75) {
+                return 0.75;
+            } else if (openToMergedRatio >= 0.5) {
+                return 0.4;
+            } else if (openToMergedRatio >= 0.3) {
+                return 0.2;
             }
-        } else if (mergedAndClosed < openRequests) {
-            if (openRequests >= (totalRequests * 0.9)) {
-                correctnessScore += 0.1;
-            } else if (openRequests >= (totalRequests * 0.75)) {
-                correctnessScore += 0.2;
-            } else if (openRequests >= (totalRequests * 0.6)) {
-                correctnessScore += 0.25;
-            } else {
-                correctnessScore += 0.3
-            }
-        } else {
-            correctnessScore += 0.35;
         }
-
+    
         return correctnessScore;
     }
-
 
     /**
      * Calculates the ramp up score for a GitHub repository
@@ -202,22 +147,31 @@ export class MetricsCalculator {
      * @param rampUpData
      */
     async calculateRampUp(rampUpData: any): Promise<number> {
-
-        //Initializes the RampUpScore
-        let RampUpScore = 0;
-
-        //Scores the Readme Length as a factor of the total Ramp Up
-        if (rampUpData.readmeLength === 0) {
-            RampUpScore = 0;
-            return RampUpScore;
-        } else if (rampUpData.readmeLength < 1000) { // You can adjust the threshold as needed
-            RampUpScore += 0.25;
-        } else {
-            RampUpScore += 0.5;
+        try {
+            let RampUpScore = 0;
+    
+            // Log the readme length
+            logger.debug(`Readme length: ${rampUpData.readmeLength}`);
+    
+            // Scores the Readme Length as a factor of the total Ramp Up
+            if (rampUpData.readmeLength === 0) {
+                RampUpScore = 0;
+                return RampUpScore;
+            } else {
+                // Use Math.min to ensure the scaled RampUpScore is within [0, 1]
+                RampUpScore = Math.min(rampUpData.readmeLength / 200, 1);
+    
+                // Log the scaled RampUpScore
+                logger.debug(`Scaled RampUpScore: ${RampUpScore}`);
+                
+                return RampUpScore;
+            }
+        } catch (error) {
+            logger.error(`Error calculating ramp-up score:`, error);
+            throw error;
         }
-
-        return RampUpScore;
-    }
+        }
+    
 
 
     /**
@@ -231,19 +185,13 @@ export class MetricsCalculator {
         if (!responsiveMaintainerData || (!responsiveMaintainerData.averageTimeInMillis && responsiveMaintainerData.closedIssuesExist)) {
             throw new Error("responsiveMaintainerData or averageTimeInMillis is undefined");
         }
-
-        const lambda = 1 / (30 * 24 * 60 * 60 * 1000); // Using 30 days as a benchmark in milliseconds for scaling 
-
-        // Calculate the score using the exponential scale
-        const score = Math.exp(-lambda * responsiveMaintainerData.averageTimeInMillis);
-
+    
+        const maxBenchmark = 60 * 24 * 60 * 60 * 1000; // Using 60 days as a benchmark in milliseconds for scaling 
+    
+        // Calculate the score using a linear scale
+        const score = 1 - (responsiveMaintainerData.averageTimeInMillis / maxBenchmark);
+    
         return Math.max(0, Math.min(1, score));  // Ensuring the score is within [0, 1]
-    }
-
-    async calculatePercentPullRequest(pullRequestData: any): Promise<number> {
-        //TO IMPLEMENT:
-        //Equations calculating the pull request score
-        return 0
     }
 
 
