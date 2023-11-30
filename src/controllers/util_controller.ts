@@ -71,6 +71,13 @@ export class UtilsController{
             return res.status(401).send("Invalid username did not match any existing users");
         }
 
+
+        if(await verifyPassword(req_body.Secret.password, user_data.PASSWORD) == false) { //Checks if the input password matches the hashed password in the DB
+            //I think the comparison function basically does the check "automatically", so it sees if the input password would hash to the same thing as the password in the DB
+            logger.error("Invalid password")
+            return res.status(401).send("Invalid password for username");
+        }
+
         const existing_token = await checkForExistingToken(user_data.USER_ID)
         if(existing_token != "") { //If user already has a token in our DB
 
@@ -79,11 +86,6 @@ export class UtilsController{
             return res.status(200).send('"\\"bearer ' + existing_token + '\\""')
         }
 
-        if(await verifyPassword(req_body.Secret.password, user_data.PASSWORD) == false) { //Checks if the input password matches the hashed password in the DB
-            //I think the comparison function basically does the check "automatically", so it sees if the input password would hash to the same thing as the password in the DB
-            logger.error("Invalid password")
-            return res.status(401).send("Invalid password");
-        }
         const new_token = await generateAuthToken(user_data.USER_ID, req_body.User.isAdmin, {
             canUpload: user_data.CAN_UPLOAD,
             canSearch: user_data.CAN_SEARCH,

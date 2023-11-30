@@ -70,24 +70,33 @@ export class MetricsDataRetriever {
     async fetchBusFactorData(owner: string, repo: string): Promise<any> {
 
         // Get date one year ago
-        const currentDate = new Date();
-        const oneYearAgo = new Date(currentDate.setFullYear(currentDate.getFullYear() - 1)).toISOString();
 
+        const contributorCommits = new Map();
         // Query GitHub API for contributors in the last year
-        const query = `
-        {
-          repository(owner: "${owner}", name: "${repo}") {
-            defaultBranchRef {
-              target {
-                ... on Commit {
-                  history(since: "${oneYearAgo}") {
-                    totalCount
-                    edges {
-                      node {
-                        author {
-                          user {
-                            login
+
+        let cursor = null
+        let query;
+        //Get the last 500 commits
+        for(let i = 0; i < 5; i++) {
+  
+          if(cursor == null) {
+            query = `
+            {
+              repository(owner: "${owner}", name: "${repo}") {
+                defaultBranchRef {
+                  target {
+                    ... on Commit {
+                      history {
+                        totalCount
+                        edges {
+                          node {
+                            author {
+                              user {
+                                login
+                              }
+                            }
                           }
+                          cursor
                         }
                       }
                     }
@@ -95,22 +104,59 @@ export class MetricsDataRetriever {
                 }
               }
             }
+            `;
           }
+        
+        else {
+          query = `
+          {
+            repository(owner: "${owner}", name: "${repo}") {
+              defaultBranchRef {
+                target {
+                  ... on Commit {
+                    history (first: 100 after: "${cursor}") {
+                      totalCount
+                      edges {
+                        node {
+                          author {
+                            user {
+                              login
+                            }
+                          }
+                        }
+                        cursor
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          `;
         }
-        `;
-
         const {repository} = await this.graphqlWithAuth(query);
 
         // Count the number of commits for each unique contributor using a map
-        const contributorCommits = new Map();
-        repository.defaultBranchRef.target.history.edges.forEach((edge: { node: { author: { user: { login: string; }; }; }; }) => {
+
+        let count = 0; //Used to track the amount of commits to return in order to break early if its less than 100
+
+        repository.defaultBranchRef.target.history.edges.forEach((edge: { node: { author: { user: { login: string; }; }; }, cursor: string }) => {
             // Check author is not null before adding contributor to map
             if (edge.node.author?.user) {
                 const contributor = edge.node.author.user.login;
                 // Increment commit count for contributor
                 contributorCommits.set(contributor, (contributorCommits.get(contributor) || 0) + 1);
             }
+            cursor = edge.cursor //Need to constantly update cursor before the next query
+            count++
         });
+        if(count < 100) {
+          logger.debug("Less than 100 commits returned, breaking early")
+          break;
+        }
+      }
+
+
 
         return {
             repo: repo,
@@ -235,11 +281,15 @@ export class MetricsDataRetriever {
 
     async fetchResponsiveMaintainerData(owner: string, repo: string): Promise<any> {
 
+      //This rly doesn't work very well but its good enough for now
         // Query for the last 100 issues of the repository and their creation and closure dates
+        const currentDate = new Date();
+        const oneYearAgo = new Date(currentDate.setFullYear(currentDate.getFullYear() - 1)).toISOString();
+
         const query = `
       {
           repository(owner: "${owner}", name: "${repo}") {
-            issues(last: 100, orderBy: {field: CREATED_AT, direction: DESC}) {
+            issues(first: 50 states: CLOSED, orderBy: {field: CREATED_AT, direction: DESC}) {
               edges {
                 node {
                   id
@@ -258,26 +308,38 @@ export class MetricsDataRetriever {
         const issues = response.repository.issues.edges;
 
         // Initialize an array to store the time taken for each closed issue
-        const timeTakenForIssues: number[] = [];
+        var timeTakenForIssues: number[] = [];
 
         issues.forEach((issue: any) => {
             if (issue.node.closedAt) {
                 const createdAt = new Date(issue.node.createdAt).getTime();
+
                 const closedAt = new Date(issue.node.closedAt).getTime();
                 const timeTaken = closedAt - createdAt;
                 timeTakenForIssues.push(timeTaken);
+                //logger.debug("Issue created at: " + new Date(createdAt).toLocaleDateString() + " and closed at: " + new Date(issue.node.closedAt).toLocaleDateString() + ", total response time in days: " + timeTaken/ (24 * 60 * 60 * 1000))
             }
+
         });
 
         // If no issues have been closed in the repository, return null and set flag to false
+
         if (timeTakenForIssues.length === 0) {
-            return {
-                averageTimeInMillis: null,
-                closedIssuesExist: false
-            };
+          return {
+              averageTimeInMillis: null,
+              closedIssuesExist: false
+          };
+      }
+
+        timeTakenForIssues.sort((a, b) => a - b);
+        //console.log(timeTakenForIssues)
+        
+        //Remove exceptional outliers in the returned issues
+        if(timeTakenForIssues.length > 3) {
+          timeTakenForIssues = timeTakenForIssues.slice(Math.floor(timeTakenForIssues.length / 5), Math.floor(timeTakenForIssues.length * 4 / 5));
         }
 
-        // Calculate total time for issues to be closed in milliseconds
+
         const totalMillis = timeTakenForIssues.reduce((acc, time) => acc + time, 0);
 
         // Return average time in milliseconds
