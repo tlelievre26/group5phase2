@@ -71,7 +71,7 @@ export async function PostgetPackage(serverRange: string, package_Name: string) 
     sql = 'SELECT * from pkg_data';
     if (serverRange == undefined) {
         if (package_Name != '*') {
-            sql += `WHERE NAME = ?`;
+            sql += ` WHERE NAME = ?`;
             values = [package_Name];
         } else {
             values = [];
@@ -83,13 +83,19 @@ export async function PostgetPackage(serverRange: string, package_Name: string) 
             sql += ` WHERE LATEST_VERSION >= ? AND LATEST_VERSION <= ?`;
             values = ranges.length > 0 ? [ranges[0], ranges[1]] : [serverRange];
         } else if (serverRange.includes("~")) {
-            sql += `WHERE LATEST_VERSION REGEXP '?\\.[0-9]+$'`;
-            values = [serverRange];
+            const version = serverRange.substring(1); // Remove the "~" character
+            const majorVersion = parseInt(version.split(".")[0]);
+            const upperVersion = `${majorVersion + 1}.0.0`;
+            sql += ` WHERE LATEST_VERSION >= ? AND LATEST_VERSION < ?`;
+            values = [version, upperVersion];
         } else if (serverRange.includes("^")) {
-            sql += `WHERE LATEST_VERSION REGEXP '^((?)|[1-9]\\.[0-9]\\.[0-9])$'`;
-            values = [serverRange];
+            const version = serverRange.substring(1); // Remove the "^" character
+            const majorVersion = parseInt(version.split(".")[0]);
+            const upperVersion = `${majorVersion + 1}.0.0-0`;
+            sql += ` WHERE LATEST_VERSION >= ? AND LATEST_VERSION < ?`;
+            values = [version, upperVersion];
         } else {
-            sql = `WHERE LATEST_VERSION = ?`;
+            sql += ` WHERE LATEST_VERSION = ?`;
             values = [serverRange];
         }
         if (package_Name != '*') {
@@ -181,7 +187,7 @@ export async function PkgScoresGet(db_field: string, pkg_ID: string) {
     console.log(get_pkgdata_query);
     const response = await queryDatabase("packages", get_pkgdata_query)
     console.log(response);
-    return response
+    return response;
 }
 export async function RegexPkgDataGet(db_field: string, pkg_ID: string) {
     const get_pkgdata_query: DbQuery = {
@@ -190,5 +196,5 @@ export async function RegexPkgDataGet(db_field: string, pkg_ID: string) {
     }
     const response = await queryDatabase("packages", get_pkgdata_query)
     console.log(response);
-    return response[0][0][db_field]
+    return response;
 }
