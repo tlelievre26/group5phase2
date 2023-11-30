@@ -87,7 +87,7 @@ export class PackageUploader {
             
             if(req_body.data.hasOwnProperty("URL") && !req_body.data.hasOwnProperty("Content")) {
 
-                logger.debug("Recieved URL in request body")
+                //logger.debug("Recieved URL in request body")
                 repoURL = req_body.data.URL!
     
                 //Handle 

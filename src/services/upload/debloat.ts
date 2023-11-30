@@ -3,7 +3,7 @@ import logger from "../../utils/logger";
 
 
 export function debloatZip(zip: JSZip): JSZip {
-    var filesToDelete = [
+    const filesToDelete = [
         'docs/',        // Documentation files
         'test/',        // Test files
         'tests/',       // Test files (alternative folder name)
