@@ -86,16 +86,6 @@ export async function verifyAuthToken(auth_token: string, permissions: string[])
         throw new JsonWebTokenError("Failed to find token associated with user in database")
     }
 
-    
-    if(permissions.includes("self")) { //Special condition for if an endpoint allows a user to only act on their own profile, which is just the delete user endpoint
-        //We handle it elsewhere so ignore it for now
-        logger.debug("Performing self check")
-        return decoded
-    }
-
-
-    
-
     return decoded
 }
 

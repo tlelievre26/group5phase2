@@ -1,8 +1,8 @@
 import logger from "../../utils/logger";
-import { PackageMetadata, PackageRating } from "../../models/api_schemas";
+import { PackageMetadata, PackageRating, PackageQuery } from "../../models/api_schemas";
 import queryDatabase from "./db_query";
 import { DbQuery } from "../../models/other_schemas";
-import e from "express";
+
 
 /**
  * Inserts package data and scores into the RDS DB atomically
@@ -64,48 +64,52 @@ export async function checkPkgIDInDB(pkg_ID: string): Promise<boolean> {
         return false
     }
 }
-export async function PostgetPackage(serverRange: string, package_Name: string) {
+
+export async function PostgetPackage(queries: PackageQuery[], offset: number) {
     let ranges: string[] = [];
     let sql: string;
-    let values: string[];
-    sql = 'SELECT * from pkg_data';
-    if (serverRange == undefined) {
-        if (package_Name != '*') {
-            sql += ` WHERE NAME = ?`;
-            values = [package_Name];
-        } else {
-            values = [];
+    let values: string[] = [];
+    sql = 'SELECT ID, NAME, LATEST_VERSION from pkg_data';
+    for (let i = 0; i < queries.length; i++) {
+        const package_Name = queries[i].Name;
+        const semverRange = queries[i].Version;
+        if(i != 0) { //Keep ORing the additional SQL queries
+            sql += ' OR';
         }
-    } else {
-
-        if (serverRange.includes("-")) {
-            ranges = serverRange.split("-");
-            sql += ` WHERE LATEST_VERSION >= ? AND LATEST_VERSION <= ?`;
-            values = ranges.length > 0 ? [ranges[0], ranges[1]] : [serverRange];
-        } else if (serverRange.includes("~")) {
-            const version = serverRange.substring(1); // Remove the "~" character
-            const majorVersion = parseInt(version.split(".")[0]);
-            const upperVersion = `${majorVersion + 1}.0.0`;
-            sql += ` WHERE LATEST_VERSION >= ? AND LATEST_VERSION < ?`;
-            values = [version, upperVersion];
-        } else if (serverRange.includes("^")) {
-            const version = serverRange.substring(1); // Remove the "^" character
-            const majorVersion = parseInt(version.split(".")[0]);
-            const upperVersion = `${majorVersion + 1}.0.0-0`;
-            sql += ` WHERE LATEST_VERSION >= ? AND LATEST_VERSION < ?`;
-            values = [version, upperVersion];
-        } else {
-            sql += ` WHERE LATEST_VERSION = ?`;
-            values = [serverRange];
+        else if(!(queries.length == 1 && queries[0].Version == undefined && queries[0].Name == "*")) { //If there is only one query and it is not a serverRange query and it gets all names, don't add the WHERE
+            sql += ' WHERE';
         }
-        if (package_Name != '*') {
-            sql += ` AND NAME = ?`;
-            values.push(package_Name);
+        if (semverRange == undefined) {
+            if (package_Name != '*') {
+                sql += ` (NAME = ?)`;
+                values.push(queries[0].Name);
+            }
         } else {
-            sql += `;`;
+    
+            if (semverRange.includes("-")) {
+                ranges = semverRange.split("-");
+                sql += ` (LATEST_VERSION >= ? AND LATEST_VERSION <= ?`;
+                values = ranges.length > 0 ? [ranges[0], ranges[1]] : [semverRange];
+            } else if (semverRange.includes("~")) {
+                sql += ` (LATEST_VERSION REGEXP '?\\.[0-9]+$'`;
+                values = [semverRange];
+            } else if (semverRange.includes("^")) {
+                sql += ` (LATEST_VERSION REGEXP '^((?)|[1-9]\\.[0-9]\\.[0-9])$'`;
+                values = [semverRange];
+            } else {
+                sql = ` (LATEST_VERSION = ?`;
+                values = [semverRange];
+            }
+            if (package_Name != '*') {
+                sql += ` AND NAME = ?)`;
+                values.push(package_Name);
+            } else {
+                sql += `)`;
+            }
         }
     }
-
+    sql += ` LIMIT 10 OFFSET ${offset * 10};` //Only return the first 10 results for pagination
+    console.log(sql);
     const get_pkgdata_query: DbQuery = { sql, values };
     try {
         const response = await queryDatabase("packages", get_pkgdata_query);
@@ -118,21 +122,21 @@ export async function PostgetPackage(serverRange: string, package_Name: string) 
 }
 
 
-export function searchPackage(databaseName: string, packageNameOrId: string): Promise<any> {
+export function searchPackage(databaseName: string, packageNameOrId: string) {
     const query = `SELECT * FROM pkg_data WHERE name = ? OR id = ?`;
     const values = [packageNameOrId, packageNameOrId];
     const dbQuery = { sql: query, values };
     return queryDatabase(databaseName, dbQuery);
 }
 
-export function getScores(databaseName: string, packageNameOrId: string): Promise<any> {
+export function getScores(databaseName: string, packageNameOrId: string) {
     const query = `SELECT * FROM scores WHERE name = ? OR id = ?`;
     const values = [packageNameOrId, packageNameOrId];
     const dbQuery = { sql: query, values };
     return queryDatabase(databaseName, dbQuery);
 }
 
-export function searchPackageWithRegex(databaseName: string, regex: string): Promise<any> {
+export function searchPackageWithRegex(databaseName: string, regex: string) {
     const query = `SELECT * FROM pkg_data WHERE name REGEXP ? OR id REGEXP ?`;
     const values = [regex, regex];
     const dbQuery = { sql: query, values };

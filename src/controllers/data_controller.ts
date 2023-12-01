@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { searchPackage, getScores, searchPackageWithRegex } from '../services/database/operation_queries';
 import * as schemas from "../models/api_schemas"
+import { UserPermissions } from '../models/other_schemas';
 import logger from "../utils/logger";
 import { genericPkgDataGet, PkgScoresGet, PostgetPackage } from "../services/database/operation_queries";
 import { version } from 'os';
@@ -26,73 +27,60 @@ export class PkgDataManager {
 
         //Post requests have a "request body" that is the data being posted
         const req_body: schemas.PackageQuery[] = req.body;
-
-        const offset = req.params.offset;
+        const offset = parseInt(req.params.offset) || 0; //0 if offset is not defined
         const auth_token = req.headers.authorization!;
         var response_obj: schemas.PackageMetadata[];
         var response_code; //Probably wont implement it like this, just using it as a placeholder
-
-        //Validate request body
-        // if(!(types.PackageQuery.is(req_body))) {
-        //     logger.debug("Invalid or malformed Package in request body to endpoint POST /packages")
-        //     return res.status(400).send("Invalid or malformed Package in request body here");
-        // }
-
-        //Verify user permissions
-        // try {
-        //     const user_perms = await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
-
-        //     //For this endpoint specifically we want to check that people can't run fetchall queries more than once per hour
-        //     if(req_body.Name == "*") {
-        //         try {
-        //             await fetchallLimitChecker(user_perms)
-        //         }
-        //         catch {
-        //             logger.error("Auth token has exceeded fetchall limit of once per hour")
-        //             return res.status(401).send("Auth token has exceeded fetchall limit of once per hour")
-        //         }
-
-        //     }
-
-        // }
-        // // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        // catch (err: any) {
-        //     if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
-        //         logger.error(`Error validating auth token ${auth_token}`)
-        //         return res.status(401).send("Error validating auth token: " + err.message);
-        //     }
-        //     else {
-        //         logger.error(`Error: Invalid/malformed auth token ${auth_token}`)
-        //         return res.status(400).send("Error validating auth token: " + err.message);
-        //     }
-        // }
-
-        response_code = 200;
     
-        if (response_code == 200) {
-            const result: schemas.Package[] = [];
-
-            for (const pkg of req_body) {
-                const pkgResult = await PostgetPackage(pkg.Version!, pkg.Name);
-                result.push(pkgResult);
-            }
-            logger.info("here bro for results", result);
-            res.status(200).send(result);
+        let user_perms: UserPermissions;
+        //Verify user permissions
+        try {
+            //user_perms = await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
+            await verifyAuthToken(auth_token, ["search"])
         }
-        else if(response_code == 400) {
-            if(auth_token) { //If its invalid
-            //VALIDATION CHECK UNIMPLEMENTED
-                res.status(400).send("Invalid auth token");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catch (err: any) {
+            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
+                logger.error(`Error validating auth token ${auth_token}`)
+                return res.status(401).send("Error validating auth token: " + err.message);
             }
             else {
-                res.status(400).send("Invalid or malformed request body");
+                logger.error(`Error: Invalid/malformed auth token ${auth_token}`)
+                return res.status(400).send("Error validating auth token: " + err.message);
             }
         }
-        else if(response_code == 413) {
-            res.status(413).send("Too many packages returned");
-        }
+
+
+
+        for (const pkg_query of req_body) {
+
+            //Validate request body for each entry
+            if(!(types.PackageQuery.is(pkg_query))) {
+                logger.debug("Invalid or malformed Package in request body to endpoint POST /packages")
+                return res.status(400).send("Invalid or malformed Package in request body");
+            }
     
-        // return res.send('List of packages');
+
+            // //For this endpoint specifically we want to check that people can't run fetchall queries more than once per hour
+            // if(pkg_query.Name == "*") {
+            //     try {
+            //         await fetchallLimitChecker(user_perms)
+            //     }
+            //     catch {
+            //         logger.error("Auth token has exceeded fetchall limit of once per hour")
+            //         return res.status(401).send("Auth token has exceeded fetchall limit of once per hour")
+            //     }
+
+            // }
+
+        }
+
+
+
+        const result = await PostgetPackage(req_body, offset);
+        logger.info("here bro for results", result);
+        res.status(200).send(result);
+
     }
     
     public async getPkgById(req: Request, res: Response) {
@@ -146,10 +134,6 @@ export class PkgDataManager {
             res.status(500).send({ error: 'Error querying the database' });
         }
     }
-    public async postPackages(req: Request, res: Response) {
-
-    }
-    
     
     
     public async ratePkgById(req: Request, res: Response) {
