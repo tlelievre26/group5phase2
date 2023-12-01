@@ -87,7 +87,7 @@ export class PackageUploader {
             
             if(req_body.data.hasOwnProperty("URL") && !req_body.data.hasOwnProperty("Content")) {
 
-                logger.debug("Recieved URL in request body")
+                //logger.debug("Recieved URL in request body")
                 repoURL = req_body.data.URL!
     
                 //Handle 
@@ -420,16 +420,18 @@ export class PackageUploader {
         //Apperently we're supposed to do this no matter what
 
         // if(metric_scores["BusFactor"] < 0.5 || metric_scores["RampUp"] < 0.5 || metric_scores["Correctness"] < 0.5 || metric_scores["ResponsiveMaintainer"] < 0.5 || metric_scores["LicenseScore"] < 0.5) {
-            //return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
+        //     return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
         // }
         // else {
+
             const contentsPath = await uploadToS3(extractedContents, repo_ID)
             //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
             await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath, debloating);
+        
         // }
 
     
-        return res.status(201).json(response_obj);
+        return res.status(201).json(metric_scores);
     }
 
 

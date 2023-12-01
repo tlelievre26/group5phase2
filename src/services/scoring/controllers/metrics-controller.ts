@@ -41,15 +41,15 @@ export class MetricsController {
 
         */
 
-        logger.debug("Retrieving metrics data...");
+        //logger.debug("Retrieving metrics data...");
         // Retrieve metrics data from GitHub API
         const data = this.metricsDataRetriever.retrieveMetricsData(owner, repo);
 
 
-        logger.debug("Calculating metrics scores...")
+        //logger.debug("Calculating metrics scores...")
         const metrics = await this.metricsCalculator.calculateMetrics(owner, repo, await data, pkg_metadata);
 
-        logger.debug("Outputting metrics...")
+        //logger.debug("Outputting metrics...")
         // Output metrics in NDJSON format
         /*
         process.stdout.write(

@@ -78,7 +78,8 @@ export class LicenseVerifier {
                 "GNU Lesser General Public License v2.1",
                 "GNU General Public License",
                 "MIT License",
-                "BSD"
+                "BSD",
+                "ISC"
             ];
 
             //If the README/LICENSE file wasn't found in the zip, return false

@@ -59,7 +59,7 @@ export async function verifyAuthToken(auth_token: string, permissions: string[])
     //We need the self check last so that if the user's token is expired they still get denied
 
     //If the user has an admin role they automatically pass this, and ignore it if we're doing the self-check endpoint
-    if(!(decoded.roles.includes("admin") || decoded.roles.some(r=> permissions.includes(r)) && !permissions.includes("self"))) { //Invert condition where user must either have admin or have one of their permissions matching the required permissions
+    if(!(decoded.roles.includes("admin") || decoded.roles.some(r=> permissions.includes(r))) && !permissions.includes("self")) { //Invert condition where user must either have admin or have one of their permissions matching the required permissions
         logger.error("User does not have the required permissions to access this endpoint")
         throw new JsonWebTokenError("User does not have the required permissions to access this endpoint")
     }
