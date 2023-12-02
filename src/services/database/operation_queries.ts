@@ -2,6 +2,7 @@ import logger from "../../utils/logger";
 import { PackageMetadata, PackageRating, PackageQuery } from "../../models/api_schemas";
 import queryDatabase from "./db_query";
 import { DbQuery } from "../../models/other_schemas";
+import { number } from "io-ts";
 
 
 /**
@@ -11,9 +12,11 @@ import { DbQuery } from "../../models/other_schemas";
  * @param contentsPath - The path to the package contents.
  */
 export async function insertPackageIntoDB(metric_scores: PackageRating, pkg_metadata: PackageMetadata, contentsPath: string, debloating: boolean) {
+    const version_numbers = pkg_metadata.Version.split("."); //Gets an array of the version numbers
+    //Store each version number seperately for the sake of comparison later
     const insert_pkgdata_query: DbQuery = { 
-        sql: `INSERT INTO pkg_data (ID, NAME, LATEST_VERSION, CONTENTS_PATH, DEBLOATED) VALUES (?, ?, ?, ?, ?)`, 
-        values: [pkg_metadata.ID, pkg_metadata.Name, pkg_metadata.Version, contentsPath, debloating]
+        sql: `INSERT INTO pkg_data (ID, NAME, LATEST_VERSION, MAJOR_VERSION, MINOR_VERSION, PATCH, CONTENTS_PATH, DEBLOATED) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, 
+        values: [pkg_metadata.ID, pkg_metadata.Name, pkg_metadata.Version, version_numbers[0], version_numbers[1], version_numbers[2], contentsPath, debloating]
     };
     const insert_scores_query: DbQuery = {
         sql: `INSERT INTO scores (ID, BusFactor, Correctness, RampUp, ResponsiveMaintainer, LicenseScore, GoodPinningPractice, PullRequest) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, 
@@ -67,56 +70,106 @@ export async function checkPkgIDInDB(pkg_ID: string): Promise<boolean> {
 
 export async function PostgetPackage(queries: PackageQuery[], offset: number) {
     let ranges: string[] = [];
-    let sql: string;
-    let values: string[] = [];
-    sql = 'SELECT ID, NAME, LATEST_VERSION from pkg_data';
+    const values: string[] = [];
+    //sql = 'SELECT ID, NAME, LATEST_VERSION from pkg_data';
+    let conditions: string = ''
+    const valid_version = /^([~^]?([0-9]+)(\.[0-9]+)?(\.[0-9]+)?)$|^([0-9]+)(\.[0-9]+)?(\.[0-9]+)?-([0-9]+)(\.[0-9]+)?(\.[0-9]+)?$/ //Enforces that version strings are of valid format
+
+
     for (let i = 0; i < queries.length; i++) {
         const package_Name = queries[i].Name;
-        const semverRange = queries[i].Version;
-        if(i != 0) { //Keep ORing the additional SQL queries
-            sql += ' OR';
+        let semverRange = queries[i].Version;
+        logger.debug("Semver range: " + semverRange)
+        if(semverRange != undefined && !valid_version.test(semverRange)) {
+            throw new Error("Invalid Version String")
         }
-        else if(!(queries.length == 1 && queries[0].Version == undefined && queries[0].Name == "*")) { //If there is only one query and it is not a serverRange query and it gets all names, don't add the WHERE
-            sql += ' WHERE';
+
+        if(i != 0) { //Keep ORing the additional SQL queries
+            conditions += ' OR';
+        }
+        else if(!(queries.length == 1 && semverRange == undefined && queries[0].Name == "*")) { //If there is only one query and it is not a serverRange query and it gets all names, don't add the WHERE
+            conditions += ' WHERE';
         }
         if (semverRange == undefined) {
             if (package_Name != '*') {
-                sql += ` (NAME = ?)`;
+                conditions += ` (NAME = ?)`;
                 values.push(queries[0].Name);
             }
         } else {
     
             if (semverRange.includes("-")) {
-                ranges = semverRange.split("-");
-                sql += ` (LATEST_VERSION >= ? AND LATEST_VERSION <= ?`;
-                values = ranges.length > 0 ? [ranges[0], ranges[1]] : [semverRange];
+                ranges = semverRange.replace("-", ".").split(".");
+                //conditions += ` (MAJOR_VERSION >= ? AND MAJOR_VERSION <= ? AND MINOR_VERSION >= ? AND MINOR_VERSION <= ? AND PATCH >= ? AND PATCH <= ?`;
+                //This one is rly tough bc we need some pretty complex conditions
+                conditions += ` (((MAJOR_VERSION = ? AND MINOR_VERSION >= ? AND PATCH >= ?) OR (MAJOR_VERSION > ? AND MAJOR_VERSION < ?) OR (MAJOR_VERSION = ? AND MINOR_VERSION <= ? AND PATCH <= ?))`;
+                if(ranges.length > 0) {
+                    values.push(ranges[0], ranges[1], ranges[2], ranges[0], ranges[3], ranges[3], ranges[4], ranges[5]);
+                }
+                else {
+                    values.push(semverRange)
+                }
             } else if (semverRange.includes("~")) {
-                sql += ` (LATEST_VERSION REGEXP '?\\.[0-9]+$'`;
-                values = [semverRange];
+                semverRange = semverRange.replace("~","");
+                const version_numbers = semverRange.split("."); //Gets an array of the version numbers
+
+                if(version_numbers[1] == '0' && version_numbers[2] == '0') {
+                    conditions += ` (MAJOR_VERSION = ?`;
+                    values.push(version_numbers[0]);
+                }
+                else {
+                    conditions += ` (MAJOR_VERSION = ? AND MINOR_VERSION = ? AND PATCH >= ?`;
+                    values.push(version_numbers[0], version_numbers[1], version_numbers[2]);
+                }
+                
+                //conditions += ` (LATEST_VERSION REGEXP '?\\.[0-9]+$'`;
+
+                // values.push(semverRange, upper_version);
             } else if (semverRange.includes("^")) {
-                sql += ` (LATEST_VERSION REGEXP '^((?)|[1-9]\\.[0-9]\\.[0-9])$'`;
-                values = [semverRange];
+                semverRange = semverRange.replace("^",""); //Remove the carat from the string
+                const version_numbers = semverRange.split("."); //Gets an array of the version numbers
+                if(version_numbers[0] != '0') {
+                    conditions += ` (MAJOR_VERSION = ? AND MINOR_VERSION >= ? AND PATCH >= ?`;
+                    values.push(version_numbers[0], version_numbers[1], version_numbers[2]);
+                }
+                else if(version_numbers[1] != '0') {
+                    conditions += ` (MINOR_VERSION = ? AND PATCH >= ?`;
+                    values.push(version_numbers[1], version_numbers[2]);
+                }
+                else {
+                    conditions += ` (PATCH = ?`;
+                    values.push(version_numbers[2]);
+                }
+
+                //conditions += ` (LATEST_VERSION REGEXP '^((?)|[1-9]\\.[0-9]\\.[0-9])$'`;
+                // values.push(semverRange, upper_version);
+
             } else {
-                sql = ` (LATEST_VERSION = ?`;
-                values = [semverRange];
+                conditions += ` (LATEST_VERSION = ?`;
+                values.push(semverRange);
             }
             if (package_Name != '*') {
-                sql += ` AND NAME = ?)`;
+                conditions += ` AND NAME = ?)`;
                 values.push(package_Name);
             } else {
-                sql += `)`;
+                conditions += `)`;
             }
         }
     }
-    sql += ` LIMIT 10 OFFSET ${offset * 10};` //Only return the first 10 results for pagination
-    console.log(sql);
+
+    const sql: string = `SELECT ID, NAME, LATEST_VERSION from pkg_data ${conditions} LIMIT 10 OFFSET ${offset * 10};` //Only return the first 10 results for pagination 
+    const count = `SELECT count(*) as MATCHES from pkg_data ${conditions};` //Use the count to know if we need to paginate
+    // console.log(sql)
+    // console.log(values)
+
+
     const get_pkgdata_query: DbQuery = { sql, values };
+    const count_responses_query: DbQuery = { sql: count, values };
     try {
-        const response = await queryDatabase("packages", get_pkgdata_query);
-        console.log("here in POSTGET", response);
-        return response[0];
+        const response = await queryDatabase("packages", [get_pkgdata_query, count_responses_query]);
+        // console.log("here in POSTGET", response);
+        return response;
     } catch (err) {
-        console.error('Error querying database:', err);
+        logger.error('Error querying database:', err);
         throw err;
     }
 }

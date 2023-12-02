@@ -170,7 +170,7 @@ export class PackageUploader {
     
             const response_obj: schemas.PackageMetadata = {
                     Name: pkg_json.name,
-                    Version: pkg_json.version,
+                    Version: pkg_json.version.split('-')[0], //This makes it so pre-release tags get removed
                     ID: repo_ID
             }
     
@@ -390,9 +390,8 @@ export class PackageUploader {
         const response_obj: schemas.Package = {
             metadata: {
                 Name: pkg_json.name,
-                Version: pkg_json.version,
+                Version: pkg_json.version.split('-')[0], //This makes it so pre-release tags get removed
                 ID: repo_ID
-                //metrics: metric_scores
             },
             data: {
                 Content: base64contents

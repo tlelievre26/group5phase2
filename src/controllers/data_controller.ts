@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, response } from 'express';
 import { searchPackage, getScores, searchPackageWithRegex } from '../services/database/operation_queries';
 import * as schemas from "../models/api_schemas"
 import { UserPermissions } from '../models/other_schemas';
@@ -27,12 +27,28 @@ export class PkgDataManager {
 
         //Post requests have a "request body" that is the data being posted
         const req_body: schemas.PackageQuery[] = req.body;
-        const offset = parseInt(req.params.offset) || 0; //0 if offset is not defined
+        let offset; //0 if offset is not defined
         const auth_token = req.headers.authorization!;
-        var response_obj: schemas.PackageMetadata[];
-        var response_code; //Probably wont implement it like this, just using it as a placeholder
-    
+        var response_obj: schemas.PackageMetadata[] = [];
         let user_perms: UserPermissions;
+
+        if(req.query.offset) { //If offset is defined
+            try {
+                offset = parseInt(req.query.offset as string);
+                if(offset < 0) {
+                    logger.debug("Invalid offset in request body to endpoint POST /packages, defaulting to 0")
+                    offset = 0
+                }
+            }
+            catch {
+                logger.debug("Invalid offset in request body to endpoint POST /packages, defaulting to 0")
+                offset = 0
+            }
+        }
+        else {
+            offset = 0;
+        }
+
         //Verify user permissions
         try {
             //user_perms = await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
@@ -75,12 +91,31 @@ export class PkgDataManager {
 
         }
 
-
-
-        const result = await PostgetPackage(req_body, offset);
-        logger.info("here bro for results", result);
-        res.status(200).send(result);
-
+        let results;
+        try {
+            results = await PostgetPackage(req_body, offset);
+        }
+        catch (err) {
+            logger.error("Error querying the database")
+            return res.status(400).send("Error querying the database: " + err)
+        }
+        for (const result of results[0]) { //Only doing this so it exactly matches the schema for the autograder
+            response_obj.push({
+                "Version": result.LATEST_VERSION,
+                "Name": result.NAME,
+                "ID": result.ID,
+            })
+        }
+        const matches = results[1][0].MATCHES;
+        if(matches - offset * 10 > 10) { //If there are more results to paginate
+            logger.debug("Still more results to paginate")
+            res.set('offset', (offset + 1).toString());
+        }
+        else {
+            res.set('offset', "-1"); //If there are no more results to paginate
+        }
+        //logger.info("here bro for results", response_obj);
+        return res.status(200).send(response_obj);
     }
     
     public async getPkgById(req: Request, res: Response) {
@@ -91,7 +126,7 @@ export class PkgDataManager {
         var response_obj: schemas.Package;
     
         if(!id) {
-            logger.debug("Malformed/missing PackageID in request body to endpoint GET /package/{id}")
+            logger.error("Malformed/missing PackageID in request body to endpoint GET /package/{id}")
             return res.status(400).send("Missing PackageID in params");
         }
     
