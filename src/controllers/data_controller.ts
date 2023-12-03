@@ -1,14 +1,14 @@
-import { Request, Response, response } from 'express';
-import { searchPackage, getScores, searchPackageWithRegex } from '../services/database/operation_queries';
+import e, { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
 import { UserPermissions } from '../models/other_schemas';
 import logger from "../utils/logger";
-import { genericPkgDataGet, PkgScoresGet, PostgetPackage } from "../services/database/operation_queries";
-import { version } from 'os';
+import { genericPkgDataGet, PkgScoresGet, PostgetPackage, searchPackageWithRegex  } from "../services/database/operation_queries";
 import * as types from "../models/api_types"
 import { fetchallLimitChecker, verifyAuthToken } from '../services/user_auth/generate_auth_token';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import searchReadmeFilesInS3 from '../services/aws/s3search';
+import s3download from '../services/aws/s3download';
+
 //import { inject, injectable } from "tsyringe";
 
 //This file contains a class that acts a controller for everything relating to getting data about a package
@@ -120,10 +120,9 @@ export class PkgDataManager {
     
     public async getPkgById(req: Request, res: Response) {
 
-        const { databaseName, packageNameOrId } = req.query;
         const id = req.params.id;
         const auth_token = req.headers.authorization!;
-        var response_obj: schemas.Package;
+
     
         if(!id) {
             logger.error("Malformed/missing PackageID in request body to endpoint GET /package/{id}")
@@ -145,75 +144,92 @@ export class PkgDataManager {
                 return res.status(400).send("Error validating auth token: " + err.message);
             }
         }
-    
-    
-        var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
-    
-        if (response_code == 200) {
-            try {
-                const result = await searchPackage(databaseName as string, packageNameOrId as string);
-                res.status(200).send(result);
-            } catch (error) {
-                res.status(500).send({ error: 'Error querying the database' });
+
+            // try {
+            //     const result = await searchPackage(databaseName as string, packageNameOrId as string);
+            //     res.status(200).send(result);
+            // } catch (error) {
+            //     res.status(500).send({ error: 'Error querying the database' });
+            // }
+        let result;
+        try {
+            result = await genericPkgDataGet("ID, NAME, LATEST_VERSION, CONTENTS_PATH", id);
+            console.log(result)
+            if(!result) {
+                return res.status(404).send({ error: 'Package not found' });
             }
+
+        } catch (error) {
+            return res.status(500).send({ error: `Error querying the database: ${error}` });
         }
 
         try {
-            const result = await genericPkgDataGet("ID,NAME, LATEST_VERSION", id);
-            if (result.length > 0) {
-                res.status(200).send(result);
-            } else {
-                res.status(404).send({ error: 'Package not found' });
+            const contents = await s3download(result.CONTENTS_PATH);
+            const response_obj = {
+                "meta": {
+                    "ID": result.ID,
+                    "Name": result.NAME,
+                    "Version": result.LATEST_VERSIONVERSION
+                },
+                "data": {
+                    "Content": contents
+                }
+
             }
-        } catch (error) {
-            res.status(500).send({ error: 'Error querying the database' });
+            return res.status(200).send(response_obj);
         }
+        catch (error) {
+            return res.status(500).send({ error: `Error retrieving package contents from S3: ${error}` });
+        }
+
     }
     
     
     public async ratePkgById(req: Request, res: Response) {
         //Gets scores for the specified package
         const id = req.params.id;
-        const auth_token = req.params.auth_token;
-        var response_obj: schemas.PackageRating;
-        const { databaseName, packageNameOrId } = req.query;
+        const auth_token = req.headers.authorization!;
     
-    
-    
-    
-        var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
-    
-        if (response_code == 200) {
-            try {
-                // const result = await getScores(databaseName as string, packageNameOrId as string);
-                const result = await PkgScoresGet("*", id);
-                res.status(200).send(result);
-            } catch (error) {
-                res.status(500).send({ error: 'Error querying the database' });
-            }
-        // res.status(200).send("Successfully rated {packageName}");
-            // const result = await PkgScoresGet("BusFactor,Correctness, RampUp, ResponsiveMaintainer,LicenseScore,GoodPinningPractice,PullRequest", packageName);
-
-
-            // logger.info(result);
-            // res.status(200).send(result);
+        try {
+            await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
         }
-        else if(response_code == 400) {
-            if(auth_token) { //If its invalid
-                //VALIDATION CHECK UNIMPLEMENTED
-                res.status(400).send("Invalid auth token");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        catch (err: any) {
+            if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
+                logger.error(`Error validating auth token ${auth_token}`)
+                return res.status(401).send("Error validating auth token: " + err.message);
             }
             else {
-                res.status(400).send("Invalid package ID");
+                logger.error(`Error: Invalid/malformed auth token`)
+                return res.status(400).send("Error validating auth token: " + err.message);
             }
         }
-        else if(response_code == 404) {
-            res.status(404).send("Could not find existing package with matching ID");
+    
+        try {
+            // const result = await getScores(databaseName as string, packageNameOrId as string);
+            const result = await PkgScoresGet("*", id);
+            console.log(result)
+            if(result === undefined) {
+                return res.status(404).send({ error: 'Package not found' });
+            }
+
+            const netscore = ((result.ResponsiveMaintainer * 0.28) + (result.BusFactor * 0.28) + (result.RampUp * 0.22) + (result.Correctness * 0.22)) * (result.LicenseScore);
+
+            const reformatted_result = { //Just adjusting it to match the order + format in the spec
+                "BusFactor": result.BusFactor,
+                "Correctness": result.Correctness,
+                "RampUp": result.RampUp,
+                "ResponsiveMaintainer": result.ResponsiveMaintainer,
+                "LicenseScore": result.License,
+                "GoodPinningPractice": result.GoodPinningPractice,
+                "PullRequest": result.PullRequest,
+                "NetScore": netscore
+            }
+            return res.status(200).send(reformatted_result);
+        } catch (error) {
+            return res.status(500).send({ error: 'Error querying the database', message: error });
         }
-        else if(response_code == 500) {
-            res.status(500).send("Fatal error during rating calculations");
-        }
-        // res.send(`Get rating for package with ID: ${id}`);
+
     }
     
     
@@ -222,8 +238,8 @@ export class PkgDataManager {
     
         const auth_token = req.headers.authorization!;
         const regex: schemas.PackageRegEx = req.body;
-        var response_obj: schemas.PackageMetadata[];
-        const { databaseName, packageNameOrId } = req.query;
+
+
         if(!(types.PackageRegEx.is(regex))) {
             logger.debug("Invalid or malformed Package in request body to endpoint POST /packages")
             return res.status(400).send("Invalid or malformed Package in request body");
@@ -243,33 +259,40 @@ export class PkgDataManager {
                 logger.error(`Error: Invalid/malformed auth token`)
                 return res.status(400).send("Error validating auth token: " + err.message);
             }
-        }  
+        } 
 
-        var response_code = 200; //Probably wont implement it like this, just using it as a placeholder
-    
-        if (response_code == 200) {
-            try {
-                const result = await searchPackageWithRegex(databaseName as string, packageNameOrId as string);
-                const regexObj = new RegExp(packageNameOrId?.toString() || ''); // Convert string to RegExp object
-                const results2 = await searchReadmeFilesInS3(regexObj);
-                res.status(200).send(result);
-            } catch (error) {
-                res.status(500).send({ error: 'Error querying the database' });
+        const response_obj: schemas.PackageMetadata[] = [];
+        const found_IDs: string[] = []; //Using this as an easier way to keep track of what packages have already been matched
+        //Can also use this to save time on the AWS side by not searching for packages that have already been found in the DB
+        try {
+            const dbResults = await searchPackageWithRegex(regex.RegEx);
+            for (const result of dbResults) {
+                response_obj.push({
+                    "Name": result.NAME,
+                    "Version": result.LATEST_VERSION,
+                    "ID": result.ID,
+                })
+                found_IDs.push(result.ID);
             }
-            // res.status(200).send("Successfully retrieved package history");
-        }
-        else if(response_code == 400) {
-            if(auth_token) { //If its invalid
-                //VALIDATION CHECK UNIMPLEMENTED
-                res.status(400).send("Invalid auth token");
+            const regexObj = new RegExp(regex.RegEx?.toString() || ''); // Convert string to RegExp object
+            console.log(regexObj)
+            const AWSresults = await searchReadmeFilesInS3(regexObj);
+            for(const result of AWSresults) {
+                if(result.ID && !found_IDs.includes(result.ID)) { //If the package hasn't already been found in the DB
+                    response_obj.push(result);
+                }
+            }
+            if(response_obj.length == 0) {
+                return res.status(404).send({ error: 'No packages found matching RegEx' });
             }
             else {
-                res.status(400).send("Invalid or malformed PackageRegEx in request body");
+                return res.status(200).send(response_obj);
             }
+
+        } catch (error) {
+            res.status(500).send({ error: 'Error querying the database' });
         }
-        else if(response_code == 404) {
-            res.status(404).send("Could not find existing package matching regex");
-        }
-        res.send('Get packages based on regular expression');
+        
     }
+
 }

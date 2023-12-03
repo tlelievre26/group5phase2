@@ -248,7 +248,7 @@ export class PackageUploader {
         else {
             const pkg_name = await genericPkgDataGet("NAME", id) //Need the name to create the key for the deleted object in S3
             //Delete package from S3 bucket
-            await deleteFromS3(id, pkg_name)
+            await deleteFromS3(id, pkg_name.NAME)
             //Delete all package data from DB
             await deletePackageDataByID(id);
 

@@ -175,28 +175,28 @@ export async function PostgetPackage(queries: PackageQuery[], offset: number) {
 }
 
 
-export function searchPackage(databaseName: string, packageNameOrId: string) {
-    const query = `SELECT * FROM pkg_data WHERE name = ? OR id = ?`;
-    const values = [packageNameOrId, packageNameOrId];
-    const dbQuery = { sql: query, values };
-    return queryDatabase(databaseName, dbQuery);
-}
+// export function searchPackage(databaseName: string, packageNameOrId: string) {
+//     const query = `SELECT * FROM pkg_data WHERE name = ? OR id = ?`;
+//     const values = [packageNameOrId, packageNameOrId];
+//     const dbQuery = { sql: query, values };
+//     return queryDatabase(databaseName, dbQuery);
+// }
 
-export function getScores(databaseName: string, packageNameOrId: string) {
-    const query = `SELECT * FROM scores WHERE name = ? OR id = ?`;
-    const values = [packageNameOrId, packageNameOrId];
-    const dbQuery = { sql: query, values };
-    return queryDatabase(databaseName, dbQuery);
-}
-
-export function searchPackageWithRegex(databaseName: string, regex: string) {
-    const query = `SELECT * FROM pkg_data WHERE name REGEXP ? OR id REGEXP ?`;
+export async function searchPackageWithRegex(regex: string) {
+    const query = `SELECT ID, NAME, LATEST_VERSION FROM pkg_data WHERE name REGEXP ?`;
     const values = [regex, regex];
     const dbQuery = { sql: query, values };
-    return queryDatabase(databaseName, dbQuery);
+    try {
+        const response = await queryDatabase("packages", dbQuery);
+        console.log(response);
+        return response[0];
+    }
+    catch (err) {
+        logger.error('Error querying database with RegEx:', err);
+        throw err;
+    }
+
 }
-
-
 
 
 export async function genericPkgDataGet(db_field: string, pkg_ID: string) {
@@ -206,8 +206,8 @@ export async function genericPkgDataGet(db_field: string, pkg_ID: string) {
     }
     try {
         const response = await queryDatabase("packages", get_pkgdata_query)
-        console.log(response);
-        return response[0][0][db_field]
+        // console.log(response);
+        return response[0][0]
     } catch (err) {
         console.error('Error querying database: last', err);
         throw err
@@ -230,22 +230,29 @@ export async function checkMetadataExists(metadata: PackageMetadata) {
         return null
     }
     else {
-        return matching_pkg[0][0].DEB
+        return matching_pkg[0][0].DEBLOATED
     }
 
 
 }
 
 export async function PkgScoresGet(db_field: string, pkg_ID: string) {
-    const get_pkgdata_query: DbQuery = {
-        sql: `SELECT ${db_field} FROM scores WHERE ID = ?;`,
-        values: [pkg_ID]
+    try {
+        const get_pkgdata_query: DbQuery = {
+            sql: `SELECT ${db_field} FROM scores WHERE ID = ?;`,
+            values: [pkg_ID]
+        }
+        const response = await queryDatabase("packages", get_pkgdata_query)
+        logger.debug("Successfully retrieved package scores from database")
+        console.log(response)
+        return response[0][0];
     }
-    console.log(get_pkgdata_query);
-    const response = await queryDatabase("packages", get_pkgdata_query)
-    console.log(response);
-    return response;
+    catch (err) {
+        console.error('Error querying database for scores: ', err);
+        throw err
+    }
 }
+
 export async function RegexPkgDataGet(db_field: string, pkg_ID: string) {
     const get_pkgdata_query: DbQuery = {
         sql: `SELECT ${db_field} FROM pkg_data WHERE ID REGEXP ?;`,
