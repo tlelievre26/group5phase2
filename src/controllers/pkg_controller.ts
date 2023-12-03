@@ -273,7 +273,7 @@ export class PackageUploader {
         let debloating;
 
         if(req.query.debloat) { //If debloat exists set it to the value, otherwise default to false
-            console.log("Debloating enabled")
+            logger.debug("Debloating enabled")
             debloating = (req.query.debloat === "true")
         }
         else {
@@ -384,10 +384,10 @@ export class PackageUploader {
         const repo_ID = repoInfo.owner + "_" + repoInfo.repo + "_" + pkg_json.version
 
         //Check DB if package id already exists in database
-        if(await checkPkgIDInDB(repo_ID)) {
-            logger.error("Detected package with matching ID already exists in database")
-            return res.status(409).send("Uploaded package already exists in registry");
-        }
+        // if(await checkPkgIDInDB(repo_ID)) {
+        //     logger.error("Detected package with matching ID already exists in database")
+        //     return res.status(409).send("Uploaded package already exists in registry");
+        // }
 
         const response_obj: schemas.Package = {
             metadata: {
@@ -404,6 +404,7 @@ export class PackageUploader {
         let metric_scores;
         try {
             metric_scores = await controller.generateMetrics(repoInfo.owner, repoInfo.repo, extractedContents.metadata);
+            console.log(metric_scores)
         }
         catch (err) {
             return res.status(500).send("Failed to calculate ratings for package");
@@ -423,9 +424,9 @@ export class PackageUploader {
             //return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
         // }
         // else {
-            const contentsPath = await uploadToS3(extractedContents, repo_ID)
-            //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
-            await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath, debloating);
+            // const contentsPath = await uploadToS3(extractedContents, repo_ID)
+            // //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
+            // await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath, debloating);
         // }
 
     

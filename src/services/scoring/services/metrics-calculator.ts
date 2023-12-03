@@ -51,7 +51,7 @@ export class MetricsCalculator {
             const pinning = await this.pinningPractice.pinningDependencies(pkg_metadata);
 
             //Net score does NOT factor in the 2 new metrics
-            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license, pinning);
+            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license);
 
             return {
                 BusFactor: busFactor,
@@ -277,12 +277,12 @@ export class MetricsCalculator {
      * @param pinning
      */
     async calculateNetScore(busFactor: number, correctness: number, rampUp: number,
-                            responsiveMaintainer: number, license: number, pinning: number): Promise<number> {
+                            responsiveMaintainer: number, license: number): Promise<number> {
 
         //Note that the net score DOES NOT factor in the 2 new metrics
 
         // Formulae for the Net Score                        
-        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license) * (pinning);
+        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license);
 
         return NetScore;
     }

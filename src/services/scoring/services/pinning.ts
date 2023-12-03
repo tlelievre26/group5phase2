@@ -1,10 +1,11 @@
 import { injectable } from "tsyringe";
 import { ExtractedMetadata } from "../../../models/other_schemas";
+import logger from "../../../utils/logger";
 
 @injectable()
 export class PinningPractice {
   private isExactVersion(version: string): boolean {
-    return /^\d+\.\d+\.\d+$/.test(version);
+    return /^\d+\.\d+\.(x|\d)*$/.test(version);
   }
 
   private analyzeDependencyVersions(dependencies: Record<string, string>): { pinned: number; notPinned: number } {
@@ -12,7 +13,7 @@ export class PinningPractice {
     let notPinned = 0;
 
     for (const version of Object.values(dependencies)) {
-      if (this.isExactVersion(version)) {
+      if (this.isExactVersion(version) || (version.charAt(0) == "~" && version.includes("."))) {
         pinned++;
       } else {
         notPinned++;
@@ -26,19 +27,19 @@ export class PinningPractice {
     try {
       const pkgjson_data: { dependencies: Record<string, string> } = JSON.parse(metadata_files["package.json"].toString());
       const dependencies = pkgjson_data.dependencies;
+      if(dependencies === undefined) {
+        logger.debug("No dependencies found in package.json")
+        return 1
+      }
 
       const { pinned, notPinned } = this.analyzeDependencyVersions(dependencies);
 
       const dependencyNum = Object.values(dependencies).length;
 
-      if (dependencyNum === 0) {
-        return 1;
-      }
-
-      return pinned / dependencyNum;
+      return Math.floor(Math.round(pinned / dependencyNum * 1000) / 1000);
     } catch (error) {
-      console.error(`Error processing dependencies:` + error);
-      return -1;
+      logger.error(`Error processing dependencies:` + error);
+      throw new Error(`Error processing dependencies: ${error}`)
     }
   }
 }
