@@ -56,4 +56,6 @@ api_router.post('/user', checkForAuthToken, utilsCtrl.registerUser)
 api_router.delete('/user', checkForAuthToken, utilsCtrl.deleteUser)
 
 
+
+
 export default api_router;
