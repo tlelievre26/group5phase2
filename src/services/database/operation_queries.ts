@@ -79,7 +79,7 @@ export async function PostgetPackage(queries: PackageQuery[], offset: number) {
     for (let i = 0; i < queries.length; i++) {
         const package_Name = queries[i].Name;
         let semverRange = queries[i].Version;
-        logger.debug("Semver range: " + semverRange)
+        // logger.debug("Semver range: " + semverRange)
         if(semverRange != undefined && !valid_version.test(semverRange)) {
             throw new Error("Invalid Version String")
         }
@@ -188,7 +188,7 @@ export async function searchPackageWithRegex(regex: string) {
     const dbQuery = { sql: query, values };
     try {
         const response = await queryDatabase("packages", dbQuery);
-        console.log(response);
+        // console.log(response);
         return response[0];
     }
     catch (err) {
@@ -244,7 +244,7 @@ export async function PkgScoresGet(db_field: string, pkg_ID: string) {
         }
         const response = await queryDatabase("packages", get_pkgdata_query)
         logger.debug("Successfully retrieved package scores from database")
-        console.log(response)
+        // console.log(response)
         return response[0][0];
     }
     catch (err) {
@@ -259,6 +259,6 @@ export async function RegexPkgDataGet(db_field: string, pkg_ID: string) {
         values: [pkg_ID]
     }
     const response = await queryDatabase("packages", get_pkgdata_query)
-    console.log(response);
+    // console.log(response);
     return response;
 }

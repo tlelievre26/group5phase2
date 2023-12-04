@@ -11,7 +11,7 @@ AWS.config.getCredentials(function(err) { //Checks AWS
     }
   
     else if ( AWS.config.credentials !== null &&  AWS.config.credentials !== undefined ){
-      logger.debug("Access key:", AWS.config.credentials.accessKeyId);
+      logger.debug("Successfully logged into AWS");
     }
   });
 

@@ -56,7 +56,7 @@ export class LicenseVerifier {
         //SPDI index for all compatible licenses
         //I THINK this is all of them based on google searching, it said that sometimes apache was compatible but not everywhere said that? It's very confusing
         //These are based off the following diagram that seemed to be the most commonly cited: https://en.wikipedia.org/wiki/License_compatibility#/media/File:Floss-license-slide-image.svg
-        const valid_licenses = ['MIT', 'BSD-3-Clause', 'Apache-2.0', 'MPL-2.0', 'LGPL-2.1']
+        const valid_licenses = ['MIT', 'BSD-3-Clause', 'Apache-2.0', 'MPL-2.0', 'LGPL-2.1', 'ISC']
 
         return valid_licenses.some(license => {
             const licenseRegExp = new RegExp(license, "i");

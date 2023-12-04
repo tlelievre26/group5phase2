@@ -1,4 +1,4 @@
-import e, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
 import { UserPermissions } from '../models/other_schemas';
 import logger from "../utils/logger";
@@ -29,8 +29,8 @@ export class PkgDataManager {
         const req_body: schemas.PackageQuery[] = req.body;
         let offset; //0 if offset is not defined
         const auth_token = req.headers.authorization!;
-        var response_obj: schemas.PackageMetadata[] = [];
-        let user_perms: UserPermissions;
+        const response_obj: schemas.PackageMetadata[] = [];
+
 
         if(req.query.offset) { //If offset is defined
             try {
@@ -154,7 +154,7 @@ export class PkgDataManager {
         let result;
         try {
             result = await genericPkgDataGet("ID, NAME, LATEST_VERSION, CONTENTS_PATH", id);
-            console.log(result)
+            // console.log(result)
             if(!result) {
                 return res.status(404).send({ error: 'Package not found' });
             }
@@ -208,12 +208,12 @@ export class PkgDataManager {
         try {
             // const result = await getScores(databaseName as string, packageNameOrId as string);
             const result = await PkgScoresGet("*", id);
-            console.log(result)
+            // console.log(result)
             if(result === undefined) {
                 return res.status(404).send({ error: 'Package not found' });
             }
 
-            const netscore = ((result.ResponsiveMaintainer * 0.28) + (result.BusFactor * 0.28) + (result.RampUp * 0.22) + (result.Correctness * 0.22)) * (result.LicenseScore);
+            const netscore = Math.round(((result.ResponsiveMaintainer * 0.28) + (result.BusFactor * 0.28) + (result.RampUp * 0.22) + (result.Correctness * 0.22)) * (result.LicenseScore) * 1000) / 1000;
 
             const reformatted_result = { //Just adjusting it to match the order + format in the spec
                 "BusFactor": result.BusFactor,
@@ -275,7 +275,7 @@ export class PkgDataManager {
                 found_IDs.push(result.ID);
             }
             const regexObj = new RegExp(regex.RegEx?.toString() || ''); // Convert string to RegExp object
-            console.log(regexObj)
+            // console.log(regexObj)
             const AWSresults = await searchReadmeFilesInS3(regexObj);
             for(const result of AWSresults) {
                 if(result.ID && !found_IDs.includes(result.ID)) { //If the package hasn't already been found in the DB

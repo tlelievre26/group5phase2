@@ -155,7 +155,7 @@ export async function updateLastFetchallTime(user_id: string) {
     }
     try {
         await queryDatabase("users", update_last_searchall_query)
-        logger.debug(`Updated last searchall time for user id ${user_id}`);
+        // logger.debug(`Updated last searchall time for user id ${user_id}`);
     }
     catch (err) {
         logger.error('Error updating last searchall time in DB:', err);

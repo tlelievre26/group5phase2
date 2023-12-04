@@ -1,4 +1,4 @@
-import { Request, Response} from 'express';
+import { Request, Response, response} from 'express';
 import * as schemas from "../models/api_schemas"
 import * as types from "../models/api_types"
 import { decodeB64ContentsToZip } from '../services/upload/unzip_contents';
@@ -92,7 +92,6 @@ export class PackageUploader {
     
                 //Handle 
                 if(!isGitHubUrl(repoURL)) {
-                    logger.debug("Identified as non-github URL")
                     const githubFromNPM = await resolveNpmToGitHub(repoURL);
                     if(githubFromNPM == "") {
                         return res.status(400).send("Invalid URL in request body");
@@ -145,7 +144,7 @@ export class PackageUploader {
     
             }
             else if(req_body.data.hasOwnProperty("Content") && !req_body.data.hasOwnProperty("URL")) {
-                logger.debug("Recieved encoded package contents in request body")
+                // logger.debug("Recieved encoded package contents in request body")
     
                 base64contents = req_body.data.Content; //Do this so we can not have as much in seperate if statements
                 extractedContents = await decodeB64ContentsToZip(req_body.data.Content!, debloated); //We know it'll exist
@@ -259,7 +258,7 @@ export class PackageUploader {
     
 
     public async createPkg (req: Request, res: Response) {
-        logger.debug("Successfully routed to endpoint for uploading a new package")
+        // logger.debug("Successfully routed to endpoint for uploading a new package")
 
         //ADDING A PARAMETER DEBLOAT
         //If true, run the debloating code
@@ -281,7 +280,7 @@ export class PackageUploader {
         }
 
         if(!(types.PackageData.is(req_body))) {
-            logger.debug("Invalid or malformed Package in request body to endpoint POST /package")
+            logger.error("Invalid or malformed Package in request body to endpoint POST /package")
             return res.status(400).send("Invalid or malformed Package in request body");
         }
 
@@ -302,12 +301,12 @@ export class PackageUploader {
 
         if(req_body.hasOwnProperty("URL") && !req_body.hasOwnProperty("Content")) {
 
-            logger.debug("Recieved URL in request body")
+            // logger.debug("Recieved URL in request body")
             repoURL = req_body.URL!
 
             //Handle 
             if(!isGitHubUrl(repoURL)) {
-                logger.debug("Identified as non-github URL")
+                // logger.debug("Identified as non-github URL")
                 const githubFromNPM = await resolveNpmToGitHub(repoURL);
                 if(githubFromNPM == "") {
                     return res.status(400).send("Invalid URL in request body");
@@ -360,7 +359,7 @@ export class PackageUploader {
 
         }
         else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
-            logger.debug("Recieved encoded package contents in request body")
+            // logger.debug("Recieved encoded package contents in request body")
 
             base64contents = req_body.Content; //Do this so we can not have as much in seperate if statements
             extractedContents = await decodeB64ContentsToZip(req_body.Content!, debloating); //We know it'll exist
@@ -411,26 +410,19 @@ export class PackageUploader {
         
         //Ensure it passes the metric checks
 
-
-        //********************************************************************* */
-        //***** NOT CHECKING THIS FOR NOW BECAUSE THE PHASE 1 SCORING KINDA SUCKS */
-        //********************************************************************* */
-
         //Apperently we're supposed to do this no matter what
 
-        // if(metric_scores["BusFactor"] < 0.5 || metric_scores["RampUp"] < 0.5 || metric_scores["Correctness"] < 0.5 || metric_scores["ResponsiveMaintainer"] < 0.5 || metric_scores["LicenseScore"] < 0.5) {
-        //     return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
-        // }
-        // else {
-
+        if(metric_scores["BusFactor"] < 0.5 || metric_scores["RampUp"] < 0.5 || metric_scores["Correctness"] < 0.5 || metric_scores["ResponsiveMaintainer"] < 0.5 || metric_scores["LicenseScore"] < 0.5) {
+            return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
+        }
+        else {
             const contentsPath = await uploadToS3(extractedContents, repo_ID)
             //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
-            await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath, debloating);
-        
-        // }
+            await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath, debloating);        
+        }
 
     
-        return res.status(201).json(metric_scores);
+        return res.status(201).json(response_obj);
     }
 
 

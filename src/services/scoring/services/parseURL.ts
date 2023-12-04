@@ -29,7 +29,7 @@ export function extractGitHubInfo(url: string): RepoIdentifier {
 export async function resolveNpmToGitHub(npmUrl: string): Promise<string> {
     const PACKAGE_NAME_REGEX = /^https:\/\/www\.npmjs\.com\/package\/([a-z0-9\-_]+)/;
     const GITHUB_URL_REGEX = /github\.com\/([a-zA-Z0-9\-_]+)\/([a-zA-Z0-9\-_]+)/;
-    logger.debug(`Resolving npm URL to GitHub URL: ${npmUrl}`);
+    // logger.debug(`Resolving npm URL to GitHub URL: ${npmUrl}`);
     // Extract package name from npm URL
     const npmPackageName = npmUrl.match(PACKAGE_NAME_REGEX);
 
