@@ -53,7 +53,7 @@ api_router.post('/package/byRegEx', checkForAuthToken, pkgDataManager.getPkgByRe
 api_router.post('/user', checkForAuthToken, utilsCtrl.registerUser)
 
 //Endpoint to delete an existing user in our system
-api_router.delete('/user', checkForAuthToken, utilsCtrl.deleteUser)
+api_router.delete('/user/:username', checkForAuthToken, utilsCtrl.deleteUser)
 
 
 

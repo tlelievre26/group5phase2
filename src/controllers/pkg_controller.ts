@@ -1,4 +1,4 @@
-import { Request, Response, response} from 'express';
+import { Request, Response } from 'express';
 import * as schemas from "../models/api_schemas"
 import * as types from "../models/api_types"
 import { decodeB64ContentsToZip } from '../services/upload/unzip_contents';
@@ -37,13 +37,13 @@ const controller = container.resolve(MetricsController); //Basically gets an ins
 export class PackageUploader {
 
     public async updatePkgById (req: Request, res: Response) {
-
         //The name, version, and ID must match.
         //The package contents (from PackageData) will replace the previous contents.
 
-        //They have to submit ID as a part of the request body anyways so do we even want to use the one in the URL?
-    
+        logger.info("*************Request recieved for endpoint PUT /package/{id}*************")
+
         const req_body: schemas.Package = req.body;
+
         const id = req.params.id;
         const auth_token = req.headers.authorization!;
     
@@ -68,6 +68,17 @@ export class PackageUploader {
             logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
             return res.status(400).send("Invalid or malformed Package in request body");
         }
+
+        if(!(req_body.data.hasOwnProperty("Content"))) {
+            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
+        }
+        else {
+            logger.debug("Request body:\n" + JSON.stringify(req_body.metadata, null, 4))
+            logger.debug("Contents: " + req_body.data.Content?.slice(0, 5) + "..." + req_body.data.Content?.slice(-5))
+        }
+
+        
+        logger.debug("URL ID: " + req.params.id)
 
         if(id != req_body.metadata.ID) {    
             return res.status(400).send("Inconsistant package ID between request metadata and URL");
@@ -149,11 +160,6 @@ export class PackageUploader {
                 base64contents = req_body.data.Content; //Do this so we can not have as much in seperate if statements
                 extractedContents = await decodeB64ContentsToZip(req_body.data.Content!, debloated); //We know it'll exist
     
-                /*
-    
-                    NEED TO FIGURE OUT HOW TO DEAL WITH A REPO URL TO A UNIQUE VERSION OF THE PACKAGE
-    
-                */
             }
             else {
                 return res.status(400).send("Invalid or malformed PackageData in request body");
@@ -183,31 +189,19 @@ export class PackageUploader {
                 metric_scores = await controller.generateMetrics(repoInfo.owner, repoInfo.repo, extractedContents.metadata);
             }
             catch (err) {
+                logger.debug("Failed to calculate ratings for package")
                 return res.status(500).send("Failed to calculate ratings for package");
             }
             
-            //Ensure it passes the metric checks
+            logger.debug("Calculated updated metric scores for package: " + JSON.stringify(metric_scores, null, 4))
     
-    
-            //********************************************************************* */
-            //***** NOT CHECKING THIS FOR NOW BECAUSE THE PHASE 1 SCORING KINDA SUCKS */
-            //********************************************************************* */
-    
-            //Apperently we're supposed to do this no matter what
-    
-            // if(metric_scores["BusFactor"] < 0.5 || metric_scores["RampUp"] < 0.5 || metric_scores["Correctness"] < 0.5 || metric_scores["ResponsiveMaintainer"] < 0.5 || metric_scores["LicenseScore"] < 0.5) {
-                //return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
-            // }
-            // else {
-                await uploadToS3(extractedContents, repo_ID)
-                await updatePackageInDB(metric_scores, repo_ID);
-                //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
-                //Probably have to redo this function so it updates scores instead of overwriting them
+            await uploadToS3(extractedContents, repo_ID)
+            await updatePackageInDB(metric_scores, repo_ID);
+            //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
+            //Probably have to redo this function so it updates scores instead of overwriting them
                 
-            // }
+            logger.debug("Successfully updated package with ID " + id)
     
-    
-
             return res.status(200).send(`Updated package with ID: ${id}`);
         }
 
@@ -215,11 +209,13 @@ export class PackageUploader {
 
 
     public async deletePkgByID (req: Request, res: Response) {
-    
+        logger.info("*************Request recieved for endpoint DELETE /package/{id}*************")
+
         const id = req.params.id;
         const auth_token = req.headers.authorization!;
     
-
+        logger.debug("URL ID: " + req.params.id)
+        
         //Check user has permissions for this operation
         //Assuming that the only role that should be allowed to delete packages is admins
         try {
@@ -258,10 +254,7 @@ export class PackageUploader {
     
 
     public async createPkg (req: Request, res: Response) {
-        // logger.debug("Successfully routed to endpoint for uploading a new package")
-
-        //ADDING A PARAMETER DEBLOAT
-        //If true, run the debloating code
+        logger.info("*************Request recieved for endpoint POST /package*************")
 
         const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
         const auth_token = req.headers.authorization!;
@@ -283,6 +276,14 @@ export class PackageUploader {
             logger.error("Invalid or malformed Package in request body to endpoint POST /package")
             return res.status(400).send("Invalid or malformed Package in request body");
         }
+
+        if(!(req_body.hasOwnProperty("Content"))) {
+            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
+        }
+        else {
+            logger.debug("Request body contents:\n" + + req_body.Content!.slice(0, 5) + "..." + req_body.Content!.slice(-5))
+        }
+
 
         try {
             await verifyAuthToken(auth_token, ["upload"]) //Can ensure auth exists bc we check for it in middleware
@@ -371,6 +372,7 @@ export class PackageUploader {
             */
         }
         else {
+            logger.debug("Invalid or malformed PackageData in request body")
             return res.status(400).send("Invalid or malformed PackageData in request body");
         }
         const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
@@ -404,15 +406,14 @@ export class PackageUploader {
             metric_scores = await controller.generateMetrics(repoInfo.owner, repoInfo.repo, extractedContents.metadata);
         }
         catch (err) {
+            logger.debug("Failed to calculate ratings for package")
             return res.status(500).send("Failed to calculate ratings for package");
         }
 
-        
-        //Ensure it passes the metric checks
-
-        //Apperently we're supposed to do this no matter what
+        logger.debug("Calculated metric scores:\n" + JSON.stringify(metric_scores, null, 4))
 
         if(metric_scores["BusFactor"] < 0.5 || metric_scores["RampUp"] < 0.5 || metric_scores["Correctness"] < 0.5 || metric_scores["ResponsiveMaintainer"] < 0.5 || metric_scores["LicenseScore"] < 0.5) {
+            logger.debug("Package failed to pass check for metric scores, declined to upload")
             return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
         }
         else {
@@ -421,6 +422,8 @@ export class PackageUploader {
             await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath, debloating);        
         }
 
+        logger.debug("Response object sent:\n" + JSON.stringify(response_obj.metadata, null, 4))
+        logger.debug("Contents: " + response_obj.data.Content?.slice(0, 5) + "..." + response_obj.data.Content?.slice(-5))
     
         return res.status(201).json(response_obj);
     }

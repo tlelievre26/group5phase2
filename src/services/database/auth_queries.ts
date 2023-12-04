@@ -3,10 +3,10 @@ import queryDatabase from "./db_query";
 import { DbQuery, UserPermissions } from "../../models/other_schemas";
 import { hashPassword } from "../user_auth/password_hashing";
 
-export async function findUserInDB(username: string, isAdmin: boolean) {
+export async function findUserInDB(username: string) {
     const query: DbQuery = {
-        sql: `SELECT USER_ID, PASSWORD, CAN_UPLOAD, CAN_SEARCH, CAN_DOWNLOAD FROM user_profiles WHERE USERNAME = ? and IS_ADMIN = ?`,
-        values: [username, isAdmin]
+        sql: `SELECT USER_ID, PASSWORD, IS_ADMIN, CAN_UPLOAD, CAN_SEARCH, CAN_DOWNLOAD FROM user_profiles WHERE USERNAME = ?`,
+        values: [username]
     }
     try {
         const response = await queryDatabase("users", query)
