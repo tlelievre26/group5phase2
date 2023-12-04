@@ -42,7 +42,7 @@ export class MetricsCalculator {
                 this.calculateCorrectness(data.correctnessData),
                 this.calculateRampUp(data.rampUpData),
                 this.calculateResponsiveMaintainer(data.responsiveMaintainerData),
-                this.calculatePercentPullRequest(data.owner, data.repo)
+                this.calculatePercentPullRequest(data.pullRequestData)
             ]);
 
             //Pretty sure license is seperate here bc it clones the repo locally instead of reading from the API
@@ -259,33 +259,41 @@ export class MetricsCalculator {
         return Math.max(0, Math.min(1, score));  // Ensuring the score is within [0, 1]
     }
 
-    async calculatePercentPullRequest(owner: string, repo: string): Promise<number> { //pullRequestData: any
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async calculatePercentPullRequest(percentPullRequestData: any): Promise<number> { //pullRequestData: any
         //TO IMPLEMENT:
         //Equations calculating the pull request score
         try {
-            const pullRequest = await this.metricsDataRetriever.fetchPullRequestData(owner, repo);
 
-            if (pullRequest.data.length === 0) {
+
+            if (percentPullRequestData.pull_requests.length === 0) {
                 return 0; // No pull requests made, score is 0 all pushes were to main and unreviewed
             }
 
-            let numReviewedPullRequests = 0;
+            // let numReviewedPullRequests = 0;
             
-            for (const pull of pullRequest.data) {
-                //checking if pull request has been merged 
-                if (pull.merged_at !== null) {
-                    //checking for reviews on pull request 
+            // for (const pull of percentPullRequestData.data) {
+            //     //checking if pull request has been merged 
+            //     if (pull.merged_at !== null) {
+            //         //checking for reviews on pull request 
 
-                    const reviewsResponse = await this.metricsDataRetriever.fetchReviewComments(pull.url);//octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews', {
+            //         const reviewsResponse = await this.metricsDataRetriever.fetchReviewComments(pull.url);//octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews', {
 
-                    if (reviewsResponse.data.length > 0) {
-                        numReviewedPullRequests += 1;
-                    }
+            //         if (reviewsResponse.data.length > 0) {
+            //             numReviewedPullRequests += 1;
+            //         }
+            //     }
+            // }
+            // //calculate fraction 
+            // const fractionReviewed = numReviewedPullRequests / percentPullRequestData.data.length;
+            let reviewed_commits = 0;
+            for (const pull of percentPullRequestData.pull_requests) {
+                if (pull.reviews.totalCount > 0) {
+                    reviewed_commits += pull.commits.totalCount;
                 }
             }
-            //calculate fraction 
-            const fractionReviewed = numReviewedPullRequests / pullRequest.data.length;
-            return fractionReviewed;
+            return Math.floor(Math.round(reviewed_commits / percentPullRequestData.num_commits * 1000) / 1000);
+
         } catch (error) {
             console.error(error);
             throw error;

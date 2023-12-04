@@ -119,9 +119,9 @@ export class PackageUploader {
             const {owner, repo} = extractGitHubInfo(github_URL);
             const repo_ID = owner + "_" + repo
 
-            if(await checkPkgIDInDB(repo_ID)) {
-                return res.status(409).send("Uploaded package already exists in registry");
-            }
+            // if(await checkPkgIDInDB(repo_ID)) {
+            //     return res.status(409).send("Uploaded package already exists in registry");
+            // }
 
             //Get the zipped version of the file from the GitHub API
 
@@ -174,7 +174,7 @@ export class PackageUploader {
             }
 
             const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
-            
+            console.log(metric_scores)
             //Ensure it passes the metric checks
             //********************************************************************* */
             //***** NOT CHECKING THIS FOR NOW BECAUSE THE PHASE 1 SCORING KINDA SUCKS */
@@ -184,9 +184,9 @@ export class PackageUploader {
                 //return res.status(424).send("npm package failed to pass rating check for public ingestion\nScores: " + JSON.stringify(metric_scores));
             // }
             // else {
-                const contentsPath = await uploadToS3(extractedContents)
-                //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
-                await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
+                // const contentsPath = await uploadToS3(extractedContents)
+                // //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
+                // await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
             // }
 
         }
@@ -202,9 +202,9 @@ export class PackageUploader {
             const repo_url = pkg_json.repository.url;
             const {owner, repo} = extractGitHubInfo(repo_url);
             const repo_ID = owner + "_" + repo
-            if(await checkPkgIDInDB(repo_ID)) {
-                return res.status(409).send("Uploaded package already exists in registry");
-            }
+            // if(await checkPkgIDInDB(repo_ID)) {
+            //     return res.status(409).send("Uploaded package already exists in registry");
+            // }
 
 
             //Check DB if package id already exists in database
@@ -231,10 +231,10 @@ export class PackageUploader {
 
 
             const metric_scores = await controller.generateMetrics(owner, repo, extractedContents.metadata);
-
-            const contentsPath = await uploadToS3(extractedContents)
-            //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
-            await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
+            console.log(metric_scores)
+            // const contentsPath = await uploadToS3(extractedContents)
+            // //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
+            // await insertPackageIntoDB(metric_scores, response_obj.metadata, contentsPath);
 
             //Write scores to db
         }
