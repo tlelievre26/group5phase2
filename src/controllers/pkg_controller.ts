@@ -273,7 +273,7 @@ export class PackageUploader {
         let debloating;
 
         if(req.query.debloat) { //If debloat exists set it to the value, otherwise default to false
-            console.log("Debloating enabled")
+            logger.debug("Debloating enabled")
             debloating = (req.query.debloat === "true")
         }
         else {

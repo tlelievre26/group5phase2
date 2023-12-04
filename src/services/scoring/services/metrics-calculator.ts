@@ -2,15 +2,20 @@
 import { inject, injectable } from "tsyringe";
 import { LicenseVerifier } from "./license-verifier";
 import { PackageRating } from "../../../models/api_schemas";
+import {PinningPractice} from "./pinning";
 
 import logger from "../../../utils/logger";
+import { pull } from "isomorphic-git";
+import { MetricsDataRetriever } from "./metrics-data-retriever";
 import { ExtractedMetadata } from "../../../models/other_schemas";
 
 
 @injectable()
 export class MetricsCalculator {
     constructor(
-        @inject("LicenseVerifier") private licenseVerifier: LicenseVerifier
+        @inject("LicenseVerifier") private licenseVerifier: LicenseVerifier,
+        @inject("MetricsDataRetrieverToken") private metricsDataRetriever: MetricsDataRetriever,
+        @inject("PinningPractice") private pinningPractice: PinningPractice
     ) {
     }
 
@@ -47,10 +52,10 @@ export class MetricsCalculator {
 
             //*********** TO DO: Implement scoring method for pinning practice ***********
             //Similar to license, pinning practice will require a local clone of the repo
-            const pinningPractice = 0
+            const pinning = await this.pinningPractice.pinningDependencies(pkg_metadata);
 
             //Net score does NOT factor in the 2 new metrics
-            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license);
+            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license, pullRequest);
 
             return {
                 BusFactor: busFactor,
@@ -58,7 +63,7 @@ export class MetricsCalculator {
                 RampUp: rampUp,
                 ResponsiveMaintainer: responsiveMaintainer,
                 LicenseScore: license,
-                GoodPinningPractice: pinningPractice,
+                GoodPinningPractice: pinning,
                 PullRequest: pullRequest,
                 NetScore: netScore
             }
@@ -303,11 +308,47 @@ export class MetricsCalculator {
         //logger.debug("Median response time in days: " + responsiveMaintainerData.averageTimeInMillis / (24 * 60 * 60 * 1000))
         return Math.round(Math.max(0, Math.min(1, score) * 1000)) / 1000;  // Ensuring the score is within [0, 1] and rounds it to 3 decimal places
     }
-    
-    async calculatePercentPullRequest(pullRequestData: any): Promise<number> {
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async calculatePercentPullRequest(percentPullRequestData: any): Promise<number> { //pullRequestData: any
         //TO IMPLEMENT:
         //Equations calculating the pull request score
-        return 0
+        try {
+
+
+            if (percentPullRequestData.pull_requests.length === 0) {
+                return 0; // No pull requests made, score is 0 all pushes were to main and unreviewed
+            }
+
+            // let numReviewedPullRequests = 0;
+            
+            // for (const pull of percentPullRequestData.data) {
+            //     //checking if pull request has been merged 
+            //     if (pull.merged_at !== null) {
+            //         //checking for reviews on pull request 
+
+            //         const reviewsResponse = await this.metricsDataRetriever.fetchReviewComments(pull.url);//octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews', {
+
+            //         if (reviewsResponse.data.length > 0) {
+            //             numReviewedPullRequests += 1;
+            //         }
+            //     }
+            // }
+            // //calculate fraction 
+            // const fractionReviewed = numReviewedPullRequests / percentPullRequestData.data.length;
+            let reviewed_commits = 0;
+            for (const pull of percentPullRequestData.pull_requests) {
+                if (pull.reviews.totalCount > 0) {
+                    reviewed_commits += pull.commits.totalCount;
+                }
+            }
+            return Math.round(reviewed_commits / percentPullRequestData.num_commits * 1000) / 1000;
+
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    
     }
 
 
@@ -321,12 +362,13 @@ export class MetricsCalculator {
      * @param license
      */
     async calculateNetScore(busFactor: number, correctness: number, rampUp: number,
-                            responsiveMaintainer: number, license: number): Promise<number> {
+                            responsiveMaintainer: number, license: number, pullRequest: number): Promise<number> {
 
         //Note that the net score DOES NOT factor in the 2 new metrics
 
-        // Formulae for the Net Score                        
-        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license);
+        // Formulae for the Net Score    
+        //idk what to make for the formula, just guessing                     
+        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22) + (pullRequest * 0.22)) * (license);
 
         return Math.round(NetScore * 1000) / 1000;
     }
