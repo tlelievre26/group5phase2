@@ -4,6 +4,7 @@ import { NpmUrlResolver } from "./legacy/npm-url-resolver";
 import { MetricsDataRetriever } from "./services/metrics-data-retriever";
 import { MetricsCalculator } from "./services/metrics-calculator";
 import { LicenseVerifier } from "./services/license-verifier";
+import { PinningPractice } from "./services/pinning";
 
 import { container } from "tsyringe";
 import { GITHUB_TOKEN } from "../../utils/config";
@@ -19,5 +20,6 @@ container.register("MetricsDataRetrieverToken", {
 });
 container.register("MetricsCalculator", {useClass: MetricsCalculator});
 container.register("LicenseVerifier", {useClass: LicenseVerifier});
+container.register("PinningPractice", {useClass: PinningPractice});
 
 export { container };

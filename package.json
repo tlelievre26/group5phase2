@@ -17,6 +17,7 @@
   "author": "",
   "license": "LGPL-2.1",
   "dependencies": {
+    "@octokit/core": "^5.0.1",
     "@octokit/graphql": "^7.0.1",
     "aws-sdk": "^2.1483.0",
     "axios": "^1.6.0",
