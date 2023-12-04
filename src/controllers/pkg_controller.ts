@@ -404,7 +404,6 @@ export class PackageUploader {
         let metric_scores;
         try {
             metric_scores = await controller.generateMetrics(repoInfo.owner, repoInfo.repo, extractedContents.metadata);
-            console.log(metric_scores)
         }
         catch (err) {
             return res.status(500).send("Failed to calculate ratings for package");

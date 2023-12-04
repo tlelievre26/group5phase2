@@ -36,7 +36,7 @@ export class PinningPractice {
 
       const dependencyNum = Object.values(dependencies).length;
 
-      return Math.floor(Math.round(pinned / dependencyNum * 1000) / 1000);
+      return Math.round(pinned / dependencyNum * 1000) / 1000;
     } catch (error) {
       logger.error(`Error processing dependencies:` + error);
       throw new Error(`Error processing dependencies: ${error}`)

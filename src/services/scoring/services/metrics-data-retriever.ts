@@ -332,7 +332,7 @@ export class MetricsDataRetriever {
           pull_req_query = `
               {
                 repository(owner: "${owner}", name: "${repo}") {
-                  pullRequests(states: [MERGED] first: 100) {
+                  pullRequests(baseRefName: "${default_branch}" states: [MERGED] first: 100) {
                     nodes {
                       commits {
                         totalCount
@@ -354,7 +354,7 @@ export class MetricsDataRetriever {
           pull_req_query = `
             {
               repository(owner: "${owner}", name: "${repo}") {
-                pullRequests(states: [MERGED] first: 100 after: "${endCursor}") {
+                pullRequests(baseRefName: "${default_branch}" states: [MERGED] first: 100 after: "${endCursor}") {
                   nodes {
                     commits {
                       totalCount

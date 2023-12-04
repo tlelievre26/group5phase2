@@ -264,7 +264,42 @@ export class MetricsCalculator {
     async calculatePercentPullRequest(percentPullRequestData: any): Promise<number> { //pullRequestData: any
         //TO IMPLEMENT:
         //Equations calculating the pull request score
-        return 0
+        try {
+
+
+            if (percentPullRequestData.pull_requests.length === 0) {
+                return 0; // No pull requests made, score is 0 all pushes were to main and unreviewed
+            }
+
+            // let numReviewedPullRequests = 0;
+            
+            // for (const pull of percentPullRequestData.data) {
+            //     //checking if pull request has been merged 
+            //     if (pull.merged_at !== null) {
+            //         //checking for reviews on pull request 
+
+            //         const reviewsResponse = await this.metricsDataRetriever.fetchReviewComments(pull.url);//octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews', {
+
+            //         if (reviewsResponse.data.length > 0) {
+            //             numReviewedPullRequests += 1;
+            //         }
+            //     }
+            // }
+            // //calculate fraction 
+            // const fractionReviewed = numReviewedPullRequests / percentPullRequestData.data.length;
+            let reviewed_commits = 0;
+            for (const pull of percentPullRequestData.pull_requests) {
+                if (pull.reviews.totalCount > 0) {
+                    reviewed_commits += pull.commits.totalCount;
+                }
+            }
+            return Math.round(reviewed_commits / percentPullRequestData.num_commits * 1000) / 1000;
+
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    
     }
 
 
