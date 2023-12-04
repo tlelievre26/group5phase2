@@ -11,8 +11,7 @@ import logger from "../../utils/logger";
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function queryDatabase(databaseName: string, queries: DbQuery | DbQuery[]): Promise<any> {
-    //Written by chat GPT
-
+  //Written by chat GPT
     return new Promise((resolve, reject) => {
         db_connection.getConnection((err, connection) => {
             if (err) {
@@ -86,4 +85,4 @@ export default function queryDatabase(databaseName: string, queries: DbQuery | D
             });
           });
         });
-      }
+}
