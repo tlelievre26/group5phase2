@@ -3,7 +3,10 @@ import { inject, injectable } from "tsyringe";
 import { LicenseVerifier } from "./license-verifier";
 import { PackageRating } from "../../../models/api_schemas";
 import {PinningPractice} from "./pinning";
+
 import logger from "../../../utils/logger";
+import { pull } from "isomorphic-git";
+import { MetricsDataRetriever } from "./metrics-data-retriever";
 import { ExtractedMetadata } from "../../../models/other_schemas";
 
 
@@ -11,6 +14,7 @@ import { ExtractedMetadata } from "../../../models/other_schemas";
 export class MetricsCalculator {
     constructor(
         @inject("LicenseVerifier") private licenseVerifier: LicenseVerifier,
+        @inject("MetricsDataRetrieverToken") private metricsDataRetriever: MetricsDataRetriever,
         @inject("PinningPractice") private pinningPractice: PinningPractice
     ) {
     }
@@ -51,7 +55,7 @@ export class MetricsCalculator {
             const pinning = await this.pinningPractice.pinningDependencies(pkg_metadata);
 
             //Net score does NOT factor in the 2 new metrics
-            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license);
+            const netScore = await this.calculateNetScore(busFactor, correctness, rampUp, responsiveMaintainer, license, pullRequest);
 
             return {
                 BusFactor: busFactor,
@@ -256,12 +260,10 @@ export class MetricsCalculator {
         return Math.max(0, Math.min(1, score));  // Ensuring the score is within [0, 1]
     }
 
-    async calculatePercentPullRequest(pullRequestData: any): Promise<number> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async calculatePercentPullRequest(percentPullRequestData: any): Promise<number> { //pullRequestData: any
         //TO IMPLEMENT:
         //Equations calculating the pull request score
-
-        // pullRequestData is from metrics-data-retriever 
-        
         return 0
     }
 
@@ -274,15 +276,15 @@ export class MetricsCalculator {
      * @param rampUp
      * @param responsiveMaintainer
      * @param license
-     * @param pinning
      */
     async calculateNetScore(busFactor: number, correctness: number, rampUp: number,
-                            responsiveMaintainer: number, license: number): Promise<number> {
+                            responsiveMaintainer: number, license: number, pullRequest: number): Promise<number> {
 
         //Note that the net score DOES NOT factor in the 2 new metrics
 
-        // Formulae for the Net Score                        
-        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22)) * (license);
+        // Formulae for the Net Score    
+        //idk what to make for the formula, just guessing                     
+        const NetScore = ((responsiveMaintainer * 0.28) + (busFactor * 0.28) + (rampUp * 0.22) + (correctness * 0.22) + (pullRequest * 0.22)) * (license);
 
         return NetScore;
     }
