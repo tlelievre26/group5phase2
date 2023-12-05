@@ -16,7 +16,7 @@ export class NpmUrlResolver {
      */
     async resolveNpmToGitHub(npmUrl: string): Promise<string> {
 
-        logger.debug(`Resolving npm URL to GitHub URL: ${npmUrl}`);
+        // logger.debug(`Resolving npm URL to GitHub URL: ${npmUrl}`);
         // Extract package name from npm URL
         const npmPackageName = npmUrl.match(this.PACKAGE_NAME_REGEX);
 

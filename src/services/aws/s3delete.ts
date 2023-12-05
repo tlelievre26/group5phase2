@@ -30,9 +30,9 @@ export async function deleteFromS3(pkg_ID: string, pkg_name: string) {
         }
       };
     aws_s3.deleteObjects(del_params, function(err, data) {
-        if (err) logger.debug(err, err.stack); // an error occurred
+        if (err) logger.error(err, err.stack); // an error occurred
         else {
-            logger.debug(data);           // successful response
+            // logger.debug(data);           // successful response
             logger.debug(`Successfully deleted ${pkg_ID} from S3`);
         }     
     });
