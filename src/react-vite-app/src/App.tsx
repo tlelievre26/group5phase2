@@ -1,35 +1,37 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 
+import SearchBar from './components/SearchBar';
+import React, { useState } from 'react';
+import NavigationBar from "./components/NavigationBar";
+import ProjectCard from "./components/ProjectCard";
+import ProjectDescriptionPage from './components/ProjectDesc';
+import LeftPanel from "./components/LeftPanel";
 function App() {
-  const [count, setCount] = useState(0)
+  
+  // let items = ["package1", "package2", "package3"];
+  // let package_name = "GitHub Package Name";
+  // let package_description = "this is a package";
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+  const handleSelectItem = (item: string) => {
+    console.log(item);
+  }
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearch = (searchTerm: string) => {
+    setSearchTerm(searchTerm);
+  };
+  return <div>
+    <NavigationBar ></NavigationBar>
+    <div className="container mx-auto mt-8 py-4">
+      <SearchBar onSearch={handleSearch} />
+    </div>
+
+    <ProjectCard />
+    <ProjectCard />
+    <ProjectCard />
+    {/* <ProjectDescriptionPage /> */}
+
+
+  </div >
 }
 
-export default App
+export default App;
