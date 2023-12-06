@@ -47,6 +47,14 @@ export class PackageUploader {
         const id = req.params.id;
         const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
     
+        if(!(req_body.data.hasOwnProperty("Content"))) {
+            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
+        }
+        else {
+            logger.debug("Request body:\n" + JSON.stringify(req_body.metadata, null, 4))
+            logger.debug("Contents: " + req_body.data.Content?.slice(0, 5) + "..." + req_body.data.Content?.slice(-5))
+        }
+
         //Validate package body NEED TO FIX
         if(!(types.Package.is(req_body))) {
             logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
@@ -69,15 +77,6 @@ export class PackageUploader {
                 return res.status(400).send("Error validating auth token: " + err.message);
             }
         }
-
-        if(!(req_body.data.hasOwnProperty("Content"))) {
-            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
-        }
-        else {
-            logger.debug("Request body:\n" + JSON.stringify(req_body.metadata, null, 4))
-            logger.debug("Contents: " + req_body.data.Content?.slice(0, 5) + "..." + req_body.data.Content?.slice(-5))
-        }
-
         
         logger.debug("URL ID: " + req.params.id)
 
