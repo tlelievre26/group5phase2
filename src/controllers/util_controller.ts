@@ -16,7 +16,7 @@ export class UtilsController{
     public async hardReset(req: Request, res: Response) {
         logger.info("*************Recieved request to endpoint DELETE /reset*************")
         //Reset the registry to a system default state.
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
 
         try {
             await verifyAuthToken(auth_token, ["admin"]) //Can ensure auth exists bc we check for it in middleware
@@ -103,7 +103,7 @@ export class UtilsController{
     public async registerUser(req: Request, res: Response) {
         logger.info("*************Recieved request to endpoint POST /user*************")
         const req_body: schemas.UserRegistrationInfo = req.body;
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         
         //Check request body has proper shape
         if(!(types.UserRegistrationInfo.is(req_body))) {
@@ -147,7 +147,7 @@ export class UtilsController{
         logger.debug("Username for deletion: " + req.params.username)
 
         const req_body: schemas.AuthenticationRequest = req.body; //I think we only need the same fields as the auth request
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         const username = req.params.username;
         let user_data;
 

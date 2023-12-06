@@ -45,7 +45,7 @@ export class PackageUploader {
         const req_body: schemas.Package = req.body;
 
         const id = req.params.id;
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
     
         //Check user has permissions for this operation
         try {
@@ -212,7 +212,7 @@ export class PackageUploader {
         logger.info("*************Request recieved for endpoint DELETE /package/{id}*************")
 
         const id = req.params.id;
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
     
         logger.debug("URL ID: " + req.params.id)
         
@@ -257,7 +257,7 @@ export class PackageUploader {
         logger.info("*************Request recieved for endpoint POST /package*************")
 
         const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         let extractedContents;
         let base64contents;
         let repoInfo: RepoIdentifier | undefined; //Need to have this defined here to seperate if statements

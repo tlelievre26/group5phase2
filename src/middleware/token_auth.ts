@@ -5,8 +5,7 @@ import { Request, Response, NextFunction } from 'express';
 import logger from '../utils/logger';
 
 function checkForAuthToken(req: Request, res: Response, next: NextFunction) {
-    const authToken = req.headers.authorization || req.headers["X-Authorization"];
-
+    const authToken = req.headers.authorization || req["headers"]["x-authorization"];
 
     if (!authToken) {
         logger.error("Authorization token is missing in request headers")
