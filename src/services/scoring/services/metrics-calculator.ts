@@ -3,6 +3,7 @@ import { inject, injectable } from "tsyringe";
 import { LicenseVerifier } from "./license-verifier";
 import { PackageRating } from "../../../models/api_schemas";
 import {PinningPractice} from "./pinning";
+import { MetricsDataRetriever } from "../services/metrics-data-retriever";
 import logger from "../../../utils/logger";
 import { ExtractedMetadata } from "../../../models/other_schemas";
 
@@ -11,7 +12,8 @@ import { ExtractedMetadata } from "../../../models/other_schemas";
 export class MetricsCalculator {
     constructor(
         @inject("LicenseVerifier") private licenseVerifier: LicenseVerifier,
-        @inject("PinningPractice") private pinningPractice: PinningPractice
+        @inject("PinningPractice") private pinningPractice: PinningPractice,
+        @inject("MetricsDataRetrieverToken") private metricsDataRetriever: MetricsDataRetriever,
     ) {
     }
 
