@@ -47,12 +47,27 @@ export class PackageUploader {
         const id = req.params.id;
         const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
     
-        if(!(req_body.data.hasOwnProperty("Content"))) {
-            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
+        if((req_body.data.hasOwnProperty("Content"))) {
+            const temp = req_body.data.Content
+            if(req_body.data.Content != null && req_body.data.Content != undefined) {
+                try {
+                    logger.debug("Contents: " + temp?.slice(0, 10) + "..." + temp?.slice(-10))
+                }
+                catch (err) {
+                    logger.debug("Contents: " + temp)
+                }
+            }
+            else {
+                logger.debug("Contents are null")
+
+                req_body.data.Content = "Contents are long"
+                logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
+    
+                req_body.data.Content = temp
+            }
         }
         else {
-            logger.debug("Request body:\n" + JSON.stringify(req_body.metadata, null, 4))
-            logger.debug("Contents: " + req_body.data.Content?.slice(0, 5) + "..." + req_body.data.Content?.slice(-5))
+            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
         }
 
         //Validate package body NEED TO FIX
@@ -156,9 +171,14 @@ export class PackageUploader {
             }
             else if(req_body.data.hasOwnProperty("Content") && !req_body.data.hasOwnProperty("URL")) {
                 // logger.debug("Recieved encoded package contents in request body")
-    
-                base64contents = req_body.data.Content; //Do this so we can not have as much in seperate if statements
-                extractedContents = await decodeB64ContentsToZip(req_body.data.Content!, debloated); //We know it'll exist
+                try {
+                    base64contents = req_body.data.Content; //Do this so we can not have as much in seperate if statements
+                    extractedContents = await decodeB64ContentsToZip(req_body.data.Content!, debloated); //We know it'll exist
+                }
+                catch(err) {
+                    logger.error("Error decoding base64 contents: " + err)
+                    return res.status(400).send("Error decoding base64 contents: " + err)
+                }
     
             }
             else {
@@ -272,16 +292,31 @@ export class PackageUploader {
             debloating = false
         }
 
-        if(!(req_body.hasOwnProperty("Content"))) {
-            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
+        if((req_body.hasOwnProperty("Content"))) {
+            const temp = req_body.Content
+            if(req_body.Content != null && req_body.Content != undefined) {
+                try {
+                    logger.debug("Contents: " + temp?.slice(0, 10) + "..." + temp?.slice(-10))
+                }
+                catch (err) {
+                    logger.debug("Contents: " + temp)
+                }
+            }
+            else {
+                logger.debug("Contents are null")
+                req_body.Content = "Contents are long"
+                logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
+    
+                req_body.Content = temp
+            }
         }
         else {
-            logger.debug("Request body contents:\n" + + req_body.Content!.slice(0, 5) + "..." + req_body.Content!.slice(-5))
+            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
         }
 
         if(!(types.PackageData.is(req_body))) {
             logger.error("Invalid or malformed Package in request body to endpoint POST /package")
-            return res.status(400).send("Invalid or malformed Package in request body");
+            return res.status(400).send("Invalid or malformed PackageData in request body");
         }
 
         try {
@@ -362,13 +397,14 @@ export class PackageUploader {
             // logger.debug("Recieved encoded package contents in request body")
 
             base64contents = req_body.Content; //Do this so we can not have as much in seperate if statements
-            extractedContents = await decodeB64ContentsToZip(req_body.Content!, debloating); //We know it'll exist
 
-            /*
-
-                NEED TO FIGURE OUT HOW TO DEAL WITH A REPO URL TO A UNIQUE VERSION OF THE PACKAGE
-
-            */
+            try {
+                extractedContents = await decodeB64ContentsToZip(req_body.Content!, debloating); //We know it'll exist
+            }
+            catch(err) {
+                logger.error("Error decoding base64 contents: " + err)
+                return res.status(400).send("Error decoding base64 contents: " + err)
+            }
         }
         else {
             logger.debug("Invalid or malformed PackageData in request body")
