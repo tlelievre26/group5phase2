@@ -42,11 +42,25 @@ export class PackageUploader {
 
         logger.info("*************Request recieved for endpoint PUT /package/{id}*************")
 
-        const req_body: schemas.Package = req.body;
+        const req_body = req.body;
 
         const id = req.params.id;
         const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
     
+        //Validate package body NEED TO FIX
+        if(!(types.Package.is(req_body))) {
+            logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
+
+            if(req_body != undefined) {
+                logger.error(req_body.getOwnPropertyNames())
+            }
+            else {
+                logger.error("Request body is undefined")
+            }
+
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
+
         //Check user has permissions for this operation
         try {
             await verifyAuthToken(auth_token, ["upload"]) //Can ensure auth exists bc we check for it in middleware
@@ -61,12 +75,6 @@ export class PackageUploader {
                 logger.error(`Error: Invalid/malformed auth token`)
                 return res.status(400).send("Error validating auth token: " + err.message);
             }
-        }
-
-        //Validate package body NEED TO FIX
-        if(!(types.Package.is(req_body))) {
-            logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
-            return res.status(400).send("Invalid or malformed Package in request body");
         }
 
         if(!(req_body.data.hasOwnProperty("Content"))) {
@@ -256,7 +264,7 @@ export class PackageUploader {
     public async createPkg (req: Request, res: Response) {
         logger.info("*************Request recieved for endpoint POST /package*************")
 
-        const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
+        const req_body = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
         const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         let extractedContents;
         let base64contents;
@@ -274,6 +282,13 @@ export class PackageUploader {
 
         if(!(types.PackageData.is(req_body))) {
             logger.error("Invalid or malformed Package in request body to endpoint POST /package")
+            if(req_body != undefined) {
+                logger.error(req_body.getOwnPropertyNames())
+            }
+            else {
+                logger.error("Request body is undefined")
+            }
+
             return res.status(400).send("Invalid or malformed Package in request body");
         }
 
