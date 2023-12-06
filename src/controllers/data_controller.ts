@@ -28,7 +28,8 @@ export class PkgDataManager {
         //Post requests have a "request body" that is the data being posted
         const req_body: schemas.PackageQuery[] = req.body;
         let offset; //0 if offset is not defined
-        const auth_token = req.headers.authorization!;
+
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         const response_obj: schemas.PackageMetadata[] = [];
 
         logger.debug("Recieved request body: \n" + JSON.stringify(req_body, null, 4))
@@ -123,7 +124,7 @@ export class PkgDataManager {
         logger.debug("*************Recieved request to endpoint GET /package/{id}*************")
 
         const id = req.params.id;
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
 
     
         if(!id) {
@@ -193,7 +194,7 @@ export class PkgDataManager {
         logger.info("*************Recieved request to endpoint GET /package/{id}/rate*************")
         //Gets scores for the specified package
         const id = req.params.id;
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
     
         if(!id) {
             logger.error("Malformed/missing PackageID in request body")
@@ -248,7 +249,7 @@ export class PkgDataManager {
         logger.info("*************Recieved request to endpoint POST /package/byRegEx*************")
         //Search for a package using regular expression over package names and READMEs. This is similar to search by name.
     
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         const regex: schemas.PackageRegEx = req.body;
 
         if(!(types.PackageRegEx.is(regex))) {

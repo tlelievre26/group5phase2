@@ -28,7 +28,7 @@ const log: Logger<ILogObj> = new Logger({
     minLevel: 0, // default verbosity is 0
     type: "pretty",
     stylePrettyLogs: false, //Need this because otherwise AWS logs are impossible to read
-    prettyLogTemplate: "{{logLevelName}}\t\t{{fileNameWithLine}}\t\t"
+    prettyLogTemplate: "({{fileNameWithLine}})     "
 });
 
 
