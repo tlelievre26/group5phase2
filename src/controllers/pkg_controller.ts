@@ -51,13 +51,6 @@ export class PackageUploader {
         if(!(types.Package.is(req_body))) {
             logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
 
-            if(req_body != undefined) {
-                logger.error(req_body.getOwnPropertyNames())
-            }
-            else {
-                logger.error("Request body is undefined")
-            }
-
             return res.status(400).send("Invalid or malformed Package in request body");
         }
 
@@ -170,7 +163,7 @@ export class PackageUploader {
     
             }
             else {
-                return res.status(400).send("Invalid or malformed PackageData in request body");
+                return res.status(400).send("Invalid or malformed PackageData in request body, both contents and URL defined");
             }
             const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
     
@@ -280,18 +273,6 @@ export class PackageUploader {
             debloating = false
         }
 
-        if(!(types.PackageData.is(req_body))) {
-            logger.error("Invalid or malformed Package in request body to endpoint POST /package")
-            if(req_body != undefined) {
-                logger.error(req_body.getOwnPropertyNames())
-            }
-            else {
-                logger.error("Request body is undefined")
-            }
-
-            return res.status(400).send("Invalid or malformed Package in request body");
-        }
-
         if(!(req_body.hasOwnProperty("Content"))) {
             logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
         }
@@ -299,6 +280,10 @@ export class PackageUploader {
             logger.debug("Request body contents:\n" + + req_body.Content!.slice(0, 5) + "..." + req_body.Content!.slice(-5))
         }
 
+        if(!(types.PackageData.is(req_body))) {
+            logger.error("Invalid or malformed Package in request body to endpoint POST /package")
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
 
         try {
             await verifyAuthToken(auth_token, ["upload"]) //Can ensure auth exists bc we check for it in middleware
