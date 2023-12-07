@@ -1,0 +1,58 @@
+{
+  "name": "ece461-group5phase2",
+  "version": "1.0.0",
+  "description": "RESTful API for custom package manager",
+  "main": "dist/app.js",
+  "scripts": {
+    "build": "npx tsc",
+    "rebuild": "npx tsc && node dist/app.js",
+    "start": "node dist/app.js",
+    "test": "npx jest",
+    "lint": "eslint . --ext .ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tlelievr27/group5-ece461-npm-module-metrics"
+  },
+  "author": "",
+  "license": "LGPL-2.1",
+  "dependencies": {
+    "@octokit/core": "^5.0.1",
+    "@octokit/graphql": "^7.0.1",
+    "aws-sdk": "^2.1483.0",
+    "axios": "^1.6.0",
+    "bcrypt": "^5.1.1",
+    "commander": "^11.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "figlet": "^1.6.0",
+    "fp-ts": "^2.16.1",
+    "io-ts": "^2.2.20",
+    "isomorphic-git": "^1.24.5",
+    "jsonwebtoken": "^9.0.2",
+    "jszip": "^3.10.1",
+    "mysql": "^2.18.1",
+    "reflect-metadata": "^0.1.13",
+    "tslog": "^4.9.2",
+    "tsyringe": "^4.8.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.19",
+    "@types/figlet": "^1.5.7",
+    "@types/jest": "^29.5.4",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/mysql": "^2.15.23",
+    "@types/node": "^20.5.7",
+    "@typescript-eslint/eslint-plugin": "^6.8.0",
+    "@typescript-eslint/parser": "^6.8.0",
+    "eslint": "^8.52.0",
+    "eslint-plugin-react": "^7.33.2",
+    "jest": "^29.7.0",
+    "node-fetch": "^3.3.2",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
+  }
+}
