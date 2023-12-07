@@ -86,8 +86,8 @@ export class UtilsController{
 
             //Just repeat the existing token rather than generating a new one
             logger.debug("This user already has a token")
-            logger.debug("Returned token: \\bearer '" + existing_token + "'\\")
-            return res.status(200).json('"\\"bearer ' + existing_token + '\\""')
+            logger.debug("Returned token: bearer " + existing_token)
+            return res.status(200).json('"bearer ' + existing_token + '"')
         }
 
         const new_token = await generateAuthToken(user_data.USER_ID, req_body.User.isAdmin, {
@@ -97,7 +97,7 @@ export class UtilsController{
         })
         logger.info("Successfully generated auth token " + new_token)
         //Define the permissions object inside the function call bc Im lazy lol
-        return res.status(200).json('"\\"bearer ' + new_token + '\\""');
+        return res.status(200).json('"bearer ' + new_token + '"');
 
     }
 
