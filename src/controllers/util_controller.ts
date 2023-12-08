@@ -42,11 +42,11 @@ export class UtilsController{
         //Recreate default admin user
         //We don't exclude it from the initial deletion because we want to clear its tokens and its just easier to write like this
 
-        await createNewUserProfile("ece30861defaultadminuser", "correcthorsebatterystaple123(!__+@**(A'\"`;DROP TABLE packages;", true, {
-            canUpload: true,
-            canSearch: true,
-            canDownload: true
-        })
+        // await createNewUserProfile("ece30861defaultadminuser", "correcthorsebatterystaple123(!__+@**(A'\"`;DROP TABLE packages;", true, {
+        //     canUpload: true,
+        //     canSearch: true,
+        //     canDownload: true
+        // })
     
         logger.info("Successfully reset registry to default state")
         return res.status(200).send("Successfully reset registry to default state");
