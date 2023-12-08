@@ -10,9 +10,9 @@ import * as t from 'io-ts';
  * - On download, the Content field should be set.
  */
 export const PackageData = t.partial( {
-    Content: t.string, // Package contents
-    URL:   t.string, // Package URL (for use in public ingest)
-    JSProgram: t.string // A JavaScript program (for use with sensitive modules)
+    Content: t.union([t.string, t.null]), // Package contents
+    URL:   t.union([t.string, t.null]), // Package URL (for use in public ingest)
+    JSProgram: t.union([t.string, t.null]) // A JavaScript program (for use with sensitive modules)
 })
 //NEED to use partial to have optional fields
 
@@ -81,7 +81,7 @@ export const AuthenticationRequest = t.type({
 
 
 const PackageQueryVersion = t.partial({
-    Version: t.string
+    Version: t.union([t.string, t.null])
 })
 
 const PackageQueryName = t.type({

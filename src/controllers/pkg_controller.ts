@@ -60,7 +60,7 @@ export class PackageUploader {
             else {
                 logger.debug("Contents are null")
 
-                req_body.data.Content = "Contents are long"
+                req_body.data.Content = "null"
                 logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
     
                 req_body.data.Content = temp
@@ -75,6 +75,11 @@ export class PackageUploader {
             logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
 
             return res.status(400).send("Invalid or malformed Package in request body");
+        }
+
+        if(req_body.data.hasOwnProperty("URL") && req_body.data.hasOwnProperty("Content") && req_body.data.Content != null && req_body.data.URL != null) { //If both are defined and not null
+            logger.debug("Invalid or malformed PackageData in request body, both URL and contents defined")
+            return res.status(400).send("Invalid or malformed PackageData in request body (both URL and contents defined)");
         }
 
         //Check user has permissions for this operation
@@ -111,7 +116,7 @@ export class PackageUploader {
             let repoInfo: RepoIdentifier | undefined; //Need to have this defined here to seperate if statements
             let repoURL: string;
             
-            if(req_body.data.hasOwnProperty("URL") && !req_body.data.hasOwnProperty("Content")) {
+            if(req_body.data.hasOwnProperty("URL") && req_body.data.URL != null && req_body.data.URL != undefined) {
 
                 //logger.debug("Recieved URL in request body")
                 repoURL = req_body.data.URL!
@@ -169,7 +174,7 @@ export class PackageUploader {
                 extractedContents = await decodeB64ContentsToZip(base64contents, debloated); //We know it'll exist
     
             }
-            else if(req_body.data.hasOwnProperty("Content") && !req_body.data.hasOwnProperty("URL")) {
+            else if(req_body.data.hasOwnProperty("Content") && req_body.data.Content != null && req_body.data.Content != undefined) {
                 // logger.debug("Recieved encoded package contents in request body")
                 try {
                     base64contents = req_body.data.Content; //Do this so we can not have as much in seperate if statements
@@ -182,7 +187,7 @@ export class PackageUploader {
     
             }
             else {
-                return res.status(400).send("Invalid or malformed PackageData in request body, both contents and URL defined");
+                return res.status(400).send("Invalid or malformed PackageData in request body");
             }
             const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
     
@@ -304,7 +309,7 @@ export class PackageUploader {
             }
             else {
                 logger.debug("Contents are null")
-                req_body.Content = "Contents are long"
+                req_body.Content = "null"
                 logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
     
                 req_body.Content = temp
@@ -317,6 +322,11 @@ export class PackageUploader {
         if(!(types.PackageData.is(req_body))) {
             logger.error("Invalid or malformed Package in request body to endpoint POST /package")
             return res.status(400).send("Invalid or malformed PackageData in request body");
+        }
+
+        if(req_body.hasOwnProperty("URL") && req_body.hasOwnProperty("Content") && req_body.Content != null && req_body.URL != null) { //If both are defined and not null
+            logger.debug("Invalid or malformed PackageData in request body, both URL and contents defined")
+            return res.status(400).send("Invalid or malformed PackageData in request body (both URL and contents defined)");
         }
 
         try {
@@ -334,7 +344,7 @@ export class PackageUploader {
             }
         }
 
-        if(req_body.hasOwnProperty("URL") && !req_body.hasOwnProperty("Content")) {
+        if(req_body.hasOwnProperty("URL") && req_body.URL != null && req_body.URL != undefined) { //not checking if contents is defined, will just automatically prioritize URL if its defined
 
             // logger.debug("Recieved URL in request body")
             repoURL = req_body.URL!
@@ -393,7 +403,7 @@ export class PackageUploader {
             extractedContents = await decodeB64ContentsToZip(base64contents, debloating); //We know it'll exist
 
         }
-        else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
+        else if(req_body.hasOwnProperty("Content") && req_body.Content != null && req_body.Content != undefined) {
             // logger.debug("Recieved encoded package contents in request body")
 
             base64contents = req_body.Content; //Do this so we can not have as much in seperate if statements
@@ -410,6 +420,7 @@ export class PackageUploader {
             logger.debug("Invalid or malformed PackageData in request body")
             return res.status(400).send("Invalid or malformed PackageData in request body");
         }
+
         const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
 
         if(typeof(repoInfo) === "undefined") { //If we didn't get the repo info yet (it only gets assigned by now if the URL was uploaded)
