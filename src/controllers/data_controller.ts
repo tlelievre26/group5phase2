@@ -69,6 +69,11 @@ export class PkgDataManager {
             }
         }
 
+        if(!Array.isArray(req_body)) {
+            logger.error("Invalid or malformed request body to endpoint POST /packages, not at array")
+            return res.status(400).send("Invalid or malformed request body, not an array");
+        }
+
         for (const pkg_query of req_body) {
 
             //Validate request body for each entry
