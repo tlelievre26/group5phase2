@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ResetRegistry } from '../API/ResetRegistry';
 
 const ResetForm: React.FC = () => {
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
@@ -13,9 +14,21 @@ const ResetForm: React.FC = () => {
     setConfirmationOpen(false);
   };
 
-  const handleConfirmReset = () => {
-    // Add logic to reset the package here
-    console.log('Resetting the package...');
+  const handleConfirmReset = async () => {
+    try {
+      // Call the API function to reset the package registry
+      const result = await ResetRegistry();
+
+      if (result) {
+        // Handle success, e.g., display a success message
+        console.log('Package registry reset successfully:', result);
+      } else {
+        // Handle failure, e.g., display an error message
+        console.error('Failed to reset package registry.');
+      }
+    } catch (error) {
+      console.error('Error resetting package registry:', error);
+    }
 
     // Close the confirmation pop-up after confirming
     setConfirmationOpen(false);
@@ -29,7 +42,7 @@ const ResetForm: React.FC = () => {
 
   return (
     <div>
-       <button
+      <button
         className="bg-red-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline focus-visible:ring hover:bg-red-600"
         onClick={handleReset}
         role="button"
@@ -38,7 +51,6 @@ const ResetForm: React.FC = () => {
       >
         Reset Package Registry
       </button>
-
 
       {isConfirmationOpen && (
         <div

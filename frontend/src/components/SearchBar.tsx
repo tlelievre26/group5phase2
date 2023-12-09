@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
+import "./SearchBar.css";
 
 interface SearchBarProps {
   onSearch: (searchTerm: string) => void;
@@ -51,13 +52,14 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         id="searchInput"
         type="text"
         placeholder="Search for packages"
+        style= {{color: "#757575"}}
         className="border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-300 w-full"
         onChange={handleInputChange}
         aria-labelledby="searchInput"
       />
       <button
         type="button"
-        aria-label="Search"
+        aria-label="Press Enter to Search"
         aria-haspopup="true"
         role="search"
         className="bg-blue-500 text-white px-3 py-3 rounded-md hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue focus:ring focus:ring-blue-300 flex items-center relative"
