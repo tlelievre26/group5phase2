@@ -21,12 +21,24 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const handleSearchButtonKeydown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === 'Enter') {
       onSearch(searchTerm);
+    } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      setLabelVisible(true);
     }
+  };
+
+  const handleSearchButtonFocus = () => {
+    setLabelVisible(true);
+  };
+
+  const handleSearchButtonBlur = () => {
+    setLabelVisible(false);
   };
 
   return (
     <div className="relative flex items-center space-x-4">
-      <label htmlFor="searchInput" className="sr-only">Search for packages</label>
+      <label htmlFor="searchInput" className="sr-only">
+        Search for packages
+      </label>
       <input
         id="searchInput"
         type="text"
@@ -42,14 +54,15 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         role="search"
         className="bg-blue-500 text-white px-3 py-3 rounded-md hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue focus:ring focus:ring-blue-300 flex items-center relative"
         onClick={handleSearchButtonClick}
-        onMouseEnter={() => setLabelVisible(true)}
-        onMouseLeave={() => setLabelVisible(false)}
         onKeyDown={handleSearchButtonKeydown}
+        onFocus={handleSearchButtonFocus}
+        onBlur={handleSearchButtonBlur}
+        tabIndex={0} // Ensure the button is focusable
       >
         <FaSearch className="flex item-center" />
         {isLabelVisible && (
           <span className="absolute bg-white text-gray-600 p-2 opacity-100 transition-opacity duration-300 bottom-full left-1/2 transform -translate-x-1/2">
-            Press Enter to Search
+            Search
           </span>
         )}
       </button>
