@@ -264,10 +264,18 @@ export class PkgDataManager {
 
         if(!(types.PackageRegEx.is(regex))) {
             logger.error("Invalid or malformed PackageRegEx in request body to endpoint POST /packages")
-            return res.status(400).send("Invalid or malformed Package in request body");
+            return res.status(400).send("Invalid or malformed PackageRegEx in request body");
         }
         logger.debug("Requested RegEx in body: " + regex.RegEx)
 
+        let regexObj
+        try {
+            regexObj = new RegExp(regex.RegEx?.toString() || ''); // Convert string to RegExp object to test if its a valid format
+        }
+        catch (err) {
+            logger.error("Invalid regex string in request body to endpoint POST /packages")
+            return res.status(400).send("Invalid regex string in request body");
+        }
         //Verify user permissions
         try {
             await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
@@ -288,6 +296,14 @@ export class PkgDataManager {
         const found_IDs: string[] = []; //Using this as an easier way to keep track of what packages have already been matched
         //Can also use this to save time on the AWS side by not searching for packages that have already been found in the DB
         try {
+            const redos_format = /\(.*(\+|\*|\|).*\)(\+|\*)/ //Nested qualifiers are disallowed
+            //Source: https://learn.snyk.io/lesson/redos/
+            if(redos_format.test(regex.RegEx)) {
+                logger.error("Potential ReDoS attack detected, denying request")
+                return res.status(400).send("Potential ReDoS attack detected, denying request"); //Shouldn't send this to an actual attack but whatever
+            }
+            
+
             const dbResults = await searchPackageWithRegex(regex.RegEx);
             for (const result of dbResults) {
                 response_obj.push({
@@ -297,7 +313,7 @@ export class PkgDataManager {
                 })
                 found_IDs.push(result.ID);
             }
-            const regexObj = new RegExp(regex.RegEx?.toString() || ''); // Convert string to RegExp object
+
             // console.log(regexObj)
             const AWSresults = await searchReadmeFilesInS3(regexObj);
             for(const result of AWSresults) {

@@ -202,17 +202,17 @@ export class PackageUploader {
     
             const repo_ID = repoInfo.owner + "_" + repoInfo.repo + "_" + pkg_json.version
     
-            const response_obj: schemas.PackageMetadata = {
-                    Name: pkg_json.name,
-                    Version: pkg_json.version.split('-')[0], //This makes it so pre-release tags get removed
-                    ID: repo_ID
-            }
+            // const response_obj: schemas.PackageMetadata = {
+            //         Name: pkg_json.name,
+            //         Version: pkg_json.version.split('-')[0], //This makes it so pre-release tags get removed
+            //         ID: repo_ID
+            // }
     
-            if(response_obj.ID != req_body.metadata.ID || response_obj.Name != req_body.metadata.Name || response_obj.Version != req_body.metadata.Version) {
-                //Check if the package metadata matches the metadata in the request body
-                logger.error("Inconsistant package metadata between request body and contents extracted from package data")
-                return res.status(400).send("Inconsistant package metadata between request body and contents extracted from package data");
-            }
+            // if(response_obj.ID != req_body.metadata.ID || response_obj.Name != req_body.metadata.Name || response_obj.Version != req_body.metadata.Version) {
+            //     //Check if the package metadata matches the metadata in the request body
+            //     logger.error("Inconsistant package metadata between request body and contents extracted from package data")
+            //     return res.status(400).send("Inconsistant package metadata between request body and contents extracted from package data");
+            // }
 
             let metric_scores;
             try {
