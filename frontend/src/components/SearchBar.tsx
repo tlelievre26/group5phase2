@@ -22,7 +22,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     <div className="flex items-center space-x-4">
       <input
         type="text"
-        placeholder="Search for packages"
+        placeholder="Search for packages use / before pkg name for regex"
         className="border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:border-blue-500 w-full"
         onChange={handleInputChange}
       />

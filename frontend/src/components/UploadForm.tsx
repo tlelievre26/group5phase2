@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { UploadPkg } from '../API/UploadPkg';
+import { useAuth } from './AuthContext';
 interface UploadFormProps {
     onClose: () => void;
 }
@@ -8,7 +9,11 @@ const UploadForm: React.FC<UploadFormProps> = ({ onClose }) => {
     const [uploadOption, setUploadOption] = useState('');
     const [urlInput, setUrlInput] = useState('');
     const [contentInput, setContentInput] = useState('');
-
+    const { authResult } = useAuth();
+    let authResult1 = authResult;
+    if (authResult) {
+        authResult1 = authResult.replaceAll("\"", "");
+    }
     const handleSubmit = async () => {
         try {
             if (uploadOption && (urlInput || contentInput)) {
@@ -18,7 +23,8 @@ const UploadForm: React.FC<UploadFormProps> = ({ onClose }) => {
                 // Call the API based on uploadOption and input
                 const response = await UploadPkg(
                     uploadOption === 'url' ? urlInput : contentInput,
-                    uploadOption
+                    uploadOption,
+                    authResult1
                 );
 
                 if (response !== null) {

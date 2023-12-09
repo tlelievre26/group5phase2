@@ -1,7 +1,7 @@
 // UpdateForm.tsx
 import React, { useState } from 'react';
 import { UpdatePkg } from '../API/UpdatePkg'; // Import the UpdatePkg API function
-
+import { useAuth } from './AuthContext';
 interface UpdateFormProps {
     onClose: () => void;
     Name: string;
@@ -12,11 +12,15 @@ interface UpdateFormProps {
 const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) => {
     const [updateOption, setUpdateOption] = useState<'url' | 'content'>('url'); // Updated to use a union type for updateOption
     const [updateInput, setUpdateInput] = useState<string>('');
-
+    const { authResult } = useAuth();
+    let authResult1 = authResult;
+    if (authResult) {
+        authResult1 = authResult.replaceAll("\"", "");
+    }
     const handleSubmit = async () => {
         try {
             if (updateOption && updateInput) {
-                const response = await UpdatePkg({ Name, Version, ID, value: updateInput, type: updateOption });
+                const response = await UpdatePkg({ Name, Version, ID, value: updateInput, type: updateOption }, authResult1);
 
                 if (response !== null) {
                     console.log('Update API Response:', response);
