@@ -100,7 +100,8 @@ export class PackageUploader {
         
         logger.debug("URL ID: " + req.params.id)
 
-        if(id != req_body.metadata.ID) {    
+        if(id != req_body.metadata.ID) {
+            logger.error("Inconsistant package ID between request metadata and URL")
             return res.status(400).send("Inconsistant package ID between request metadata and URL");
         }
 
@@ -108,6 +109,7 @@ export class PackageUploader {
         //Kill 2 birds with 1 stone here, if the is matching metadata we get the debloating setting that we need, and if there's no match it just returns null and we exit
 
         if(debloated == null) {
+            logger.error("Could not find existing package with matching metadata")
             return res.status(404).send("Could not find existing package with matching metadata");
         }
         else {
@@ -125,6 +127,7 @@ export class PackageUploader {
                 if(!isGitHubUrl(repoURL)) {
                     const githubFromNPM = await resolveNpmToGitHub(repoURL);
                     if(githubFromNPM == "") {
+                        logger.error("Invalid URL in request body")
                         return res.status(400).send("Invalid URL in request body");
                     }
                     else {
@@ -187,6 +190,7 @@ export class PackageUploader {
     
             }
             else {
+                logger.error("Invalid or malformed PackageData in request body")
                 return res.status(400).send("Invalid or malformed PackageData in request body");
             }
             const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
@@ -206,6 +210,7 @@ export class PackageUploader {
     
             if(response_obj.ID != req_body.metadata.ID || response_obj.Name != req_body.metadata.Name || response_obj.Version != req_body.metadata.Version) {
                 //Check if the package metadata matches the metadata in the request body
+                logger.error("Inconsistant package metadata between request body and contents extracted from package data")
                 return res.status(400).send("Inconsistant package metadata between request body and contents extracted from package data");
             }
 
@@ -260,9 +265,11 @@ export class PackageUploader {
         }
 
         if(!id) {
+            logger.error("Invalid/missing package ID in header")
             return res.status(400).send("Invalid/missing package ID in header");
         }
         else if(!await checkPkgIDInDB(id)) {
+            logger.error("Could not find existing package with matching ID")
             return res.status(404).send("Could not find existing package with matching ID");
         }
         else {
@@ -354,6 +361,7 @@ export class PackageUploader {
                 // logger.debug("Identified as non-github URL")
                 const githubFromNPM = await resolveNpmToGitHub(repoURL);
                 if(githubFromNPM == "") {
+                    logger.error("Invalid URL in request body")
                     return res.status(400).send("Invalid URL in request body");
                 }
                 else {
@@ -392,15 +400,29 @@ export class PackageUploader {
             const zipballUrl = response.repository.defaultBranchRef.target.zipballUrl;
             //Query returns a URL that downloads the repo when GET requested
             logger.debug(`Retrieved zipball URL ${zipballUrl} from GitHub API`)
-            
-            base64contents = await extractBase64ContentsFromUrl(zipballUrl);
+            try {
+                base64contents = await extractBase64ContentsFromUrl(zipballUrl);
+                logger.debug("Successfully extracted contents from zipball URL")
+            }
+            catch {
+                logger.error("Failed to extract contents from zipball URL")
+                return res.status(400).send("Failed to extract contents from zipball URL");
+            }
+
 
             //And now we can proceed the same way
 
             //The reason we get the zipball before doing the score check is we would've had to clone the repo anyways, which probably takes a similar amount of memory and time
             //Doing this makes it easier to integrate with the other input formats
-            
-            extractedContents = await decodeB64ContentsToZip(base64contents, debloating); //We know it'll exist
+            try {
+                extractedContents = await decodeB64ContentsToZip(base64contents, debloating); //We know it'll exist
+                logger.debug("Converted package contents obtained from zipball URL")
+            }
+            catch {
+                logger.error("Failed to convert package contents from zipball URL")
+                return res.status(400).send("Failed to convert package contents from zipball URL");
+            }
+
 
         }
         else if(req_body.hasOwnProperty("Content") && req_body.Content != null && req_body.Content != undefined) {

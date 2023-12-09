@@ -183,12 +183,11 @@ export async function PostgetPackage(queries: PackageQuery[], offset: number) {
 // }
 
 export async function searchPackageWithRegex(regex: string) {
-    const query = `SELECT ID, NAME, LATEST_VERSION FROM pkg_data WHERE name REGEXP ?`;
-    const values = [regex, regex];
+    const query = `SELECT ID, NAME, LATEST_VERSION FROM pkg_data WHERE name REGEXP ?;`;
+    const values = [regex];
     const dbQuery = { sql: query, values };
     try {
         const response = await queryDatabase("packages", dbQuery);
-        // console.log(response);
         return response[0];
     }
     catch (err) {

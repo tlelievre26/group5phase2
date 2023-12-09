@@ -165,11 +165,13 @@ export class PkgDataManager {
             result = await genericPkgDataGet("ID, NAME, LATEST_VERSION, CONTENTS_PATH", id);
             // console.log(result)
             if(!result) {
-                return res.status(404).send({ error: 'Package not found' });
+                logger.error("Package with given ID not found in database")
+                return res.status(404).send("Package with given ID not found in database");
             }
 
         } catch (error) {
-            return res.status(500).send({ error: `Error querying the database: ${error}` });
+            logger.debug("Error querying the database for package contents path: " + error)
+            return res.status(500).send(`Error querying the database for package contents path: ${error}`);
         }
 
         try {
@@ -189,7 +191,8 @@ export class PkgDataManager {
             return res.status(200).send(response_obj);
         }
         catch (error) {
-            return res.status(500).send({ error: `Error retrieving package contents from S3: ${error}` });
+            logger.error(`Error retrieving package contents from S3: ${error}`)
+            return res.status(500).send(`Error retrieving package contents from S3: ${error}`);
         }
 
     }
@@ -226,7 +229,8 @@ export class PkgDataManager {
             const result = await PkgScoresGet("*", id);
             // console.log(result)
             if(result === undefined) {
-                return res.status(404).send({ error: 'Package not found' });
+                logger.error("Package with given ID not found in database")
+                return res.status(404).send("Package with given ID not found in database");
             }
 
             const netscore = Math.round(((result.ResponsiveMaintainer * 0.28) + (result.BusFactor * 0.28) + (result.RampUp * 0.22) + (result.Correctness * 0.22)) * (result.LicenseScore) * 1000) / 1000;
@@ -244,7 +248,8 @@ export class PkgDataManager {
             logger.debug("Response object sent:\n" + JSON.stringify(reformatted_result, null, 4))
             return res.status(200).send(reformatted_result);
         } catch (error) {
-            return res.status(500).send({ error: 'Error querying the database', message: error });
+            logger.error("Error querying the database for package scores: " + error)
+            return res.status(500).send('Error querying the database for package scores: ' + error);
         }
 
     }
@@ -304,14 +309,16 @@ export class PkgDataManager {
             logger.debug("Query results:\n" + JSON.stringify(response_obj, null, 4))
 
             if(response_obj.length == 0) {
-                return res.status(404).send({ error: 'No packages found matching RegEx' });
+                logger.error("No packages found matching RegEx")
+                return res.status(404).send('No packages found matching RegEx');
             }
             else {
                 return res.status(200).send(response_obj);
             }
 
         } catch (error) {
-            res.status(500).send({ error: 'Error querying the database' });
+            logger.error("Error querying the database using REGEXP: " + error)
+            res.status(500).send('Error querying the database using REGEXP: ' + error );
         }
         
     }
