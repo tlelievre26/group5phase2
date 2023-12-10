@@ -1,7 +1,7 @@
-export const UpdatePkg = async (pkgData: { Name: string, Version: string, ID: string, value: string, type: 'url' | 'content' }) => {
-    const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE0OCwicm9sZXMiOlsidXBsb2FkIl0sImlhdCI6MTcwMTk3NzMxOSwiZXhwIjoxNzAyMDEzMzE5fQ.yHiESGbOJUais114q5wASw6evQPoVTpFROZ38veeM7U'
+import { useAuth } from "../components/AuthContext";
+export const UpdatePkg = async (pkgData: { Name: string, Version: string, ID: string, value: string, type: 'url' | 'content' }, TOKEN: string) => {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/packages/${pkgData.ID}`, {
+        const response = await fetch(`http://127.0.0.1:3000/packages/${pkgData.ID}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

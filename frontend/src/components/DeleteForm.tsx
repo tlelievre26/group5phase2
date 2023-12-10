@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { DeletePkg } from '../API/DeletePkg';
-
+import DeletePkg from '../API/DeletePkg';
+import { useAuth } from './AuthContext';
 interface DeleteFormProps {
   onClose: () => void;
 }
@@ -8,13 +8,17 @@ interface DeleteFormProps {
 const DeleteForm: React.FC<DeleteFormProps> = ({ onClose }) => {
   const [packageId, setPackageId] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const { authResult } = useAuth();
+  let authResult1 = authResult;
+  if (authResult) {
+      authResult1 = authResult.replaceAll("\"", "");
+  }
 
   const handleSubmit = async () => {
     try {
       if (packageId) {
         // Call the API to delete the package
-        await DeletePkg(packageId);
-
+        await DeletePkg(packageId, authResult1);
         // Display a success message or perform other actions
         alert('Successfully deleted!');
 

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import * as schemas from "../models/api_schemas";
 import { pkgByID } from '../API/PkgbyID';
 import UpdateForm from './UpdateForm';
+import { useAuth } from './AuthContext';
+import { FaAutoprefixer } from 'react-icons/fa';
+import JSZip from 'jszip';
 interface ProjectCardProps {
     Name: string;
     Version: string;
@@ -25,15 +28,40 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ Name, Version, ID, Scores }) 
     const handleUpdateFormClose = () => {
         setIsUpdateFormOpen(false);
     };
+    const { authResult } = useAuth();
+    let authResult1 = authResult;
+    if (authResult) {
+        authResult1 = authResult.replaceAll("\"", "");
+    }
 
     const handleDownloadClick = async () => {
         try {
             // Call the API to get package details by ID
-            const result = await pkgByID(ID);
+            const result = await pkgByID(ID, authResult1);
 
             if (result !== null) {
                 // Handle the API response as needed
                 console.log('Download API Response:', result);
+                const bzip = atob(result.data.Content)
+                const zip = new JSZip();
+
+                // Add the binary content to the zip file
+                zip.file('package.zip', atob(result.data.Content), { binary: true });
+
+                // Generate a Blob from the zip file
+                const blob = await zip.generateAsync({ type: 'blob' });
+
+                // Create a download link
+                const downloadLink = document.createElement('a');
+                downloadLink.href = window.URL.createObjectURL(blob);
+                downloadLink.download = 'package.zip'; // Specify the desired file name
+
+                // Trigger the download
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+
+                // Clean up
+                document.body.removeChild(downloadLink);
                 // Implement the logic to handle the download based on the API response
             } else {
                 console.error('Error in Download API call:', 'Failed to fetch package details.');

@@ -42,7 +42,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
       <input
         id="searchInput"
         type="text"
-        placeholder="Search for packages"
+        placeholder="Search for packages use / before pkg name for regex"
         className="border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-300 w-full"
         onChange={handleInputChange}
         aria-labelledby="searchInput"

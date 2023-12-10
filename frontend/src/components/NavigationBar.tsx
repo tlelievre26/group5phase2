@@ -3,14 +3,36 @@ import React, { useState } from 'react';
 import "../App.css"
 import UploadForm from './UploadForm';
 import DeleteForm from './DeleteForm';
+import Login from './LoginForm';
+import { Auth } from '../API/Auth';
+import { ResetPkg } from '../API/Reset';
+import { useAuth } from './AuthContext';
 const NavigationBar = () => {
     const [isOpen, setIsOpen] = useState(false);
-
+    const { authResult } = useAuth();
+    let authResult1 = authResult;
+    if (authResult) {
+        authResult1 = authResult.replaceAll("\"", "");
+    }
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     };
     const [showUploadForm, setShowUploadForm] = useState(false);
     const [showDeleteForm, setShowDeleteForm] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleLogin = (result: { success: boolean; data?: any; error?: string }) => {
+        // Add your login logic here
+        if (result.success) {
+            // Handle successful login
+            console.log('User authenticated');
+
+        } else {
+            // Handle failed login
+            console.error('Authentication failed:', result.error);
+        }
+
+    };
 
     const handleAddPackageClick = () => {
         // Set the state to true when "Add Package" is clicked
@@ -19,6 +41,24 @@ const NavigationBar = () => {
     const handleDeletePackageClick = () => {
         // Set the state to true when "Add Package" is clicked
         setShowDeleteForm(true);
+    };
+    const handleResetClick = async () => {
+        // Call your reset endpoint here
+
+        try {
+            // Call the API to get package details by ID
+            const result = await ResetPkg(authResult1);
+            console.log(result);
+            if (result !== null) {
+                // Handle the API response as needed
+                console.log('Successfully deleted:', result);
+                // Implement the logic to handle the download based on the API response
+            } else {
+                console.error('Error in delete API call:', 'Failed to fetch package details.');
+            }
+        } catch (error) {
+            console.error('Error in deleted API call:', error);
+        }
     };
     return (
         <nav className="bg-gray-800 p-4 w-full">
@@ -56,10 +96,19 @@ const NavigationBar = () => {
                     <a href="#" className="text-white" style={{ textDecoration: 'none' }} onClick={handleDeletePackageClick}>
                         Delete Package
                     </a>
+                    <button className="text-red-500" onClick={handleResetClick}>
+                        Reset
+                    </button>
 
                     {/* Conditionally render the upload form based on the state */}
                     {showUploadForm && <UploadForm onClose={() => setShowUploadForm(false)} />}
                     {showDeleteForm && <DeleteForm onClose={() => setShowDeleteForm(false)} />}
+                    {/* <button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white p-2 rounded">
+                        Open Login Modal
+                    </button>
+                    {isOpen && (
+                        <Login isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onLogin={handleLogin} />
+                    )} */}
                 </div>
             </div>
 
@@ -72,7 +121,9 @@ const NavigationBar = () => {
                     <a href="#" className="text-white" style={{ textDecoration: 'none' }} onClick={handleDeletePackageClick}>
                         Delete Package
                     </a>
-
+                    <button className="text-red-500" onClick={handleResetClick}>
+                        Reset
+                    </button>
                     {/* Conditionally render the upload form based on the state */}
                     {showUploadForm && <UploadForm onClose={() => setShowUploadForm(false)} />}
                     {showDeleteForm && <DeleteForm onClose={() => setShowDeleteForm(false)} />}

@@ -1,8 +1,9 @@
-export const UploadPkg = async (searchTerm: String, isURL: String) => {
-    const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE0OCwicm9sZXMiOlsidXBsb2FkIl0sImlhdCI6MTcwMTk3NzMxOSwiZXhwIjoxNzAyMDEzMzE5fQ.yHiESGbOJUais114q5wASw6evQPoVTpFROZ38veeM7U'
+import { useAuth } from "../components/AuthContext";
+export const UploadPkg = async (searchTerm: String, isURL: String, TOKEN: string) => {
+
     const body = isURL == 'url' ? { "URL": searchTerm } : { "content": searchTerm };
     try {
-        const response = await fetch(`http://127.0.0.1:8000/package`, {
+        const response = await fetch(`http://127.0.0.1:3000/package`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

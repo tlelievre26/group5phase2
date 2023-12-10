@@ -1,30 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { UploadPkg } from '../API/UploadPkg';
-
+import { useAuth } from './AuthContext';
 interface UploadFormProps {
   onClose: () => void;
 }
 
 const UploadForm: React.FC<UploadFormProps> = ({ onClose }) => {
-  const [uploadOption, setUploadOption] = useState('');
-  const [urlInput, setUrlInput] = useState('');
-  const [contentInput, setContentInput] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [focusedElement, setFocusedElement] = useState<string | null>(null);
+    const [uploadOption, setUploadOption] = useState('');
+    const [urlInput, setUrlInput] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [contentInput, setContentInput] = useState('');
+    const [focusedElement, setFocusedElement] = useState<string | null>(null);
+    const { authResult } = useAuth();
+    let authResult1 = authResult;
+    if (authResult) {
+        authResult1 = authResult.replaceAll("\"", "");
+    }
+    const handleSubmit = async () => {
+        try {
+            if (uploadOption && (urlInput || contentInput)) {
+                console.log(`Selected Option: ${uploadOption}`);
+                console.log(`Input: ${uploadOption === 'url' ? urlInput : contentInput}`);
 
-  const handleSubmit = async () => {
-    try {
-      if (uploadOption && (urlInput || contentInput)) {
-        const response = await UploadPkg(
-          uploadOption === 'url' ? urlInput : contentInput,
-          uploadOption
-        );
+                // Call the API based on uploadOption and input
+                const response = await UploadPkg(
+                    uploadOption === 'url' ? urlInput : contentInput,
+                    uploadOption,
+                    authResult1
+                );
 
-        if (response !== null) {
-          console.log('API Response:', response);
-          alert('Successfully uploaded!');
-        }
-
+                if (response !== null) {
+                    // Handle the API response as needed
+                    console.log('API Response:', response);
+                    alert('Successfully uploaded!');
+                }
         onClose();
       } else {
         setErrorMessage('Please select an upload option and provide the required input.');
