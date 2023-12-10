@@ -17,14 +17,12 @@
         "lint:backend": "cd backend && npm run lint",
         "lint:frontend": "cd frontend && npm run lint"
     },
-    "devDependencies": {
-        "concurrently": "^7.6.0"
-    },
     "workspaces": [
         "backend",
         "frontend"
     ],
     "dependencies": {
+        "concurrently": "^8.2.2",
         "cors": "^2.8.5"
     }
 }

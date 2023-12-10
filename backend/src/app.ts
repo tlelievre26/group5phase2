@@ -14,7 +14,7 @@ import logger from "./utils/logger"; //Get logger in this main file
 
 const app = express();
 app.use(cors());
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '20mb' }));
 // app.use(checkForAuthToken); //Tells it to check the token auth function before passing the request to the endpoint

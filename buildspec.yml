@@ -20,9 +20,19 @@ phases:
 
 artifacts:
   files:
-    - dist/**/*
+    - backend/dist/**/*
+    - frontend/dist/**/*
     - package.json
     - package-lock.json
+    - backend/package.json
+    - backend/package-lock.json
+    - frontend/package.json
+    - frontend/package-lock.json
     - node_modules/**/*
+    - backend/node_modules/**/*
+    - frontend/node_modules/**/*
+    - frontend/index.html
+    - frontend/*.js
+    - frontend/vite.config.ts
 
 name: prod-build-$(date +%Y-%m-%d)
