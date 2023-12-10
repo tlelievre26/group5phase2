@@ -10,7 +10,7 @@ interface UpdateFormProps {
 }
 
 const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) => {
-    const [updateOption, setUpdateOption] = useState<'url' | 'content'>('url'); // Updated to use a union type for updateOption
+    const [updateOption, setUpdateOption] = useState<'URL' | 'Content'>('URL'); // Updated to use a union type for updateOption
     const [updateInput, setUpdateInput] = useState<string>('');
     const { authResult } = useAuth();
     let authResult1 = authResult;
@@ -45,8 +45,8 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) =
                 <input
                     type="radio"
                     value="url"
-                    checked={updateOption === 'url'}
-                    onChange={() => setUpdateOption('url')}
+                    checked={updateOption === 'URL'}
+                    onChange={() => setUpdateOption('URL')}
                 />
                 Update with URL
             </label>
@@ -55,13 +55,13 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) =
                 <input
                     type="radio"
                     value="content"
-                    checked={updateOption === 'content'}
-                    onChange={() => setUpdateOption('content')}
+                    checked={updateOption === 'Content'}
+                    onChange={() => setUpdateOption('Content')}
                 />
                 Update with Content
             </label>
 
-            {updateOption === 'url' && (
+            {updateOption === 'URL' && (
                 <label className="block mb-4">
                     URL:
                     <input
@@ -73,7 +73,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) =
                 </label>
             )}
 
-            {updateOption === 'content' && (
+            {updateOption === 'Content' && (
                 <label className="block mb-4">
                     Content:
                     <textarea
