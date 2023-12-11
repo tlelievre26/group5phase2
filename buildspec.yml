@@ -5,6 +5,7 @@ phases:
       nodejs: 18
     commands:
       - npm install -g typescript
+      - npm install -g concurrently
       - npm install
   pre_build:
     commands:
