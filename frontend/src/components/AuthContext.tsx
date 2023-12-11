@@ -1,5 +1,3 @@
-// AuthContext.js
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // Define the types for the context
