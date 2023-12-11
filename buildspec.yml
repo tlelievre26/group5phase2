@@ -19,6 +19,7 @@ phases:
         - echo Build completed on `date`
 
 artifacts:
+  enable-symlinks: true
   files:
     - backend/dist/**/*
     - frontend/dist/**/*
