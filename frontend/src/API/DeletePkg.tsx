@@ -6,7 +6,7 @@ const DeletePkg = async (searchID: string, TOKEN: string) => {
 // console.log(authResult);
 // const TOKEN = authResult?.token;
     try {
-        const response = await fetch(`http://127.0.0.1:3000/package/${searchID}`, {
+        const response = await fetch(`/package/${searchID}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

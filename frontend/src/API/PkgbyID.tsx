@@ -2,7 +2,7 @@
 import { useAuth } from "../components/AuthContext";
 export const pkgByID = async (searchTerm: string, TOKEN: string) => {
     try {
-        const response = await fetch(`http://127.0.0.1:3000/package/${searchTerm}`, {
+        const response = await fetch(`/package/${searchTerm}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

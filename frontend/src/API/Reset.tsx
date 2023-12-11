@@ -1,7 +1,7 @@
 export const ResetPkg = async (TOKEN: string) => {
 
     try {
-        const response = await fetch(`http://127.0.0.1:3000/reset`, {
+        const response = await fetch(`/reset`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
