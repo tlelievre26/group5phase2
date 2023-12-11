@@ -1,6 +1,6 @@
 // apiCall2.js
 import { useAuth } from "../components/AuthContext";
-export const pkgByID = async (searchTerm: String, TOKEN: string) => {
+export const pkgByID = async (searchTerm: string, TOKEN: string) => {
     try {
         const response = await fetch(`http://127.0.0.1:3000/package/${searchTerm}`, {
             method: 'GET',

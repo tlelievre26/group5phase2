@@ -21,6 +21,7 @@ const NavigationBar = () => {
     const [showDeleteForm, setShowDeleteForm] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleLogin = (result: { success: boolean; data?: any; error?: string }) => {
         // Add your login logic here
         if (result.success) {
