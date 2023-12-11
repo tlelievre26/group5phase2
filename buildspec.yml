@@ -35,5 +35,7 @@ artifacts:
     - frontend/index.html
     - frontend/*.js
     - frontend/vite.config.ts
+    - .ebextensions/**/*
+    - .platform/**/*
 
 name: prod-build-$(date +%Y-%m-%d)

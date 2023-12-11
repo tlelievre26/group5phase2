@@ -5,7 +5,6 @@ import { MetricsDataRetriever } from "../services/metrics-data-retriever";
 import { MetricsCalculator } from "../services/metrics-calculator";
 
 import { PackageRating } from "../../../models/api_schemas";
-import logger from "../../../utils/logger";
 import { ExtractedMetadata } from "../../../models/other_schemas";
 
 
