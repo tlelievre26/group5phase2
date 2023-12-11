@@ -4,7 +4,7 @@
     "description": "Full Stack Application with TypeScript, Express, React, and Vite",
     "private": true,
     "scripts": {
-        "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+        "start": "npm run start:backend",
         "start:backend": "cd backend && npm start",
         "start:frontend": "cd frontend && npm run dev",
         "build": "concurrently \"npm run build:backend\" \"npm run build:frontend\"",

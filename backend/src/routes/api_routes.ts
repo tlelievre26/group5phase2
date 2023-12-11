@@ -3,6 +3,7 @@ import { PackageUploader } from '../controllers/pkg_controller';
 import { PkgDataManager } from '../controllers/data_controller';
 import { UtilsController } from '../controllers/util_controller';
 import checkForAuthToken from '../middleware/token_auth';
+import path from 'path';
 
 //This file contains definitions for all of our API endpoints
 //They call functions organized by controllers
@@ -13,6 +14,12 @@ const api_router = express.Router();
 const pkgUploader = new PackageUploader();
 const pkgDataManager = new PkgDataManager();
 const utilsCtrl = new UtilsController();
+
+api_router.get("/", (req, res) => {
+    console.log(path.join(__dirname, "../../../frontend/dist/index.html"))
+  res.sendFile(path.join(__dirname, "../../../frontend/dist/index.html"));
+})
+
 
 // Endpoint to get a list of packages
 api_router.post('/packages', checkForAuthToken, pkgDataManager.getPackageQuery);
