@@ -15,6 +15,7 @@ function App() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [data, setData] = useState<schemas.PackageMetadata[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [scores, setScores] = useState<any[]>([]);
   const { authResult } = useAuth(); // Use the useAuth hook to get the authentication status
   let authResult1 = authResult;

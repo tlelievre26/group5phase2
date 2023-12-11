@@ -1,5 +1,5 @@
 import { useAuth } from "../components/AuthContext";
-export const RatePkg = async (pkgId: String, TOKEN: string) => {
+export const RatePkg = async (pkgId: string, TOKEN: string) => {
 
     try {
         const response = await fetch(`http://127.0.0.1:3000/package/${pkgId}/rate`, {

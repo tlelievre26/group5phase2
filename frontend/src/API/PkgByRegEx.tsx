@@ -1,5 +1,5 @@
 // apiCall3.js
-export const pkgByRegEx = async (searchTerm: String, TOKEN: string) => {
+export const pkgByRegEx = async (searchTerm: string, TOKEN: string) => {
     try {
         const response = await fetch(`http://127.0.0.1:3000/package/byRegEx`, {
             method: 'POST',

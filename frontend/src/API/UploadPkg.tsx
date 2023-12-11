@@ -1,5 +1,5 @@
 import { useAuth } from "../components/AuthContext";
-export const UploadPkg = async (searchTerm: String, isURL: String, TOKEN: string) => {
+export const UploadPkg = async (searchTerm: string, isURL: string, TOKEN: string) => {
 
     const body = isURL == 'url' ? { "URL": searchTerm } : { "Content": searchTerm };
     try {
