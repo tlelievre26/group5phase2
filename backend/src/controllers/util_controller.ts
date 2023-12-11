@@ -147,7 +147,7 @@ export class UtilsController{
         logger.info("*************Recieved request to endpoint DELETE /user/{username}*************")
         logger.debug("Username for deletion: " + req.params.username)
 
-        const req_body: schemas.AuthenticationRequest = req.body; //I think we only need the same fields as the auth request
+        //const req_body: schemas.AuthenticationRequest = req.body; //I think we only need the same fields as the auth request
         const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         const username = req.params.username;
         let user_data;
@@ -202,8 +202,8 @@ export class UtilsController{
         //Now that we've confirmed everything, delete the user
         await deleteUserFromDB(user_data.USER_ID)
 
-        logger.info ("Successfully deleted user " + req_body.User.name)
-        return res.status(200).send("Successfully deleted user with user name " + req_body.User.name);
+        logger.info ("Successfully deleted user " + username)
+        return res.status(200).send("Successfully deleted user with user name " + username);
     }
 
 }
