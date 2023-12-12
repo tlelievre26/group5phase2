@@ -242,7 +242,7 @@ export class PkgDataManager {
                 "Correctness": result.Correctness,
                 "RampUp": result.RampUp,
                 "ResponsiveMaintainer": result.ResponsiveMaintainer,
-                "LicenseScore": result.License,
+                "LicenseScore": result.LicenseScore,
                 "GoodPinningPractice": result.GoodPinningPractice,
                 "PullRequest": result.PullRequest,
                 "NetScore": netscore

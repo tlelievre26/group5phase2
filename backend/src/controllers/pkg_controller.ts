@@ -51,20 +51,21 @@ export class PackageUploader {
             const temp = req_body.data.Content
             if(req_body.data.Content != null && req_body.data.Content != undefined) {
                 try {
-                    logger.debug("Contents: " + temp?.slice(0, 10) + "..." + temp?.slice(-10))
+                    req_body.data.Content = temp?.slice(0, 10) + "..." + temp?.slice(-10)
                 }
                 catch (err) {
-                    logger.debug("Contents: " + temp)
+                    req_body.data.Content = temp
                 }
             }
             else {
                 logger.debug("Contents are null")
 
                 req_body.data.Content = "null"
-                logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
-    
-                req_body.data.Content = temp
             }
+            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
+    
+            req_body.data.Content = temp
+            
         }
         else {
             logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
@@ -225,8 +226,8 @@ export class PackageUploader {
             
             logger.debug("Calculated updated metric scores for package: " + JSON.stringify(metric_scores, null, 4))
     
-            await uploadToS3(extractedContents, repo_ID)
-            await updatePackageInDB(metric_scores, repo_ID);
+            await uploadToS3(extractedContents, req_body.metadata.ID, req_body.metadata.Name)
+            await updatePackageInDB(metric_scores, req_body.metadata.ID);
             //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
             //Probably have to redo this function so it updates scores instead of overwriting them
                 
@@ -308,19 +309,19 @@ export class PackageUploader {
             const temp = req_body.Content
             if(req_body.Content != null && req_body.Content != undefined) {
                 try {
-                    logger.debug("Contents: " + temp?.slice(0, 10) + "..." + temp?.slice(-10))
+                    req_body.Content = temp?.slice(0, 10) + "..." + temp?.slice(-10)
                 }
                 catch (err) {
-                    logger.debug("Contents: " + temp)
+                    req_body.Content = temp
                 }
             }
             else {
                 logger.debug("Contents are null")
                 req_body.Content = "null"
-                logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
-    
-                req_body.Content = temp
             }
+            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
+    
+            req_body.Content = temp
         }
         else {
             logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
