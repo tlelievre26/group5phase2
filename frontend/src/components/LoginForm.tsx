@@ -6,10 +6,12 @@ const LoginForm: React.FC = () => {
     const { authResult, setAuth } = useAuth();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const [login_error, setError] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleLogin = async (event: FormEvent) => {
         event.preventDefault();
+        setIsSubmitting(true);
     
         try {
             // Use encodeURIComponent to escape special characters in the password
@@ -17,11 +19,13 @@ const LoginForm: React.FC = () => {
             const result = await Auth(username, pass);
             setAuth(result);
             setError(null); // Reset error on successful login
-        } catch (authError) {
-            console.error('Error during authentication:', authError);
+        } catch (error) {
+            console.error('Error during authentication:', error);
             setAuth(null);
             setError('Incorrect username or password. Please try again.');
-    
+            setPassword(''); //clears password on error
+        }finally {
+            setIsSubmitting(false);
         }
     };
     
@@ -33,6 +37,7 @@ const LoginForm: React.FC = () => {
                 <h2 className="text-2xl font-bold mb-4">Login Form</h2>
 
                 <form onSubmit={handleLogin}>
+                    
                     <label htmlFor="username" className="block text-gray-700 text-sm font-semibold mb-2">
                         Username:
                     </label>
@@ -60,16 +65,18 @@ const LoginForm: React.FC = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
-
-                    <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 mt-4">
-                        Login
-                    </button>
-                    {error &&(
-                    <div role="alert" className="text-red-600 mb-4">
-                        Invalid username or password. Please try again.
-                    </div>
-                )}
-            <div>{error}</div>
+                
+                        <div role="alert" className="text-gray-600 mb-4">
+                           Enter the correct username or password.
+                        </div>
+                    
+                        <button
+                            type="submit"
+                            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 mt-4"
+                            disabled={isSubmitting}
+                        >
+                        {isSubmitting ? 'Logging in...' : login_error ? 'Failed' : 'Login'}
+                        </button>
                 </form>
             </div>
         </div>
