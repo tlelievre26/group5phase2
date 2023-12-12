@@ -7,6 +7,8 @@ export const handleApiRequest = async (searchTerm: string, TOKEN: string) => {
     try {
         // const { authResult } = useAuth();
         // const TOKEN = authResult?.token;
+        const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE0OSwicm9sZXMiOlsic2VhcmNoIl0sImlhdCI6MTcwMTk4MTUxMywiZXhwIjoxNzAyMDE3NTEzfQ.QHmqwYTnJ7sWg8Z3MOeZjMwa0NIXoAugxXDr_UmhbSA';
+
         let responseData
         if (searchTerm[0] == '/') {
             searchTerm = searchTerm.replace('/', '');
