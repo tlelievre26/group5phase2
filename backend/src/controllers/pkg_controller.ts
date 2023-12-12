@@ -42,11 +42,47 @@ export class PackageUploader {
 
         logger.info("*************Request recieved for endpoint PUT /package/{id}*************")
 
-        const req_body: schemas.Package = req.body;
+        const req_body = req.body;
 
         const id = req.params.id;
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
     
+        if((req_body.data.hasOwnProperty("Content"))) {
+            const temp = req_body.data.Content
+            if(req_body.data.Content != null && req_body.data.Content != undefined) {
+                try {
+                    req_body.data.Content = temp?.slice(0, 10) + "..." + temp?.slice(-10)
+                }
+                catch (err) {
+                    req_body.data.Content = temp
+                }
+            }
+            else {
+                logger.debug("Contents are null")
+
+                req_body.data.Content = "null"
+            }
+            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
+    
+            req_body.data.Content = temp
+            
+        }
+        else {
+            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
+        }
+
+        //Validate package body NEED TO FIX
+        if(!(types.Package.is(req_body))) {
+            logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
+
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
+
+        if(req_body.data.hasOwnProperty("URL") && req_body.data.hasOwnProperty("Content") && req_body.data.Content != null && req_body.data.URL != null) { //If both are defined and not null
+            logger.debug("Invalid or malformed PackageData in request body, both URL and contents defined")
+            return res.status(400).send("Invalid or malformed PackageData in request body (both URL and contents defined)");
+        }
+
         //Check user has permissions for this operation
         try {
             await verifyAuthToken(auth_token, ["upload"]) //Can ensure auth exists bc we check for it in middleware
@@ -62,25 +98,11 @@ export class PackageUploader {
                 return res.status(400).send("Error validating auth token: " + err.message);
             }
         }
-
-        //Validate package body NEED TO FIX
-        if(!(types.Package.is(req_body))) {
-            logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
-            return res.status(400).send("Invalid or malformed Package in request body");
-        }
-
-        if(!(req_body.data.hasOwnProperty("Content"))) {
-            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
-        }
-        else {
-            logger.debug("Request body:\n" + JSON.stringify(req_body.metadata, null, 4))
-            logger.debug("Contents: " + req_body.data.Content?.slice(0, 5) + "..." + req_body.data.Content?.slice(-5))
-        }
-
         
         logger.debug("URL ID: " + req.params.id)
 
-        if(id != req_body.metadata.ID) {    
+        if(id != req_body.metadata.ID) {
+            logger.error("Inconsistant package ID between request metadata and URL")
             return res.status(400).send("Inconsistant package ID between request metadata and URL");
         }
 
@@ -88,6 +110,7 @@ export class PackageUploader {
         //Kill 2 birds with 1 stone here, if the is matching metadata we get the debloating setting that we need, and if there's no match it just returns null and we exit
 
         if(debloated == null) {
+            logger.error("Could not find existing package with matching metadata")
             return res.status(404).send("Could not find existing package with matching metadata");
         }
         else {
@@ -96,7 +119,7 @@ export class PackageUploader {
             let repoInfo: RepoIdentifier | undefined; //Need to have this defined here to seperate if statements
             let repoURL: string;
             
-            if(req_body.data.hasOwnProperty("URL") && !req_body.data.hasOwnProperty("Content")) {
+            if(req_body.data.hasOwnProperty("URL") && req_body.data.URL != null && req_body.data.URL != undefined) {
 
                 //logger.debug("Recieved URL in request body")
                 repoURL = req_body.data.URL!
@@ -105,6 +128,7 @@ export class PackageUploader {
                 if(!isGitHubUrl(repoURL)) {
                     const githubFromNPM = await resolveNpmToGitHub(repoURL);
                     if(githubFromNPM == "") {
+                        logger.error("Invalid URL in request body")
                         return res.status(400).send("Invalid URL in request body");
                     }
                     else {
@@ -154,14 +178,20 @@ export class PackageUploader {
                 extractedContents = await decodeB64ContentsToZip(base64contents, debloated); //We know it'll exist
     
             }
-            else if(req_body.data.hasOwnProperty("Content") && !req_body.data.hasOwnProperty("URL")) {
+            else if(req_body.data.hasOwnProperty("Content") && req_body.data.Content != null && req_body.data.Content != undefined) {
                 // logger.debug("Recieved encoded package contents in request body")
-    
-                base64contents = req_body.data.Content; //Do this so we can not have as much in seperate if statements
-                extractedContents = await decodeB64ContentsToZip(req_body.data.Content!, debloated); //We know it'll exist
+                try {
+                    base64contents = req_body.data.Content; //Do this so we can not have as much in seperate if statements
+                    extractedContents = await decodeB64ContentsToZip(req_body.data.Content!, debloated); //We know it'll exist
+                }
+                catch(err) {
+                    logger.error("Error decoding base64 contents: " + err)
+                    return res.status(400).send("Error decoding base64 contents: " + err)
+                }
     
             }
             else {
+                logger.error("Invalid or malformed PackageData in request body")
                 return res.status(400).send("Invalid or malformed PackageData in request body");
             }
             const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
@@ -173,16 +203,17 @@ export class PackageUploader {
     
             const repo_ID = repoInfo.owner + "_" + repoInfo.repo + "_" + pkg_json.version
     
-            const response_obj: schemas.PackageMetadata = {
-                    Name: pkg_json.name,
-                    Version: pkg_json.version.split('-')[0], //This makes it so pre-release tags get removed
-                    ID: repo_ID
-            }
+            // const response_obj: schemas.PackageMetadata = {
+            //         Name: pkg_json.name,
+            //         Version: pkg_json.version.split('-')[0], //This makes it so pre-release tags get removed
+            //         ID: repo_ID
+            // }
     
-            if(response_obj.ID != req_body.metadata.ID || response_obj.Name != req_body.metadata.Name || response_obj.Version != req_body.metadata.Version) {
-                //Check if the package metadata matches the metadata in the request body
-                return res.status(400).send("Inconsistant package metadata between request body and contents extracted from package data");
-            }
+            // if(response_obj.ID != req_body.metadata.ID || response_obj.Name != req_body.metadata.Name || response_obj.Version != req_body.metadata.Version) {
+            //     //Check if the package metadata matches the metadata in the request body
+            //     logger.error("Inconsistant package metadata between request body and contents extracted from package data")
+            //     return res.status(400).send("Inconsistant package metadata between request body and contents extracted from package data");
+            // }
 
             let metric_scores;
             try {
@@ -195,8 +226,8 @@ export class PackageUploader {
             
             logger.debug("Calculated updated metric scores for package: " + JSON.stringify(metric_scores, null, 4))
     
-            await uploadToS3(extractedContents, repo_ID)
-            await updatePackageInDB(metric_scores, repo_ID);
+            await uploadToS3(extractedContents, req_body.metadata.ID, req_body.metadata.Name)
+            await updatePackageInDB(metric_scores, req_body.metadata.ID);
             //Need to figure out how to make it so that if the DB write fails the uploadToS3 doesn't go through
             //Probably have to redo this function so it updates scores instead of overwriting them
                 
@@ -212,7 +243,7 @@ export class PackageUploader {
         logger.info("*************Request recieved for endpoint DELETE /package/{id}*************")
 
         const id = req.params.id;
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
     
         logger.debug("URL ID: " + req.params.id)
         
@@ -235,9 +266,11 @@ export class PackageUploader {
         }
 
         if(!id) {
+            logger.error("Invalid/missing package ID in header")
             return res.status(400).send("Invalid/missing package ID in header");
         }
         else if(!await checkPkgIDInDB(id)) {
+            logger.error("Could not find existing package with matching ID")
             return res.status(404).send("Could not find existing package with matching ID");
         }
         else {
@@ -256,8 +289,8 @@ export class PackageUploader {
     public async createPkg (req: Request, res: Response) {
         logger.info("*************Request recieved for endpoint POST /package*************")
 
-        const req_body: schemas.PackageData = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
-        const auth_token = req.headers.authorization!;
+        const req_body = req.body; //The body here can either be contents of a package or a URL to a GitHub repo for public ingest via npm
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         let extractedContents;
         let base64contents;
         let repoInfo: RepoIdentifier | undefined; //Need to have this defined here to seperate if statements
@@ -272,18 +305,37 @@ export class PackageUploader {
             debloating = false
         }
 
-        if(!(types.PackageData.is(req_body))) {
-            logger.error("Invalid or malformed Package in request body to endpoint POST /package")
-            return res.status(400).send("Invalid or malformed Package in request body");
-        }
-
-        if(!(req_body.hasOwnProperty("Content"))) {
+        if((req_body.hasOwnProperty("Content"))) {
+            const temp = req_body.Content
+            if(req_body.Content != null && req_body.Content != undefined) {
+                try {
+                    req_body.Content = temp?.slice(0, 10) + "..." + temp?.slice(-10)
+                }
+                catch (err) {
+                    req_body.Content = temp
+                }
+            }
+            else {
+                logger.debug("Contents are null")
+                req_body.Content = "null"
+            }
             logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
+    
+            req_body.Content = temp
         }
         else {
-            logger.debug("Request body contents:\n" + + req_body.Content!.slice(0, 5) + "..." + req_body.Content!.slice(-5))
+            logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
         }
 
+        if(!(types.PackageData.is(req_body))) {
+            logger.error("Invalid or malformed Package in request body to endpoint POST /package")
+            return res.status(400).send("Invalid or malformed PackageData in request body");
+        }
+
+        if(req_body.hasOwnProperty("URL") && req_body.hasOwnProperty("Content") && req_body.Content != null && req_body.URL != null) { //If both are defined and not null
+            logger.debug("Invalid or malformed PackageData in request body, both URL and contents defined")
+            return res.status(400).send("Invalid or malformed PackageData in request body (both URL and contents defined)");
+        }
 
         try {
             await verifyAuthToken(auth_token, ["upload"]) //Can ensure auth exists bc we check for it in middleware
@@ -300,7 +352,7 @@ export class PackageUploader {
             }
         }
 
-        if(req_body.hasOwnProperty("URL") && !req_body.hasOwnProperty("Content")) {
+        if(req_body.hasOwnProperty("URL") && req_body.URL != null && req_body.URL != undefined) { //not checking if contents is defined, will just automatically prioritize URL if its defined
 
             // logger.debug("Recieved URL in request body")
             repoURL = req_body.URL!
@@ -310,6 +362,7 @@ export class PackageUploader {
                 // logger.debug("Identified as non-github URL")
                 const githubFromNPM = await resolveNpmToGitHub(repoURL);
                 if(githubFromNPM == "") {
+                    logger.error("Invalid URL in request body")
                     return res.status(400).send("Invalid URL in request body");
                 }
                 else {
@@ -348,33 +401,49 @@ export class PackageUploader {
             const zipballUrl = response.repository.defaultBranchRef.target.zipballUrl;
             //Query returns a URL that downloads the repo when GET requested
             logger.debug(`Retrieved zipball URL ${zipballUrl} from GitHub API`)
-            
-            base64contents = await extractBase64ContentsFromUrl(zipballUrl);
+            try {
+                base64contents = await extractBase64ContentsFromUrl(zipballUrl);
+                logger.debug("Successfully extracted contents from zipball URL")
+            }
+            catch {
+                logger.error("Failed to extract contents from zipball URL")
+                return res.status(400).send("Failed to extract contents from zipball URL");
+            }
+
 
             //And now we can proceed the same way
 
             //The reason we get the zipball before doing the score check is we would've had to clone the repo anyways, which probably takes a similar amount of memory and time
             //Doing this makes it easier to integrate with the other input formats
-            
-            extractedContents = await decodeB64ContentsToZip(base64contents, debloating); //We know it'll exist
+            try {
+                extractedContents = await decodeB64ContentsToZip(base64contents, debloating); //We know it'll exist
+                logger.debug("Converted package contents obtained from zipball URL")
+            }
+            catch {
+                logger.error("Failed to convert package contents from zipball URL")
+                return res.status(400).send("Failed to convert package contents from zipball URL");
+            }
+
 
         }
-        else if(req_body.hasOwnProperty("Content") && !req_body.hasOwnProperty("URL")) {
+        else if(req_body.hasOwnProperty("Content") && req_body.Content != null && req_body.Content != undefined) {
             // logger.debug("Recieved encoded package contents in request body")
 
             base64contents = req_body.Content; //Do this so we can not have as much in seperate if statements
-            extractedContents = await decodeB64ContentsToZip(req_body.Content!, debloating); //We know it'll exist
 
-            /*
-
-                NEED TO FIGURE OUT HOW TO DEAL WITH A REPO URL TO A UNIQUE VERSION OF THE PACKAGE
-
-            */
+            try {
+                extractedContents = await decodeB64ContentsToZip(req_body.Content!, debloating); //We know it'll exist
+            }
+            catch(err) {
+                logger.error("Error decoding base64 contents: " + err)
+                return res.status(400).send("Error decoding base64 contents: " + err)
+            }
         }
         else {
             logger.debug("Invalid or malformed PackageData in request body")
             return res.status(400).send("Invalid or malformed PackageData in request body");
         }
+
         const pkg_json = JSON.parse(extractedContents.metadata["package.json"].toString());
 
         if(typeof(repoInfo) === "undefined") { //If we didn't get the repo info yet (it only gets assigned by now if the URL was uploaded)

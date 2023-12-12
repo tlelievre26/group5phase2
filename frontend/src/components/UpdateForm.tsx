@@ -9,8 +9,7 @@ interface UpdateFormProps {
 }
 
 const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) => {
-
-    const [updateOption, setUpdateOption] = useState<'url' | 'content'>('url'); // Updated to use a union type for updateOption
+    const [updateOption, setUpdateOption] = useState<'URL' | 'Content'>('URL'); // Updated to use a union type for updateOption
     const [updateInput, setUpdateInput] = useState<string>('');
     const [isUpdateButtonFocused, setIsUpdateButtonFocused] = useState<boolean>(false);
     const { authResult } = useAuth();
@@ -41,48 +40,48 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) =
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-md shadow-md z-50">
       <h2 className="text-2xl font-bold mb-4">Update Options</h2>
 
-      <label className="block mb-4">
-        <input
-          type="radio"
-          value="url"
-          checked={updateOption === 'url'}
-          onChange={() => setUpdateOption('url')}
-        />
-        Update with URL
-      </label>
+            <label className="block mb-4">
+                <input
+                    type="radio"
+                    value="url"
+                    checked={updateOption === 'URL'}
+                    onChange={() => setUpdateOption('URL')}
+                />
+                Update with URL
+            </label>
 
-      <label className="block mb-4">
-        <input
-          type="radio"
-          value="content"
-          checked={updateOption === 'content'}
-          onChange={() => setUpdateOption('content')}
-        />
-        Update with Content
-      </label>
+            <label className="block mb-4">
+                <input
+                    type="radio"
+                    value="content"
+                    checked={updateOption === 'Content'}
+                    onChange={() => setUpdateOption('Content')}
+                />
+                Update with Content
+            </label>
 
-      {updateOption === 'url' && (
-        <label className="block mb-4">
-          URL:
-          <input
-            type="text"
-            value={updateInput}
-            onChange={(e) => setUpdateInput(e.target.value)}
-            className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-blue-500"
-          />
-        </label>
-      )}
+            {updateOption === 'URL' && (
+                <label className="block mb-4">
+                    URL:
+                    <input
+                        type="text"
+                        value={updateInput}
+                        onChange={(e) => setUpdateInput(e.target.value)}
+                        className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-blue-500"
+                    />
+                </label>
+            )}
 
-      {updateOption === 'content' && (
-        <label className="block mb-4">
-          Content:
-          <textarea
-            value={updateInput}
-            onChange={(e) => setUpdateInput(e.target.value)}
-            className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-blue-500"
-          ></textarea>
-        </label>
-      )}
+            {updateOption === 'Content' && (
+                <label className="block mb-4">
+                    Content:
+                    <textarea
+                        value={updateInput}
+                        onChange={(e) => setUpdateInput(e.target.value)}
+                        className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:border-blue-500"
+                    ></textarea>
+                </label>
+            )}
 
       <div className="flex justify-end">
         <button

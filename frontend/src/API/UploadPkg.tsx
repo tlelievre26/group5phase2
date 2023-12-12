@@ -1,9 +1,9 @@
 import { useAuth } from "../components/AuthContext";
-export const UploadPkg = async (searchTerm: String, isURL: String, TOKEN: string) => {
+export const UploadPkg = async (searchTerm: string, isURL: string, TOKEN: string) => {
 
-    const body = isURL == 'url' ? { "URL": searchTerm } : { "content": searchTerm };
+    const body = isURL == 'url' ? { "URL": searchTerm } : { "Content": searchTerm };
     try {
-        const response = await fetch(`http://127.0.0.1:3000/package`, {
+        const response = await fetch(`/package`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

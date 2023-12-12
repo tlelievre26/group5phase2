@@ -16,7 +16,14 @@ export async function decodeB64ContentsToZip(contents: string, debloating: boole
 
     // Create a JSZip instance and load the decoded data
     const pkg_zip = new JSZip();
-    await pkg_zip.loadAsync(zipData, { base64: false });
+    try {
+        await pkg_zip.loadAsync(zipData, { base64: false });
+    }
+    catch (err) {
+        logger.error("Error loading zip file into JSZip object");
+        throw err;
+    }
+
     logger.debug("Loaded data into JSZip object successfully");
 
     // We have now loaded the zip file into memory

@@ -1,7 +1,7 @@
 // apiCall1.js
-export const pkgQuery = async (searchTerm: String, TOKEN: string) => {
+export const pkgQuery = async (searchTerm: string, TOKEN: string) => {
     try {
-        const response = await fetch(`http://127.0.0.1:3000/packages`, {
+        const response = await fetch(`/packages`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

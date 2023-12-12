@@ -1,7 +1,7 @@
 import { useAuth } from "../components/AuthContext";
-export const UpdatePkg = async (pkgData: { Name: string, Version: string, ID: string, value: string, type: 'url' | 'content' }, TOKEN: string) => {
+export const UpdatePkg = async (pkgData: { Name: string, Version: string, ID: string, value: string, type: 'URL' | 'Content' }, TOKEN: string) => {
     try {
-        const response = await fetch(`http://127.0.0.1:3000/packages/${pkgData.ID}`, {
+        const response = await fetch(`/packages/${pkgData.ID}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

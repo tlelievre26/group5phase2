@@ -16,7 +16,7 @@ export class UtilsController{
     public async hardReset(req: Request, res: Response) {
         logger.info("*************Recieved request to endpoint DELETE /reset*************")
         //Reset the registry to a system default state.
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
 
         try {
             await verifyAuthToken(auth_token, ["admin"]) //Can ensure auth exists bc we check for it in middleware
@@ -42,11 +42,11 @@ export class UtilsController{
         //Recreate default admin user
         //We don't exclude it from the initial deletion because we want to clear its tokens and its just easier to write like this
 
-        await createNewUserProfile("ece30861defaultadminuser", "correcthorsebatterystaple123(!__+@**(A'\"`;DROP TABLE packages;", true, {
-            canUpload: true,
-            canSearch: true,
-            canDownload: true
-        })
+        // await createNewUserProfile("ece30861defaultadminuser", "correcthorsebatterystaple123(!__+@**(A'\"`;DROP TABLE packages;", true, {
+        //     canUpload: true,
+        //     canSearch: true,
+        //     canDownload: true
+        // })
     
         logger.info("Successfully reset registry to default state")
         return res.status(200).send("Successfully reset registry to default state");
@@ -85,8 +85,9 @@ export class UtilsController{
         if(existing_token != "") { //If user already has a token in our DB
 
             //Just repeat the existing token rather than generating a new one
-            logger.error("This user already has a token")
-            return res.status(200).send('"\\"bearer ' + existing_token + '\\""')
+            logger.debug("This user already has a token")
+            logger.debug("Returned token: bearer " + existing_token)
+            return res.status(200).json('"bearer ' + existing_token + '"')
         }
 
         const new_token = await generateAuthToken(user_data.USER_ID, req_body.User.isAdmin, {
@@ -96,14 +97,14 @@ export class UtilsController{
         })
         logger.info("Successfully generated auth token " + new_token)
         //Define the permissions object inside the function call bc Im lazy lol
-        return res.status(200).send('"\\"bearer ' + new_token + '\\""');
+        return res.status(200).json('"bearer ' + new_token + '"');
 
     }
 
     public async registerUser(req: Request, res: Response) {
         logger.info("*************Recieved request to endpoint POST /user*************")
         const req_body: schemas.UserRegistrationInfo = req.body;
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         
         //Check request body has proper shape
         if(!(types.UserRegistrationInfo.is(req_body))) {
@@ -146,8 +147,8 @@ export class UtilsController{
         logger.info("*************Recieved request to endpoint DELETE /user/{username}*************")
         logger.debug("Username for deletion: " + req.params.username)
 
-        const req_body: schemas.AuthenticationRequest = req.body; //I think we only need the same fields as the auth request
-        const auth_token = req.headers.authorization!;
+        //const req_body: schemas.AuthenticationRequest = req.body; //I think we only need the same fields as the auth request
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         const username = req.params.username;
         let user_data;
 
@@ -201,8 +202,8 @@ export class UtilsController{
         //Now that we've confirmed everything, delete the user
         await deleteUserFromDB(user_data.USER_ID)
 
-        logger.info ("Successfully deleted user " + req_body.User.name)
-        return res.status(200).send("Successfully deleted user with user name " + req_body.User.name);
+        logger.info ("Successfully deleted user " + username)
+        return res.status(200).send("Successfully deleted user with user name " + username);
     }
 
 }

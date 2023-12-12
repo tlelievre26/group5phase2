@@ -28,7 +28,8 @@ export class PkgDataManager {
         //Post requests have a "request body" that is the data being posted
         const req_body: schemas.PackageQuery[] = req.body;
         let offset; //0 if offset is not defined
-        const auth_token = req.headers.authorization!;
+
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         const response_obj: schemas.PackageMetadata[] = [];
 
         logger.debug("Recieved request body: \n" + JSON.stringify(req_body, null, 4))
@@ -66,6 +67,11 @@ export class PkgDataManager {
                 logger.error(`Error: Invalid/malformed auth token ${auth_token}`)
                 return res.status(400).send("Error validating auth token: " + err.message);
             }
+        }
+
+        if(!Array.isArray(req_body)) {
+            logger.error("Invalid or malformed request body to endpoint POST /packages, not at array")
+            return res.status(400).send("Invalid or malformed request body, not an array");
         }
 
         for (const pkg_query of req_body) {
@@ -123,7 +129,7 @@ export class PkgDataManager {
         logger.debug("*************Recieved request to endpoint GET /package/{id}*************")
 
         const id = req.params.id;
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
 
 
         if (!id) {
@@ -158,12 +164,14 @@ export class PkgDataManager {
         try {
             result = await genericPkgDataGet("ID, NAME, LATEST_VERSION, CONTENTS_PATH", id);
             // console.log(result)
-            if (!result) {
-                return res.status(404).send({ error: 'Package not found' });
+            if(!result) {
+                logger.error("Package with given ID not found in database")
+                return res.status(404).send("Package with given ID not found in database");
             }
 
         } catch (error) {
-            return res.status(500).send({ error: `Error querying the database: ${error}` });
+            logger.debug("Error querying the database for package contents path: " + error)
+            return res.status(500).send(`Error querying the database for package contents path: ${error}`);
         }
 
         try {
@@ -183,7 +191,8 @@ export class PkgDataManager {
             return res.status(200).send(response_obj);
         }
         catch (error) {
-            return res.status(500).send({ error: `Error retrieving package contents from S3: ${error}` });
+            logger.error(`Error retrieving package contents from S3: ${error}`)
+            return res.status(500).send(`Error retrieving package contents from S3: ${error}`);
         }
 
     }
@@ -193,9 +202,10 @@ export class PkgDataManager {
         logger.info("*************Recieved request to endpoint GET /package/{id}/rate*************")
         //Gets scores for the specified package
         const id = req.params.id;
-        const auth_token = req.headers.authorization!;
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
+    
+        if(!id) {
 
-        if (!id) {
             logger.error("Malformed/missing PackageID in request body")
             return res.status(400).send("Missing PackageID in params");
         }
@@ -219,8 +229,10 @@ export class PkgDataManager {
             // const result = await getScores(databaseName as string, packageNameOrId as string);
             const result = await PkgScoresGet("*", id);
             // console.log(result)
-            if (result === undefined) {
-                return res.status(404).send({ error: 'Package not found' });
+
+            if(result === undefined) {
+                logger.error("Package with given ID not found in database")
+                return res.status(404).send("Package with given ID not found in database");
             }
 
             const netscore = Math.round(((result.ResponsiveMaintainer * 0.28) + (result.BusFactor * 0.28) + (result.RampUp * 0.22) + (result.Correctness * 0.22)) * (result.LicenseScore) * 1000) / 1000;
@@ -230,7 +242,7 @@ export class PkgDataManager {
                 "Correctness": result.Correctness,
                 "RampUp": result.RampUp,
                 "ResponsiveMaintainer": result.ResponsiveMaintainer,
-                "LicenseScore": result.License,
+                "LicenseScore": result.LicenseScore,
                 "GoodPinningPractice": result.GoodPinningPractice,
                 "PullRequest": result.PullRequest,
                 "NetScore": netscore
@@ -238,7 +250,8 @@ export class PkgDataManager {
             logger.debug("Response object sent:\n" + JSON.stringify(reformatted_result, null, 4))
             return res.status(200).send(reformatted_result);
         } catch (error) {
-            return res.status(500).send({ error: 'Error querying the database', message: error });
+            logger.error("Error querying the database for package scores: " + error)
+            return res.status(500).send('Error querying the database for package scores: ' + error);
         }
 
     }
@@ -248,15 +261,24 @@ export class PkgDataManager {
         logger.info("*************Recieved request to endpoint POST /package/byRegEx*************")
         //Search for a package using regular expression over package names and READMEs. This is similar to search by name.
 
-        const auth_token = req.headers.authorization!;
+    
+        const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         const regex: schemas.PackageRegEx = req.body;
 
         if (!(types.PackageRegEx.is(regex))) {
             logger.error("Invalid or malformed PackageRegEx in request body to endpoint POST /packages")
-            return res.status(400).send("Invalid or malformed Package in request body");
+            return res.status(400).send("Invalid or malformed PackageRegEx in request body");
         }
         logger.debug("Requested RegEx in body: " + regex.RegEx)
 
+        let regexObj
+        try {
+            regexObj = new RegExp(regex.RegEx?.toString() || ''); // Convert string to RegExp object to test if its a valid format
+        }
+        catch (err) {
+            logger.error("Invalid regex string in request body to endpoint POST /packages")
+            return res.status(400).send("Invalid regex string in request body");
+        }
         //Verify user permissions
         try {
             await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
@@ -277,6 +299,14 @@ export class PkgDataManager {
         const found_IDs: string[] = []; //Using this as an easier way to keep track of what packages have already been matched
         //Can also use this to save time on the AWS side by not searching for packages that have already been found in the DB
         try {
+            const redos_format = /\(.*(\+|\*|\|).*\)(\+|\*)/ //Nested qualifiers are disallowed
+            //Source: https://learn.snyk.io/lesson/redos/
+            if(redos_format.test(regex.RegEx)) {
+                logger.error("Potential ReDoS attack detected, denying request")
+                return res.status(400).send("Potential ReDoS attack detected, denying request"); //Shouldn't send this to an actual attack but whatever
+            }
+            
+
             const dbResults = await searchPackageWithRegex(regex.RegEx);
             for (const result of dbResults) {
                 response_obj.push({
@@ -286,7 +316,7 @@ export class PkgDataManager {
                 })
                 found_IDs.push(result.ID);
             }
-            const regexObj = new RegExp(regex.RegEx?.toString() || ''); // Convert string to RegExp object
+
             // console.log(regexObj)
             const AWSresults = await searchReadmeFilesInS3(regexObj);
             for (const result of AWSresults) {
@@ -296,16 +326,19 @@ export class PkgDataManager {
             }
 
             logger.debug("Query results:\n" + JSON.stringify(response_obj, null, 4))
+            
+            if(response_obj.length == 0) {
+                logger.error("No packages found matching RegEx")
+                return res.status(404).send('No packages found matching RegEx');
 
-            if (response_obj.length == 0) {
-                return res.status(404).send({ error: 'No packages found matching RegEx' });
             }
             else {
                 return res.status(200).send(response_obj);
             }
 
         } catch (error) {
-            res.status(500).send({ error: 'Error querying the database' });
+            logger.error("Error querying the database using REGEXP: " + error)
+            res.status(500).send('Error querying the database using REGEXP: ' + error );
         }
 
     }

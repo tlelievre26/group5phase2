@@ -39,7 +39,7 @@ export async function wipeDBpackages() {
 
 export async function wipeUsers() {
     const delete_all_users_query: DbQuery = {
-        sql: `DELETE FROM user_profiles`, 
+        sql: `DELETE FROM user_profiles WHERE USERNAME != "ece30861defaultadminuser"`, 
         values: []
     };
     try {

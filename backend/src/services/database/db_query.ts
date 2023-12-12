@@ -10,7 +10,7 @@ import logger from "../../utils/logger";
  * @returns {Promise} A promise that resolves with the query results or rejects with an error.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function queryDatabase(databaseName: string, queries: DbQuery | DbQuery[]): Promise<any> {
+export default async function queryDatabase(databaseName: string, queries: DbQuery | DbQuery[]): Promise<any> {
   //Written by chat GPT
     return new Promise((resolve, reject) => {
         db_connection.getConnection((err, connection) => {
@@ -77,7 +77,12 @@ export default function queryDatabase(databaseName: string, queries: DbQuery | D
                   })
                   .catch((error) => {
                     connection.rollback(() => {
-                      connection.release(); // Release the connection
+                      try {
+                        connection.release(); // Release the connection
+                      }
+                      catch (err) {
+                        logger.error("Error releasing connection")
+                      }
                       reject(error);
                     });
                   });

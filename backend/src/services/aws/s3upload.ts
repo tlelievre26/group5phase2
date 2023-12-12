@@ -3,10 +3,10 @@ import aws_s3 from "../../utils/aws_sdk_setup";
 import logger from "../../utils/logger";
 
 
-export default async function uploadToS3(package_contents: ExtractedPackage, pkg_ID: string): Promise<string> {
+export default async function uploadToS3(package_contents: ExtractedPackage, pkg_ID: string, package_Name?: string): Promise<string> {
 
     const bucketName = 'group5phase2packages';
-    const dir_name = JSON.parse(package_contents.metadata["package.json"].toString()).name;
+    const dir_name = package_Name || JSON.parse(package_contents.metadata["package.json"].toString()).name;
     logger.debug("Successfully parsed package.json file into JSON object");
     
 

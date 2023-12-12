@@ -41,7 +41,10 @@ export async function generateAuthToken(user_id: number, isAdmin: boolean, perms
 export async function verifyAuthToken(auth_token: string, permissions: string[]) {
 
     auth_token = auth_token.split(" ")[1] //Remove the "Bearer " part of the auth token
-
+    if (auth_token != undefined && auth_token.includes('\\""')) {
+        auth_token = auth_token.replace('\\""', "")
+    }
+    logger.debug("Extracted auth token " + auth_token)
     let decoded;
     
     try {

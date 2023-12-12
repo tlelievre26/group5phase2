@@ -1,7 +1,7 @@
-export const Auth = async (name: String, password: String) => {
+export const Auth = async (name: string, password: string) => {
     const reqBody = { "User": { "name": name, "isAdmin": true }, "Secret": { "password": password } };
     try {
-        const response = await fetch(`http://127.0.0.1:3000/authenticate`, {
+        const response = await fetch(`/authenticate`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
