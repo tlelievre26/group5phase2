@@ -65,17 +65,17 @@ const LoginForm: React.FC = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
-                
-                        <div role="alert" className="text-gray-600 mb-4">
-                           Enter the correct username or password.
-                        </div>
-                    
+                     {login_error && (
+                                <div role="alert" className="text-red-600 mb-4">
+                                    {login_error}
+                                </div>
+                            )}
                         <button
                             type="submit"
                             className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 mt-4"
                             disabled={isSubmitting}
                         >
-                        {isSubmitting ? 'Logging in...' : login_error ? 'Failed' : 'Login'}
+                        {isSubmitting ? 'Logging in...' : 'Login'}
                         </button>
                 </form>
             </div>

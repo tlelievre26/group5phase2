@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { ResetPkg } from '../API/Reset';
 import { useAuth } from './AuthContext';
 
+interface ResetFormProps {
+    onClose: () => void;
+  }
 
-const ResetForm: React.FC = () => {
+const ResetForm: React.FC<ResetFormProps> = ({ onClose })=> {
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [packageId, setPackageId] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -21,6 +24,7 @@ const ResetForm: React.FC = () => {
   const handleCloseConfirmation = () => {
     // Close the confirmation pop-up
     setConfirmationOpen(false);
+    onClose();
   };
 
   const handleConfirmReset = async () => {
@@ -46,6 +50,7 @@ const ResetForm: React.FC = () => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') {
       handleCloseConfirmation();
+      onClose();
     }
   };
 

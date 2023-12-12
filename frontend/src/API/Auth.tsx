@@ -20,7 +20,7 @@ export const Auth = async (name: string, password: string) => {
     } catch (error) {
       // Log the error and return null or propagate the error further
       console.error('Error in API call:', error);
-      return null;
+      throw error;
     }
   };
   
