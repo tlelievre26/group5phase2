@@ -34,6 +34,14 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     setLabelVisible(false);
   };
 
+  const handleSearchButtonMouseEnter = () => {
+    setLabelVisible(true);
+  };
+
+  const handleSearchButtonMouseLeave = () => {
+    setLabelVisible(false);
+  };
+
   return (
     <div className="relative flex items-center space-x-4">
       <label htmlFor="searchInput" className="sr-only">
@@ -57,11 +65,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         onKeyDown={handleSearchButtonKeydown}
         onFocus={handleSearchButtonFocus}
         onBlur={handleSearchButtonBlur}
+        onMouseEnter={handleSearchButtonMouseEnter}
+        onMouseLeave={handleSearchButtonMouseLeave}
         tabIndex={0} // Ensure the button is focusable
       >
         <FaSearch className="flex item-center" />
         {isLabelVisible && (
-          <span className="absolute bg-white text-gray-600 p-2 opacity-100 transition-opacity duration-300 bottom-full left-1/2 transform -translate-x-1/2">
+          <span className="absolute bg-white text-black p-2 opacity-100 transition-opacity duration-300 bottom-full left-1/2 transform -translate-x-1/2">
             Search
           </span>
         )}
