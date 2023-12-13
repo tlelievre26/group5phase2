@@ -1,3 +1,4 @@
+// Import statements for your dependencies and components
 import React, { useState, MouseEvent } from 'react';
 import UpdateForm from './UpdateForm';
 import { pkgByID } from '../API/PkgbyID';
@@ -73,7 +74,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ Name, Version, ID, Scores }) 
     <div className="flex justify-end items-start px-5 py-4 relative">
       <div className="w-full bg-white p-6 rounded-lg shadow-md transition-transform hover:shadow-lg transform hover:scale-95 hover:bg-gray-200">
         <div className="absolute top-0 right-0 flex space-x-2 mt-2 mr-2">
-          <button
+          <button 
             id="updateButton"
             role="button"
             aria-label="Update Package"
@@ -100,12 +101,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ Name, Version, ID, Scores }) 
             {Scores.map((score, index) => (
               <div key={index} className="flex flex-row items-center space-y-1">
                 <div className="text-sm p-2">{`Bus Factor: ${score.BusFactor}`}</div>
-                <div className="text-sm p-2">{`Correctness: ${score.Correctness}`}</div>
-                <div className="text-sm p-2">{`Ramp Up: ${score.RampUp}`}</div>
-                <div className="text-sm p-2">{`Responsive Maintainer: ${score.ResponsiveMaintainer}`}</div>
-                <div className="text-sm p-2">{`Good Pinning Practice: ${score.GoodPinningPractice}`}</div>
-                <div className="text-sm p-2">{`Pull Request: ${score.PullRequest}`}</div>
-                <div className="text-sm p-2">{`Net Score: ${score.NetScore}`}</div>
+                {/* ... (your existing Score elements) */}
               </div>
             ))}
           </div>
