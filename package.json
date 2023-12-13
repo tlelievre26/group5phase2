@@ -15,7 +15,8 @@
         "test:frontend": "cd frontend && npm test",
         "lint": "npm run lint:backend",
         "lint:backend": "cd backend && npm run lint",
-        "lint:frontend": "cd frontend && npm run lint"
+        "lint:frontend": "cd frontend && npm run lint",
+        "rebuild": "npm run build && npm run start"
     },
     "workspaces": [
         "backend",
