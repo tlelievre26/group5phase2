@@ -79,6 +79,14 @@ const NavigationBar = () => {
           <a href="#" className="text-white" style={{ textDecoration: 'none' }} onClick={handleDeletePackageClick}>
             Delete Package
           </a>
+         
+          <button
+            className="text-white bg-red-500 font-bold py-2 px-4 rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
+            onClick={handleResetClick}
+          >
+            Reset
+          </button>
+
 
           {/* Conditionally render the upload, delete, and reset forms based on the state */}
           {showUploadForm && <UploadForm onClose={() => setShowUploadForm(false)} />}
@@ -97,6 +105,13 @@ const NavigationBar = () => {
           <a href="#" className="text-white" style={{ textDecoration: 'none' }} onClick={handleDeletePackageClick}>
             Delete Package
           </a>
+          <button
+            className="text-white bg-red-500 font-bold py-2 px-4 rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
+            onClick={handleResetClick}
+          >
+            Reset
+          </button>
+
           {/* Conditionally render the upload, delete, and reset forms based on the state */}
           {showUploadForm && <UploadForm onClose={() => setShowUploadForm(false)} />}
           {showDeleteForm && <DeleteForm onClose={() => setShowDeleteForm(false)} />}

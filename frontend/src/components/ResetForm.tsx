@@ -54,16 +54,6 @@ const ResetForm: React.FC = () => {
 
   return (
     <div>
-      <button
-        className="bg-red-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline focus-visible:ring hover:bg-red-600"
-        onClick={handleReset}
-        role="button"
-        aria-label="Reset Package Registry"
-        tabIndex={0} // Ensure the button is focusable
-      >
-        Reset Package Registry
-      </button>
-
       {isConfirmationOpen && (
         <div
           className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-md shadow-md z-50"
