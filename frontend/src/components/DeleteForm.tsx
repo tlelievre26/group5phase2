@@ -18,9 +18,14 @@ const DeleteForm: React.FC<DeleteFormProps> = ({ onClose }) => {
     try {
       if (packageId) {
         // Call the API to delete the package
-        await DeletePkg(packageId, authResult1);
+        if(await DeletePkg(packageId, authResult1)) {
+          alert('Successfully deleted!');
+        }
+        else {
+          setErrorMessage('Failed to delete the given package');
+        }
         // Display a success message or perform other actions
-        alert('Successfully deleted!');
+
 
         onClose();
       } else {
