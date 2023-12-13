@@ -23,7 +23,10 @@
         "frontend"
     ],
     "dependencies": {
+        "bcrypt": "^5.1.1",
         "concurrently": "^8.2.2",
-        "cors": "^2.8.5"
+        "cors": "^2.8.5",
+        "whatwg-url": "^14.0.0",
+        "wide-align": "^1.1.5"
     }
 }
