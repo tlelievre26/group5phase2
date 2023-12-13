@@ -1,4 +1,3 @@
-// Import statements for your dependencies and components
 import React, { useState, MouseEvent } from 'react';
 import UpdateForm from './UpdateForm';
 import { pkgByID } from '../API/PkgbyID';
