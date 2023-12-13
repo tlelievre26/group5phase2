@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import { ResetPkg } from '../API/Reset';
 import { useAuth } from './AuthContext';
 
-const ResetForm: React.FC = () => {
+interface ResetFormProps {
+  onClose: () => void;
+}
 
+const ResetForm: React.FC<ResetFormProps> = ({ onClose }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { authResult } = useAuth();
   let authResult1 = authResult;
   if (authResult) {
     authResult1 = authResult.replaceAll("\"", "");
   }
+
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
@@ -44,6 +48,7 @@ const ResetForm: React.FC = () => {
 
     // Close the confirmation pop-up after confirming
     setConfirmationOpen(false);
+    onClose(); // Close the ResetForm
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -54,11 +59,18 @@ const ResetForm: React.FC = () => {
 
   return (
     <div>
+      <button
+        className="text-white bg-red-500 font-bold py-2 px-4 rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
+        onClick={handleReset}
+      >
+        Reset Package Registry
+      </button>
+
       {isConfirmationOpen && (
         <div
           className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-md shadow-md z-50"
           onKeyDown={handleKeyDown}
-          tabIndex={0} // Make the div focusable
+          tabIndex={0}
         >
           <h2 className="text-2xl font-bold mb-4">Reset Confirmation</h2>
           <p>Are you sure you want to reset the package registry?</p>

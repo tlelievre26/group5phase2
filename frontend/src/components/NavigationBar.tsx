@@ -12,12 +12,14 @@ const NavigationBar = () => {
   if (authResult) {
     authResult1 = authResult.replaceAll("\"", "");
   }
+
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
+
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
-  const [showResetForm, setShowResetForm] = useState(false);  // Add state for ResetForm
+  const [showResetForm, setShowResetForm] = useState(false); // Add state for ResetForm
 
   const handleLogin = (result: { success: boolean; data?: any; error?: string }) => {
     // Add your login logic here
@@ -41,6 +43,10 @@ const NavigationBar = () => {
   const handleResetClick = () => {
     // Set the state to true when "Reset" is clicked
     setShowResetForm(true);
+  };
+
+  const closeResetForm = () => {
+    setShowResetForm(false);
   };
 
   return (
@@ -73,25 +79,25 @@ const NavigationBar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden lg:flex items-center space-x-4">
-          <a href="#" className="text-white" style={{ textDecoration: 'none' }} onClick={handleAddPackageClick}>
+          <a
+            href="#"
+            className="text-white"
+            style={{ textDecoration: 'none' }}
+            onClick={handleAddPackageClick}
+          >
             Add package
           </a>
-          <a href="#" className="text-white" style={{ textDecoration: 'none' }} onClick={handleDeletePackageClick}>
+          <a
+            href="#"
+            className="text-white"
+            style={{ textDecoration: 'none' }}
+            onClick={handleDeletePackageClick}
+          >
             Delete Package
           </a>
-         
-          <button
-            className="text-white bg-red-500 font-bold py-2 px-4 rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
-            onClick={handleResetClick}
-          >
-            Reset
-          </button>
 
-
-          {/* Conditionally render the upload, delete, and reset forms based on the state */}
-          {showUploadForm && <UploadForm onClose={() => setShowUploadForm(false)} />}
-          {showDeleteForm && <DeleteForm onClose={() => setShowDeleteForm(false)} />}
-          {showResetForm && <ResetForm />}
+          {/* Render the ResetForm directly instead of using the showResetForm state */}
+          <ResetForm onClose={closeResetForm} />
 
         </div>
       </div>
@@ -99,24 +105,24 @@ const NavigationBar = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="lg:hidden">
-          <a href="#" className="text-white" style={{ textDecoration: 'none' }} onClick={handleAddPackageClick}>
+          <a
+            href="#"
+            className="text-white"
+            style={{ textDecoration: 'none' }}
+            onClick={handleAddPackageClick}
+          >
             Add package
           </a>
-          <a href="#" className="text-white" style={{ textDecoration: 'none' }} onClick={handleDeletePackageClick}>
+          <a
+            href="#"
+            className="text-white"
+            style={{ textDecoration: 'none' }}
+            onClick={handleDeletePackageClick}
+          >
             Delete Package
           </a>
-          <button
-            className="text-white bg-red-500 font-bold py-2 px-4 rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
-            onClick={handleResetClick}
-          >
-            Reset
-          </button>
-
-          {/* Conditionally render the upload, delete, and reset forms based on the state */}
-          {showUploadForm && <UploadForm onClose={() => setShowUploadForm(false)} />}
-          {showDeleteForm && <DeleteForm onClose={() => setShowDeleteForm(false)} />}
-          {showResetForm && <ResetForm />}
-
+          {/* Render the ResetForm directly instead of using the showResetForm state */}
+          <ResetForm onClose={closeResetForm} />
         </div>
       )}
     </nav>
