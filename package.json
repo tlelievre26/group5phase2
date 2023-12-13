@@ -13,7 +13,7 @@
         "test": "concurrently \"npm run test:backend\" \"npm run test:frontend\"",
         "test:backend": "cd backend && npm test",
         "test:frontend": "cd frontend && npm test",
-        "lint": "npm run lint:backend",
+        "lint": "cd backend && npm run lint",
         "lint:backend": "cd backend && npm run lint",
         "lint:frontend": "cd frontend && npm run lint",
         "compile": "npm run build && npm run start"
@@ -24,6 +24,11 @@
     ],
     "dependencies": {
         "concurrently": "^8.2.2",
-        "cors": "^2.8.5"
+        "cors": "^2.8.5",
+        "jest": "^29.7.0"
+    },
+    "devDependencies": {
+        "eslint": "^8.55.0",
+        "eslint-plugin-react": "^7.33.2"
     }
 }
