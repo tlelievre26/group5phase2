@@ -45,6 +45,14 @@ const NavigationBar = () => {
     setShowResetForm(true);
   };
 
+  const closeUploadForm = () => {
+    setShowUploadForm(false);
+  };
+
+  const closeDeleteForm = () => {
+    setShowDeleteForm(false);
+  };
+
   const closeResetForm = () => {
     setShowResetForm(false);
   };
@@ -95,10 +103,13 @@ const NavigationBar = () => {
           >
             Delete Package
           </a>
-
-          {/* Render the ResetForm directly instead of using the showResetForm state */}
+          
           <ResetForm onClose={closeResetForm} />
 
+          {/* Conditionally render the upload, delete, and reset forms based on the state */}
+          {showUploadForm && <UploadForm onClose={closeUploadForm} />}
+          {showDeleteForm && <DeleteForm onClose={closeDeleteForm} />}
+          
         </div>
       </div>
 
@@ -121,8 +132,11 @@ const NavigationBar = () => {
           >
             Delete Package
           </a>
-          {/* Render the ResetForm directly instead of using the showResetForm state */}
           <ResetForm onClose={closeResetForm} />
+
+          {/* Conditionally render the upload, delete, and reset forms based on the state */}
+          {showUploadForm && <UploadForm onClose={closeUploadForm} />}
+          {showDeleteForm && <DeleteForm onClose={closeDeleteForm} />}
         </div>
       )}
     </nav>
