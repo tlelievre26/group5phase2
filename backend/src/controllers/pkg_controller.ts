@@ -46,7 +46,15 @@ export class PackageUploader {
 
         const id = req.params.id;
         const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
-    
+
+        //Validate package body NEED TO FIX
+        if(!(types.Package.is(req_body))) {
+            logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
+
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
+
+            
         if((req_body.data.hasOwnProperty("Content"))) {
             const temp = req_body.data.Content
             if(req_body.data.Content != null && req_body.data.Content != undefined) {
@@ -69,13 +77,6 @@ export class PackageUploader {
         }
         else {
             logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
-        }
-
-        //Validate package body NEED TO FIX
-        if(!(types.Package.is(req_body))) {
-            logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
-
-            return res.status(400).send("Invalid or malformed Package in request body");
         }
 
         if(req_body.data.hasOwnProperty("URL") && req_body.data.hasOwnProperty("Content") && req_body.data.Content != null && req_body.data.URL != null) { //If both are defined and not null
