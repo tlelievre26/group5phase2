@@ -16,7 +16,8 @@
         "lint": "cd backend && npm run lint",
         "lint:backend": "cd backend && npm run lint",
         "lint:frontend": "cd frontend && npm run lint",
-        "compile": "npm run build && npm run start"
+        "rebuild": "npm run build && npm run start"
+
     },
     "workspaces": [
         "backend",
