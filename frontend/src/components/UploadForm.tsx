@@ -34,6 +34,9 @@ const UploadForm: React.FC<UploadFormProps> = ({ onClose }) => {
                     console.log('API Response:', response);
                     alert('Successfully uploaded!');
                 }
+                else {
+                  alert('Failed to upload the given package');
+                }
         onClose();
       } else {
         setErrorMessage('Please select an upload option and provide the required input.');
