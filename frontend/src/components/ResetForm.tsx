@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import { ResetPkg } from '../API/Reset';
 import { useAuth } from './AuthContext';
 
-interface ResetFormProps {
-    onClose: () => void;
-  }
+const ResetForm: React.FC = () => {
 
-const ResetForm: React.FC<ResetFormProps> = ({ onClose })=> {
-  const [isConfirmationOpen, setConfirmationOpen] = useState(false);
-  const [packageId, setPackageId] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
   const { authResult } = useAuth();
   let authResult1 = authResult;
   if (authResult) {
-      authResult1 = authResult.replaceAll("\"", "");
+    authResult1 = authResult.replaceAll("\"", "");
   }
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const [isConfirmationOpen, setConfirmationOpen] = useState(false);
 
   const handleReset = () => {
     // Open the confirmation pop-up when the button is clicked
@@ -24,7 +24,6 @@ const ResetForm: React.FC<ResetFormProps> = ({ onClose })=> {
   const handleCloseConfirmation = () => {
     // Close the confirmation pop-up
     setConfirmationOpen(false);
-    onClose();
   };
 
   const handleConfirmReset = async () => {
@@ -50,7 +49,6 @@ const ResetForm: React.FC<ResetFormProps> = ({ onClose })=> {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') {
       handleCloseConfirmation();
-      onClose();
     }
   };
 

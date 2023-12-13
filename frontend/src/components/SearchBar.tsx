@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import "SearchBar.css";
 
 interface SearchBarProps {
   onSearch: (searchTerm: string) => void;
