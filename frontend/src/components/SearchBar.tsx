@@ -58,17 +58,15 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
       />
       <button
         type="button"
-        aria-label="Search"
-        aria-haspopup="true"
         role="search"
-        className="bg-blue-500 text-white px-3 py-3 rounded-md hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue focus:ring focus:ring-blue-300 flex items-center relative"
+        className="bg-blue-700 text-white px-3 py-3 rounded-md hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue focus:ring focus:ring-blue-300 flex items-center relative"
         onClick={handleSearchButtonClick}
         onKeyDown={handleSearchButtonKeydown}
         onFocus={handleSearchButtonFocus}
         onBlur={handleSearchButtonBlur}
         onMouseEnter={handleSearchButtonMouseEnter}
         onMouseLeave={handleSearchButtonMouseLeave}
-        tabIndex={0} // Ensure the button is focusable
+        tabIndex={0} //button is focusable
       >
         <FaSearch className="flex item-center" />
         {isLabelVisible && (

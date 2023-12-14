@@ -73,7 +73,7 @@ const DeleteForm: React.FC<DeleteFormProps> = ({ onClose }) => {
       <div className="flex justify-end">
         <button
           onClick={handleSubmit}
-          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
+          className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
         >
           Delete
         </button>

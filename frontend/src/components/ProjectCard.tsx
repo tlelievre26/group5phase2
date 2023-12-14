@@ -95,7 +95,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ Name, Version, ID, Scores }) 
                     onClick={handleUpdateClick}
                     onKeyDown={handleKeyDown}
                     tabIndex={0}
-                    className="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue"
+                    className="bg-blue-700 text-white px-2 py-1 rounded-md hover:bg-blue-800 focus:outline-none focus:ring focus:ring-blue"
                   >
                     Update
                   </button>

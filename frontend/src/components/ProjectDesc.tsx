@@ -30,7 +30,7 @@ const ProjectDescriptionPage = () => {
                 href={`https://github.com/your-username/your-project/releases/tag/${version}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mx-2 text-blue-600 hover:underline focus:outline-none focus:ring focus:border-blue-500"
+                className="mx-2 text-blue-700 hover:underline focus:outline-none focus:ring focus:border-blue-500"
               >
                 {version}
               </a>
@@ -42,12 +42,12 @@ const ProjectDescriptionPage = () => {
       {/* Project Information Section */}
       <div className="flex-1 p-6 flex flex-col">
         {/* GitHub Link */}
-        <div className="mb-2 py-3 text-center hover:underline text-blue-600">
+        <div className="mb-2 py-3 text-center hover:underline text-blue-700">
           <a
             href="https://github.com/your-username/your-project"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 focus:outline-none focus:ring focus:border-blue-500"
+            className="text-blue-700 focus:outline-none focus:ring focus:border-blue-500"
           >
             GitHub Repository
           </a>

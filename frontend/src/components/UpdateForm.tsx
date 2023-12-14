@@ -60,7 +60,6 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) =
   return (
     <div
       className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-md shadow-md z-50"
-      role="dialog"
       aria-labelledby="updateFormHeading"
       aria-describedby="updateFormDescription"
     >
@@ -141,7 +140,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) =
         <div className="flex justify-end">
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
+            className="bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-offset-2"
             onFocus={() => setIsUpdateButtonFocused(true)}
             onBlur={() => setIsUpdateButtonFocused(false)}
           >
@@ -149,7 +148,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) =
           </button>
           <button
             onClick={onClose}
-            className="ml-4 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring focus:ring-gray-300"
+            className="ml-4 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring focus:ring-gray-300 focus:ring-offset-2"
             >
             Close
           </button>
