@@ -141,7 +141,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) =
         <div className="flex justify-end">
           <button
             type="submit"
-            className={`bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue ${isUpdateButtonFocused ? 'focus-visible' : ''}`}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
             onFocus={() => setIsUpdateButtonFocused(true)}
             onBlur={() => setIsUpdateButtonFocused(false)}
           >
@@ -149,8 +149,8 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) =
           </button>
           <button
             onClick={onClose}
-            className="ml-4 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:shadow-outline-gray"
-          >
+            className="ml-4 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring focus:ring-gray-300"
+            >
             Close
           </button>
         </div>
