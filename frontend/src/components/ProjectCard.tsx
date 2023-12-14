@@ -84,11 +84,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ Name, Version, ID, Scores }) 
 
     return (
         <div className="flex justify-end items-start px-5 py-4 relative">
-            {/* Update and Download buttons */}
-
-
             <div className="w-full bg-white p-6 rounded-lg shadow-md transition-transform hover:shadow-lg transform hover:scale-95 hover:bg-gray-200">
-                {/* Project Name */}
                 <div className="absolute top-0 right-0 flex space-x-2 mt-2 mr-2">
                 <button
                     id="updateButton"
@@ -104,23 +100,19 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ Name, Version, ID, Scores }) 
                     onClick={handleDownloadClick}
                     onKeyDown={handleKeyDown}
                     tabIndex={0}
-                    className="bg-green-500 text-white px-2 py-1 rounded-md hover:bg-green-600 focus:outline-none focus:ring focus:ring-green"
+                    className="bg-green-700 text-white px-2 py-1 rounded-md hover:bg-green-600 focus:outline-none focus:ring focus:ring-green"
                   >
                     Download
                   </button>
                 </div>
                 <h2 className="text-xl font-bold mb-2">Name: {Name}</h2>
                 <h2 className="text-xl font-bold mb-2">Version: {Version}</h2>
-
-                {/* Ratings */}
                 <div className="flex items-center space-x-2">
                     <span className="text-lg font-bold">Ratings:</span>
 
                     <div className="flex items-center">
-                        {/* Display the scores */}
                         {Scores.map((score, index) => (
                             <div key={index} className="flex flex-row items-center space-y-1">
-                                {/* Display individual score properties */}
                                 <div className="text-sm p-2">{`Bus Factor: ${score.BusFactor}`}</div>
                                 <div className="text-sm p-2">{`Correctness: ${score.Correctness}`}</div>
                                 <div className="text-sm p-2">{`Ramp Up: ${score.RampUp}`}</div>
