@@ -43,6 +43,10 @@ export async function checkForExistingToken(user_id: number): Promise<string> {
         sql: `SELECT TOKEN FROM user_token_uses WHERE USER_ID = ? AND EXP_TIME > ? AND TOKEN_USES <= 1000;`, 
         values: [user_id, Date.now() / 1000]
     }
+    const clear_old_tokens_query: DbQuery = {
+        sql: `DELETE FROM user_token_uses WHERE EXP_TIME < ? OR TOKEN_USES > 1000`,
+        values: [Date.now() / 1000]
+    }
     try {
         const id_exists = await queryDatabase("users", check_token_exists_query)
 
@@ -64,7 +68,7 @@ export async function writeTokenToDB(user_id: number, auth_token: string, exp_ti
 
     //Whenever we create a new token, clear all old tokens in our database that are past their expiration time because idk where else would be a good place to do it
     const clear_old_tokens_query: DbQuery = {
-        sql: `DELETE FROM user_token_uses WHERE EXP_TIME < ?`,
+        sql: `DELETE FROM user_token_uses WHERE EXP_TIME < ? OR TOKEN_USES > 1000`,
         values: [Date.now() / 1000]
     }
     const new_token_query: DbQuery = {
@@ -84,6 +88,7 @@ export async function writeTokenToDB(user_id: number, auth_token: string, exp_ti
 }
 
 export async function checkTokenUseCount(user_id: string) {
+
     const token_uses_query: DbQuery = {
         sql: `SELECT TOKEN_USES FROM user_token_uses WHERE user_id = ?`,
         values: [parseInt(user_id)] //Need to do this bc the user_id automatically decodes as a string not an int
@@ -98,6 +103,22 @@ export async function checkTokenUseCount(user_id: string) {
     }
     catch (err) {
         logger.error("Error querying database for token use count: ", err)
+        throw err
+    }
+}
+
+export async function resetAdminTokenUseCount() {
+//Hacky implementation, idc
+    const reset_token_uses_query: DbQuery = {
+        sql: `UPDATE user_token_uses SET TOKEN_USES = 0`,
+        values: []
+    }
+    try {
+        await queryDatabase("users", reset_token_uses_query)
+        logger.debug(`Reset token use count for admin token`);
+    }
+    catch (err) {
+        logger.error('Error resetting token use count in DB:', err);
         throw err
     }
 }

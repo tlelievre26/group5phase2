@@ -4,7 +4,7 @@ import * as schemas from "../models/api_schemas"
 import * as types from "../models/api_types"
 import { wipeS3packages } from '../services/aws/s3delete';
 import { wipeDBpackages, wipeUsers } from '../services/database/delete_queries';
-import { checkForExistingToken, createNewUserProfile, findUserInDB, deleteUserFromDB } from '../services/database/auth_queries';
+import { checkForExistingToken, createNewUserProfile, findUserInDB, deleteUserFromDB, resetAdminTokenUseCount } from '../services/database/auth_queries';
 import { verifyPassword } from '../services/user_auth/password_hashing';
 import logger from "../utils/logger"
 import { generateAuthToken, verifyAuthToken } from '../services/user_auth/generate_auth_token';
@@ -38,7 +38,7 @@ export class UtilsController{
         await wipeDBpackages();
         await wipeS3packages();
         await wipeUsers();
-
+        await resetAdminTokenUseCount();
         //Recreate default admin user
         //We don't exclude it from the initial deletion because we want to clear its tokens and its just easier to write like this
 
