@@ -100,6 +100,14 @@ export class PackageUploader {
             }
         }
         
+        const debloated = await checkMetadataExists({ ID: req.params.id, Name: req_body.metadata.Name, Version: req_body.metadata.Version })
+        //Kill 2 birds with 1 stone here, if the is matching metadata we get the debloating setting that we need, and if there's no match it just returns null and we exit
+
+        if(debloated == null) {
+            logger.error("Could not find existing package with matching metadata")
+            return res.status(404).send("Could not find existing package with matching metadata");
+        }
+
         logger.debug("URL ID: " + req.params.id)
 
         if(id != req_body.metadata.ID) {
@@ -107,13 +115,6 @@ export class PackageUploader {
             return res.status(400).send("Inconsistant package ID between request metadata and URL");
         }
 
-        const debloated = await checkMetadataExists(req_body.metadata)
-        //Kill 2 birds with 1 stone here, if the is matching metadata we get the debloating setting that we need, and if there's no match it just returns null and we exit
-
-        if(debloated == null) {
-            logger.error("Could not find existing package with matching metadata")
-            return res.status(404).send("Could not find existing package with matching metadata");
-        }
         else {
             let extractedContents;
             let base64contents;
