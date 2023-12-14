@@ -60,7 +60,7 @@ const NavigationBar = () => {
   return (
     <nav className="bg-gray-800 p-4 w-full">
       <div className="container mx-auto flex justify-between items-center w-full">
-        <div className="text-white font-bold text-xl">ECE 461 REST APIs</div>
+        <div className="text-white font-bold text-xl">ECE 461 Group 5 Package Registry</div>
 
         {/* Mobile Menu Button */}
         <div className="block lg:hidden">

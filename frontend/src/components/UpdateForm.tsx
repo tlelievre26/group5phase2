@@ -84,7 +84,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ onClose, Name, ID, Version }) =
                 checked={updateOption === 'URL'}
                 onChange={() => setUpdateOption('URL')}
               />
-              Update with URL
+              Update with URL 
             </label>
 
             <label>
