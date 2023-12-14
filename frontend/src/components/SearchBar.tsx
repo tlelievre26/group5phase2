@@ -57,7 +57,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
       />
       <button
         type="button"
-        role="search"
+        aria-label="Search"
+        aria-haspopup="true"
         className="bg-blue-700 text-white px-3 py-3 rounded-md hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue focus:ring focus:ring-blue-300 flex items-center relative"
         onClick={handleSearchButtonClick}
         onKeyDown={handleSearchButtonKeydown}
