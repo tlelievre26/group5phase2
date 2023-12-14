@@ -78,7 +78,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ Name, Version, ID, Scores }) 
             role="button"
             aria-label="Update Package"
             onClick={handleButtonClick}
-            className="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 focus:outline-none focus:shadow-outline-blue"
+            className="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue"
           >
             Update
           </button>
@@ -87,7 +87,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ Name, Version, ID, Scores }) 
             role="button"
             aria-label="Download Package"
             onClick={handleButtonClick}
-            className="bg-green-500 text-white px-2 py-1 rounded-md hover:bg-green-600 focus:outline-none focus:shadow-outline-green"
+            className="bg-green-500 text-white px-2 py-1 rounded-md hover:bg-green-600 focus:outline-none focus:ring focus:ring-green"
           >
             Download
           </button>
