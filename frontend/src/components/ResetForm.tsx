@@ -60,7 +60,7 @@ const ResetForm: React.FC<ResetFormProps> = ({ onClose }) => {
   return (
     <div>
       <button
-        className="text-white bg-red-500 font-bold py-2 px-4 rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
+        className="text-white bg-red-600 font-bold py-2 px-4 rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
         onClick={handleReset}
       >
         Reset Package Registry
@@ -78,7 +78,7 @@ const ResetForm: React.FC<ResetFormProps> = ({ onClose }) => {
           <div className="flex justify-end mt-4">
             <button
               onClick={handleConfirmReset}
-              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
             >
               Confirm
             </button>

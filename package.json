@@ -25,6 +25,7 @@
     "dependencies": {
         "concurrently": "^8.2.2",
         "cors": "^2.8.5",
+        "esbuild": "^0.19.9",
         "jest": "^29.7.0",
         "re2": "^1.20.9"
     },

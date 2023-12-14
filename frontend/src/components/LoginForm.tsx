@@ -66,13 +66,13 @@ const LoginForm: React.FC = () => {
                         required
                     />
                      {login_error && (
-                                <div role="alert" className="text-red-600 mb-4">
+                                <div role="alert" className="text-red-700 mb-4">
                                     {login_error}
                                 </div>
                             )}
                         <button
                             type="submit"
-                            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 mt-4"
+                            className="bg-blue-700 text-white py-2 px-4 rounded hover:bg-blue-900 mt-4"
                             disabled={isSubmitting}
                         >
                         {isSubmitting ? 'Logging in...' : 'Login'}
