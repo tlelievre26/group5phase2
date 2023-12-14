@@ -8,6 +8,7 @@ import { fetchallLimitChecker, verifyAuthToken } from '../services/user_auth/gen
 import { JsonWebTokenError } from 'jsonwebtoken';
 import searchReadmeFilesInS3 from '../services/aws/s3search';
 import s3download from '../services/aws/s3download';
+import re2 from 're2';
 
 //import { inject, injectable } from "tsyringe";
 
@@ -261,7 +262,6 @@ export class PkgDataManager {
         logger.info("*************Recieved request to endpoint POST /package/byRegEx*************")
         //Search for a package using regular expression over package names and READMEs. This is similar to search by name.
 
-    
         const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
         const regex: schemas.PackageRegEx = req.body;
 
@@ -273,12 +273,13 @@ export class PkgDataManager {
 
         let regexObj
         try {
-            regexObj = new RegExp(regex.RegEx?.toString() || ''); // Convert string to RegExp object to test if its a valid format
+            regexObj = new re2(regex.RegEx?.toString() || ''); // Convert string to RegExp object to test if its a valid format
         }
         catch (err) {
             logger.error("Invalid regex string in request body to endpoint POST /packages")
             return res.status(400).send("Invalid regex string in request body");
         }
+
         //Verify user permissions
         try {
             await verifyAuthToken(auth_token, ["search"]) //Can ensure auth exists bc we check for it in middleware
@@ -303,7 +304,7 @@ export class PkgDataManager {
             //Source: https://learn.snyk.io/lesson/redos/
             if(redos_format.test(regex.RegEx)) {
                 logger.error("Potential ReDoS attack detected, denying request")
-                return res.status(400).send("Potential ReDoS attack detected, denying request"); //Shouldn't send this to an actual attack but whatever
+                return res.status(404).send("Potential ReDoS attack detected, denying request"); //Shouldn't send this to an actual attack but whatever
             }
             
 
@@ -317,7 +318,7 @@ export class PkgDataManager {
                 found_IDs.push(result.ID);
             }
 
-            // console.log(regexObj)
+
             const AWSresults = await searchReadmeFilesInS3(regexObj);
             for (const result of AWSresults) {
                 if (result.ID && !found_IDs.includes(result.ID)) { //If the package hasn't already been found in the DB

@@ -40,8 +40,13 @@ export async function generateAuthToken(user_id: number, isAdmin: boolean, perms
 
 export async function verifyAuthToken(auth_token: string, permissions: string[]) {
 
-    auth_token = auth_token.split(" ")[1] //Remove the "Bearer " part of the auth token
-    if (auth_token != undefined && auth_token.includes('\\""')) {
+    const auth_token_regex = /^("\\")?(b|B)earer (.*)(\\"")?$/
+    if (auth_token == undefined || !auth_token_regex.test(auth_token)) {
+        logger.error("Invalid format on auth token")
+        throw new JsonWebTokenError("Invalid format on auth token")
+    }
+    else {
+        auth_token = auth_token.split(" ")[1] //Remove the "Bearer " part of the auth token
         auth_token = auth_token.replace('\\""', "")
     }
     logger.debug("Extracted auth token " + auth_token)
@@ -52,7 +57,7 @@ export async function verifyAuthToken(auth_token: string, permissions: string[])
     }
     catch (err) {
         logger.error("Invalid auth token")
-        throw new Error("Invalid auth token")
+        throw new JsonWebTokenError("Invalid auth token")
     }
 
     //Makes the most sense to check in the order of:

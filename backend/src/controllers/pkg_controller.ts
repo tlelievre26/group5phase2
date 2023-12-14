@@ -46,7 +46,15 @@ export class PackageUploader {
 
         const id = req.params.id;
         const auth_token: string = req.headers.authorization! || req.headers['x-authorization']! as string;
-    
+
+        //Validate package body NEED TO FIX
+        if(!(types.Package.is(req_body))) {
+            logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
+
+            return res.status(400).send("Invalid or malformed Package in request body");
+        }
+
+            
         if((req_body.data.hasOwnProperty("Content"))) {
             const temp = req_body.data.Content
             if(req_body.data.Content != null && req_body.data.Content != undefined) {
@@ -71,13 +79,6 @@ export class PackageUploader {
             logger.debug("Request body:\n" + JSON.stringify(req_body, null, 4))
         }
 
-        //Validate package body NEED TO FIX
-        if(!(types.Package.is(req_body))) {
-            logger.error("Invalid or malformed Package in request body to endpoint PUT /package/{id}")
-
-            return res.status(400).send("Invalid or malformed Package in request body");
-        }
-
         if(req_body.data.hasOwnProperty("URL") && req_body.data.hasOwnProperty("Content") && req_body.data.Content != null && req_body.data.URL != null) { //If both are defined and not null
             logger.debug("Invalid or malformed PackageData in request body, both URL and contents defined")
             return res.status(400).send("Invalid or malformed PackageData in request body (both URL and contents defined)");
@@ -99,6 +100,14 @@ export class PackageUploader {
             }
         }
         
+        const debloated = await checkMetadataExists({ ID: req.params.id, Name: req_body.metadata.Name, Version: req_body.metadata.Version })
+        //Kill 2 birds with 1 stone here, if the is matching metadata we get the debloating setting that we need, and if there's no match it just returns null and we exit
+
+        if(debloated == null) {
+            logger.error("Could not find existing package with matching metadata")
+            return res.status(404).send("Could not find existing package with matching metadata");
+        }
+
         logger.debug("URL ID: " + req.params.id)
 
         if(id != req_body.metadata.ID) {
@@ -106,13 +115,6 @@ export class PackageUploader {
             return res.status(400).send("Inconsistant package ID between request metadata and URL");
         }
 
-        const debloated = await checkMetadataExists(req_body.metadata)
-        //Kill 2 birds with 1 stone here, if the is matching metadata we get the debloating setting that we need, and if there's no match it just returns null and we exit
-
-        if(debloated == null) {
-            logger.error("Could not find existing package with matching metadata")
-            return res.status(404).send("Could not find existing package with matching metadata");
-        }
         else {
             let extractedContents;
             let base64contents;

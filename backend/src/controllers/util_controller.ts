@@ -23,11 +23,11 @@ export class UtilsController{
         }
         catch (err: any) {
             if(err instanceof JsonWebTokenError) { //If the token lacks permissions or is expired
-                logger.error(`Error validating auth token ${auth_token}`)
+                logger.error(`Error validating auth token ${auth_token}, status code 401`)
                 return res.status(401).send("Error validating auth token: " + err.message);
             }
             else {
-                logger.error(`Error: Invalid/malformed auth token`)
+                logger.error(`Error: Invalid/malformed auth token, status code 400`)
                 return res.status(400).send("Error validating auth token: " + err.message);
             }
 
@@ -60,7 +60,7 @@ export class UtilsController{
 
         //Check request body has proper shape
         if(!(types.AuthenticationRequest.is(req_body))) {
-            logger.error("Invalid or malformed AuthenticationRequest in request body to endpoint PUT /authenticate")
+            logger.error("Invalid or malformed AuthenticationRequest in request body to endpoint PUT /authenticate, status code 400")
             return res.status(400).send("Invalid or malformed Package in request body");
         }
         
