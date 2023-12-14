@@ -1,0 +1,3 @@
+input[type="text"]::placeholder {
+    color: #444; /* Dark gray font color for the placeholder */
+  }
